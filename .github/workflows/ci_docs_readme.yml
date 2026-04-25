@@ -1,0 +1,91 @@
+name: CI - Docs & Readme
+
+on:
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  build-and-deploy:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # 1. Generate DocC
+      - name: Build DocC
+        working-directory: community_swift/community_swift
+        run: |
+          # Create the base docs directory
+          mkdir -p ./docs
+
+          # Run the build with EXPLICIT output paths
+          xcodebuild docbuild \
+            -project community_swift.xcodeproj \
+            -scheme community_swift \
+            -destination 'platform=iOS Simulator,name=iPhone 16' \
+            -derivedDataPath /tmp/docbuild \
+            OBJROOT=/tmp/docbuild/Build/Intermediates.noindex \
+            SYMROOT=/tmp/docbuild/Build/Products \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            AD_HOC_CODE_SIGNING_ALLOWED=YES
+
+      - name: Transform and Clean Documentation
+        working-directory: community_swift/community_swift
+        run: |
+          # This path now matches exactly where we told xcodebuild to go
+          ARCHIVE_PATH="/tmp/docbuild/Build/Products/Debug-iphonesimulator"
+
+          mkdir -p ./docs
+
+          # The rest of your script remains the same
+          if ls $ARCHIVE_PATH/*.doccarchive 1> /dev/null 2>&1; then
+            for archive in $ARCHIVE_PATH/*.doccarchive; do
+              if [ -d "$archive" ]; then
+                target_name=$(basename "$archive" .doccarchive)
+                echo "Found archive: $target_name. Transforming..."
+
+                xcrun docc process-archive transform-for-static-hosting "$archive" \
+                  --output-path "./docs/$target_name" \
+                  --hosting-base-path "${{ github.event.repository.name }}/$target_name"
+              fi
+            done
+          else
+            echo "Error: No .doccarchive files found in $ARCHIVE_PATH"
+            # Debugging: let's see what actually IS in that folder if it fails
+            ls -R /tmp/docbuild
+            exit 1
+          fi
+
+          echo "<html><head><meta http-equiv='refresh' content='0; url=community_swift/documentation/community_swift/' /></head><body></body></html>" > ./docs/index.html
+      # 2. Update README Structure
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Run Structure Script
+        run: python3 generate_structure.py
+
+      # 3. Commit and Push changes
+      - name: Commit changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add README.md community_swift/docs/
+          git commit -m "chore: auto-update readme structure" || echo "No changes to commit"
+          git push
+
+      # 4. Deploy to GitHub Pages
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './community_swift/community_swift/docs'
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
