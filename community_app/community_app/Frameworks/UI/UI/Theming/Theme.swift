@@ -49,7 +49,7 @@ public struct DefaultTheme: Theme {
     
     // Brand Colors
     public var primary: Color { Color("Lime", bundle: Bundle(for: UIBundleLocator.self)) }
-    public var secondary: Color { Color("DarkGray", bundle: Bundle(for: UIBundleLocator.self)) }
+    public var secondary: Color { Color("BrandDarkGray", bundle: Bundle(for: UIBundleLocator.self)) }
     public var tertiary: Color { Color("Light Blue", bundle: Bundle(for: UIBundleLocator.self)) }
     public var neutral: Color { Color(.white) }
     
@@ -63,7 +63,7 @@ public struct DefaultTheme: Theme {
     
     // Text Colors
     /// The primary text color, loaded from "Black" in the bundle.
-    public var primaryText: Color { Color("Black", bundle: Bundle(for: UIBundleLocator.self)) }
+    public var primaryText: Color { Color("BrandBlack", bundle: Bundle(for: UIBundleLocator.self)) }
     /// The secondary text color, derived from the `neutral` color with 80% opacity.
     public var secondaryText: Color { neutral.opacity(0.8) }
 }
