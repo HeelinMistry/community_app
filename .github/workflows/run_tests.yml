@@ -28,7 +28,7 @@ jobs:
         run: sudo gem install xcov
 
       - name: 🏃 Run Unit Tests
-        working-directory: community_swift
+        working-directory: community_swift/community_swift
         run: |
           set -o pipefail
           xcodebuild test \
