@@ -22,15 +22,15 @@ jobs:
         uses: actions/checkout@v4
 
       - name: 🛠️ Show Xcode Version
-        working-directory: community_swift/community_swift
+        working-directory: community_swift
         run: xcodebuild -version
 
       - name: 💎 Install Ruby Gems (xcov)
-        working-directory: community_swift/community_swift
+        working-directory: community_swift
         run: sudo gem install xcov
 
       - name: 🏃 Run Unit Tests
-        working-directory: community_swift/community_swift
+        working-directory: community_swift
         run: |
           set -o pipefail
           xcodebuild test \
@@ -42,7 +42,7 @@ jobs:
 
       - name: 📝 Generate Coverage Report
         id: coverage
-        working-directory: community_swift/community_swift
+        working-directory: community_swift
         run: |
           xcov \
             -p community_swift.xcodeproj \
@@ -58,7 +58,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: CodeCoverageReport
-          path: community_swift/community_swift/xcov_output
+          path: community_swift/xcov_output
           retention-days: 7
 
       - name: 💬 Post Coverage Comment
