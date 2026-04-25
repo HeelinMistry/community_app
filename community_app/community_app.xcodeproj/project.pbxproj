@@ -57,11 +57,13 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		F37D60022F9D329C00E80151 /* UI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = UI.xcodeproj; sourceTree = "<group>"; };
 		F3A0CD3B2F90EA2600B052F7 /* community_app.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = community_app.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F3A0CD482F90EA2700B052F7 /* community_appTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = community_appTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F3A0CD522F90EA2700B052F7 /* community_appUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = community_appUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F3ECC7922F9CBA4C0015F1BB /* UI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = UI.xcodeproj; sourceTree = "<group>"; };
 		F3ECC79F2F9CBA4C0015F1BB /* UI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = UI.xcodeproj; path = community_app/Frameworks/UI/UI.xcodeproj; sourceTree = "<group>"; };
+		F3ECC8032F9D1B530015F1BB /* community_app.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = community_app.xctestplan; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -103,9 +105,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		F37D60082F9D329C00E80151 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		F3A0CD322F90EA2600B052F7 = {
 			isa = PBXGroup;
 			children = (
+				F3ECC8032F9D1B530015F1BB /* community_app.xctestplan */,
 				F3ECC79F2F9CBA4C0015F1BB /* UI.xcodeproj */,
 				F3A0CD3D2F90EA2600B052F7 /* community_app */,
 				F3A0CD4B2F90EA2700B052F7 /* community_appTests */,
@@ -259,6 +269,10 @@
 				{
 					ProductGroup = F3ECC7942F9CBA4C0015F1BB /* Products */;
 					ProjectRef = F3ECC7922F9CBA4C0015F1BB /* UI.xcodeproj */;
+				},
+				{
+					ProductGroup = F37D60082F9D329C00E80151 /* Products */;
+					ProjectRef = F37D60022F9D329C00E80151 /* UI.xcodeproj */;
 				},
 			);
 			projectRoot = "";
@@ -587,6 +601,7 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "";
 				TEST_TARGET_NAME = community_app;
 			};
 			name = Debug;
@@ -606,6 +621,7 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "";
 				TEST_TARGET_NAME = community_app;
 			};
 			name = Release;

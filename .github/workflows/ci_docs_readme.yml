@@ -17,15 +17,15 @@ jobs:
 
       # 1. Generate DocC
       - name: Build DocC
-        working-directory: community_swift/community_swift
+        working-directory: community_app/community_app
         run: |
           # Create the base docs directory
           mkdir -p ./docs
 
           # Run the build with EXPLICIT output paths
           xcodebuild docbuild \
-            -project community_swift.xcodeproj \
-            -scheme community_swift \
+            -project community_app.xcodeproj \
+            -scheme community_app \
             -destination 'platform=iOS Simulator,name=iPhone 16' \
             -derivedDataPath /tmp/docbuild \
             OBJROOT=/tmp/docbuild/Build/Intermediates.noindex \
@@ -36,7 +36,7 @@ jobs:
             AD_HOC_CODE_SIGNING_ALLOWED=YES
 
       - name: Transform and Clean Documentation
-        working-directory: community_swift/community_swift
+        working-directory: community_app/community_app
         run: |
           # This path now matches exactly where we told xcodebuild to go
           ARCHIVE_PATH="/tmp/docbuild/Build/Products/Debug-iphonesimulator"
@@ -62,7 +62,7 @@ jobs:
             exit 1
           fi
 
-          echo "<html><head><meta http-equiv='refresh' content='0; url=community_swift/documentation/community_swift/' /></head><body></body></html>" > ./docs/index.html
+          echo "<html><head><meta http-equiv='refresh' content='0; url=community_app/documentation/community_app/' /></head><body></body></html>" > ./docs/index.html
       # 2. Update README Structure
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -77,7 +77,7 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add README.md community_swift/docs/
+          git add README.md community_app/docs/
           git commit -m "chore: auto-update readme structure" || echo "No changes to commit"
           git push
 
@@ -85,7 +85,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './community_swift/community_swift/docs'
+          path: './community_app/community_app/docs'
 
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v4
