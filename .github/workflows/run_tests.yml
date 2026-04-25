@@ -28,11 +28,11 @@ jobs:
         run: sudo gem install xcov
 
       - name: 🏃 Run Unit Tests
-        working-directory: community_swift/community_swift
+        working-directory: community_app/community_app
         run: |
           set -o pipefail
           xcodebuild test \
-            -scheme community_swift \
+            -scheme community_app \
             -destination 'platform=iOS Simulator,name=iPhone 16' \
             -enableCodeCoverage YES \
             -derivedDataPath ./DerivedData \
@@ -40,14 +40,14 @@ jobs:
 
       - name: 📝 Generate Coverage Report
         id: coverage
-        working-directory: community_swift
+        working-directory: community_app/community_app
         run: |
           xcov \
-            -p community_swift.xcodeproj \
+            -p community_app.xcodeproj \
             --derived_data_path ./DerivedData \
-            --scheme community_swift \
+            --scheme community_app \
             --output_directory ./xcov_output \
-            --exclude_targets "community_swift.app" \
+            --exclude_targets "community_app.app" \
             --minimum_coverage 80 \
             --markdown_report
 
@@ -56,11 +56,11 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: CodeCoverageReport
-          path: community_swift/xcov_output
+          path: community_app/xcov_output
           retention-days: 7
 
       - name: 💬 Post Coverage Comment
         if: github.event_name == 'pull_request'
         uses: marocchino/sticky-pull-request-comment@v2
         with:
-          path: community_swift/community_swift/xcov_output/report.md
+          path: community_app/community_app/xcov_output/report.md
