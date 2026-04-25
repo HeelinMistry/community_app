@@ -28,7 +28,7 @@ jobs:
         run: sudo gem install xcov
 
       - name: 🏃 Run Unit Tests
-        working-directory: community_app/community_app
+        working-directory: community_app
         run: |
           set -o pipefail
           xcodebuild test \
@@ -40,7 +40,7 @@ jobs:
 
       - name: 📝 Generate Coverage Report
         id: coverage
-        working-directory: community_app/community_app
+        working-directory: community_app
         run: |
           xcov \
             -p community_app.xcodeproj \
@@ -63,4 +63,4 @@ jobs:
         if: github.event_name == 'pull_request'
         uses: marocchino/sticky-pull-request-comment@v2
         with:
-          path: community_app/community_app/xcov_output/report.md
+          path: community_app/xcov_output/report.md
