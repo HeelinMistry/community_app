@@ -86,10 +86,8 @@ jobs:
           git config --local user.name "GitHub Action"
           git add README.md docs/
 
-        # Only commit if there are actual changes
           if ! git diff --cached --exit-code; then
             git commit -m "chore: auto-update readme structure"
-            # Pull latest changes and rebase your new commit on top
             git pull --rebase origin main
             git push
           else
