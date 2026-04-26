@@ -41,29 +41,3 @@ public protocol Theme {
     /// The secondary text color, often used for less prominent text like subheadings or captions.
     var secondaryText: Color { get }
 }
-
-/// A default implementation of the `Theme` protocol, providing a basic color scheme.
-/// Colors are loaded from asset catalogs within the UI framework's bundle or system colors.
-public struct DefaultTheme: Theme {
-    public init() {}
-    
-    // Brand Colors
-    public var primary: Color { Color("Lime", bundle: Bundle(for: UIBundleLocator.self)) }
-    public var secondary: Color { Color("BrandDarkGray", bundle: Bundle(for: UIBundleLocator.self)) }
-    public var tertiary: Color { Color("Light Blue", bundle: Bundle(for: UIBundleLocator.self)) }
-    public var neutral: Color { Color(.white) }
-    
-    // Functional Surface Colors
-    /// Maps the primary accent color to the `primary` brand color.
-    public var primaryAccent: Color { primary }
-    /// The background color for input fields, loaded from "InputBg" in the bundle.
-    public var inputBackground: Color { Color("InputBg", bundle: Bundle(for: UIBundleLocator.self)) }
-    /// The background color for general surfaces, mapped to the `secondary` brand color.
-    public var surfaceBackground: Color { Color("DarkGray", bundle: Bundle(for: UIBundleLocator.self)) }
-    
-    // Text Colors
-    /// The primary text color, loaded from "Black" in the bundle.
-    public var primaryText: Color { Color("BrandBlack", bundle: Bundle(for: UIBundleLocator.self)) }
-    /// The secondary text color, derived from the `neutral` color with 80% opacity.
-    public var secondaryText: Color { neutral.opacity(0.8) }
-}
