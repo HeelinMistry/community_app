@@ -17,7 +17,7 @@ jobs:
 
       # 1. Generate DocC
       - name: Build DocC
-        working-directory: community_app/community_app
+        working-directory: community_app
         run: |
           # Create the base docs directory
           mkdir -p ./docs
@@ -36,7 +36,7 @@ jobs:
             AD_HOC_CODE_SIGNING_ALLOWED=YES
 
       - name: Transform and Clean Documentation
-        working-directory: community_app/community_app
+        working-directory: community_app
         run: |
           # This path now matches exactly where we told xcodebuild to go
           ARCHIVE_PATH="/tmp/docbuild/Build/Products/Debug-iphonesimulator"
@@ -85,7 +85,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './community_app/community_app/docs'
+          path: './community_app/docs'
 
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v4
