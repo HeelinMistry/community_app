@@ -4,9 +4,14 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'community_app/**'    
+      - '.github/workflows/**'
   pull_request:
     branches:
       - main
+    paths:
+      - 'community_app/**'
 
 jobs:
   run-tests:

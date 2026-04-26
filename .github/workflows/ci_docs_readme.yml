@@ -3,6 +3,8 @@ name: CI - Docs & Readme
 on:
   push:
     branches: [ main ]
+    paths:
+      - 'community_app/**'
 
 permissions:
   contents: write
