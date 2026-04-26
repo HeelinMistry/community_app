@@ -39,13 +39,13 @@ Caching is done storing to a local file on device, implemented so this can imple
 - App/
     - DependencyContainer.swift
     - CommunitySwiftApp.swift
-- Theming/
-    - CommunityTheme.swift
 - Frameworks/
     - UI/
         - UI/
             - Theming/
                 - Assets.swift
+                - DefaultTheme.swift
+                - CommunityTheme.swift
                 - Theme.swift
             - StyledComponents/
                 - PrimaryTextInput.swift
