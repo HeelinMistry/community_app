@@ -22,6 +22,8 @@ CMD+^+shift+D (Build Xcode docc)
 
 API Documentation is auto-generated and hosted via GitHub Pages
 
+Deployed to: https://heelinmistry.github.io/community_app/
+
 ## Project Structure
 The Core defines the RepositoryProtocol. Data then implements that protocol. The rest of the app (like UI) only ever talks to the Core Protocols. This means you could swap Data for a MockData package or a LocalDatabaseData.
 
