@@ -78,7 +78,7 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add README.md community_app/docs/
+          git add community_app/README.md community_app/docs/
           git commit -m "chore: auto-update readme structure" || echo "No changes to commit"
           git push
 
