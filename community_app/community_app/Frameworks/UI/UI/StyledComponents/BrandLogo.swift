@@ -27,8 +27,7 @@ public struct BrandLogo: View {
     public var body: some View {
         HStack(spacing: 0) {
             Text(primaryString)
-                .foregroundColor(.white)
-            // Use the theme's primaryAccent color for consistency
+                .foregroundColor(Assets.theme.secondaryText)
             Text(secondaryString)
                 .foregroundColor(Assets.theme.primaryAccent)
         }

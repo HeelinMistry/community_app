@@ -29,7 +29,7 @@ public struct SecondaryButton: View {
             Text(title)
                 .font(.caption)
                 .fontWeight(.bold)
-                .foregroundColor(Assets.theme.primary)
+                .foregroundColor(Assets.theme.primaryAccent)
         }
     }
 }
