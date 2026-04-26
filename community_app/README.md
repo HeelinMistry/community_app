@@ -31,5 +31,28 @@ By keeping Core independent, you ensure that the UI doesn't accidentally depend 
 
 Caching is done storing to a local file on device, implemented so this can implement all 3 [swiftdata, coredata] and each can be used interchangeable
 ``
-
+```
+- community_app/
+- App/
+    - DependencyContainer.swift
+    - CommunitySwiftApp.swift
+- Theming/
+    - CommunityTheme.swift
+- Frameworks/
+    - UI/
+        - UI/
+            - Theming/
+                - Assets.swift
+                - Theme.swift
+            - StyledComponents/
+                - PrimaryTextInput.swift
+                - PrimaryButton.swift
+                - BrandLogo.swift
+                - SecondaryButton.swift
+            - Views/
+                - LoginView.swift
+            - UI.docc/
+                - UI.md
+```
 ``
+
