@@ -75,7 +75,6 @@ jobs:
 
       # 3. Commit and Push changes
       - name: Commit changes
-        working-directory: community_app
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
