@@ -1,0 +1,30 @@
+name: Backend CI
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'community_backend/**' # Only trigger if backend files change
+  pull_request:
+    paths:
+      - 'community_backend/**'
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest # Linux is fine (and cheaper) for backend builds
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker Image
+        working-directory: community_backend
+        run: |
+          docker build -t community-backend:test .
+
+      - name: Test Container Startup
+        run: |
+          docker run -d -p 8000:8000 --name test-container community-backend:test
+          sleep 5
+          curl --fail http://localhost:8000/ || exit 1
