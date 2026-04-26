@@ -1,0 +1,29 @@
+included:
+  - Frameworks
+  - community_app
+
+disabled_rules:
+  - line_length
+  - trailing_whitespace
+  - nesting
+  - identifier_name
+  - force_unwrapping
+  - large_tuple
+
+opt_in_rules:
+  - empty_count
+  - fatal_error_message
+  - contains_over_first_not_nil
+  - discouraged_object_literal
+  - array_init
+  - closure_end_indentation
+  - missing_docs
+
+missing_docs:
+  severity: error
+  include_source_regex: 'public'
+
+excluded:
+  - Pods
+  - DerivedData
+  - .build

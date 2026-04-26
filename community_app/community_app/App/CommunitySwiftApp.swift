@@ -9,7 +9,7 @@ struct CommunitySwiftApp: App {
     let container = DependencyContainer()
     
     init() {
-//        Assets.theme = CommunityTheme()
+        Assets.theme = CommunityTheme()
     }
     
     var body: some Scene {

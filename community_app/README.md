@@ -32,6 +32,7 @@ Mappers/ folder in Data. This is the most critical part. It takes raw API DTOs (
 By keeping Core independent, you ensure that the UI doesn't accidentally depend on the Networking library (URLSession/AlamoFire) and the Networking library doesn't depend on SwiftUI.
 
 Caching is done storing to a local file on device, implemented so this can implement all 3 [swiftdata, coredata] and each can be used interchangeable
+
 ``
 ```
 - community_app/

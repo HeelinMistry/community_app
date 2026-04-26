@@ -58,12 +58,15 @@
 
 /* Begin PBXFileReference section */
 		F37D60022F9D329C00E80151 /* UI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = UI.xcodeproj; sourceTree = "<group>"; };
+		F37D60A82F9DF72A00E80151 /* UI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = UI.xcodeproj; sourceTree = "<group>"; };
 		F3A0CD3B2F90EA2600B052F7 /* community_app.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = community_app.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F3A0CD482F90EA2700B052F7 /* community_appTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = community_appTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F3A0CD522F90EA2700B052F7 /* community_appUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = community_appUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		F3E5D5152F9E4A320059A283 /* UI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = UI.xcodeproj; sourceTree = "<group>"; };
 		F3ECC7922F9CBA4C0015F1BB /* UI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = UI.xcodeproj; sourceTree = "<group>"; };
 		F3ECC79F2F9CBA4C0015F1BB /* UI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = UI.xcodeproj; path = community_app/Frameworks/UI/UI.xcodeproj; sourceTree = "<group>"; };
 		F3ECC8032F9D1B530015F1BB /* community_app.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = community_app.xctestplan; sourceTree = "<group>"; };
+		F3F74CEF2F9E17D400E3CCF1 /* UI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = UI.xcodeproj; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -112,6 +115,13 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		F37D60AD2F9DF72A00E80151 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		F3A0CD322F90EA2600B052F7 = {
 			isa = PBXGroup;
 			children = (
@@ -141,6 +151,13 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		F3E5D51A2F9E4A320059A283 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		F3ECC7942F9CBA4C0015F1BB /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -156,6 +173,13 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		F3F74CF42F9E17D400E3CCF1 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -163,6 +187,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = F3A0CD5C2F90EA2700B052F7 /* Build configuration list for PBXNativeTarget "community_app" */;
 			buildPhases = (
+				F37D60D62F9E0BE300E80151 /* Run SwiftLint Script */,
 				F3A0CD372F90EA2600B052F7 /* Sources */,
 				F3A0CD382F90EA2600B052F7 /* Frameworks */,
 				F3A0CD392F90EA2600B052F7 /* Resources */,
@@ -258,6 +283,8 @@
 			);
 			mainGroup = F3A0CD322F90EA2600B052F7;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = F3A0CD3C2F90EA2600B052F7 /* Products */;
 			projectDirPath = "";
@@ -265,6 +292,18 @@
 				{
 					ProductGroup = F3ECC7A02F9CBA4C0015F1BB /* Products */;
 					ProjectRef = F3ECC79F2F9CBA4C0015F1BB /* UI.xcodeproj */;
+				},
+				{
+					ProductGroup = F3E5D51A2F9E4A320059A283 /* Products */;
+					ProjectRef = F3E5D5152F9E4A320059A283 /* UI.xcodeproj */;
+				},
+				{
+					ProductGroup = F3F74CF42F9E17D400E3CCF1 /* Products */;
+					ProjectRef = F3F74CEF2F9E17D400E3CCF1 /* UI.xcodeproj */;
+				},
+				{
+					ProductGroup = F37D60AD2F9DF72A00E80151 /* Products */;
+					ProjectRef = F37D60A82F9DF72A00E80151 /* UI.xcodeproj */;
 				},
 				{
 					ProductGroup = F3ECC7942F9CBA4C0015F1BB /* Products */;
@@ -317,6 +356,30 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		F37D60D62F9E0BE300E80151 /* Run SwiftLint Script */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/.swiftlint.yml",
+				"$(SRCROOT)/community_app",
+			);
+			name = "Run SwiftLint Script";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "export PATH=\"$PATH:/opt/homebrew/bin\"\n\nROOT_DIR=\"${SRCROOT}/..\"\n\ncd \"$ROOT_DIR\" || exit 1\n\nif which swiftlint >/dev/null; then\n  swiftlint --config .swiftlint.yml\nelse\n  echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		F3A0CD372F90EA2600B052F7 /* Sources */ = {
@@ -488,6 +551,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -520,6 +584,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;

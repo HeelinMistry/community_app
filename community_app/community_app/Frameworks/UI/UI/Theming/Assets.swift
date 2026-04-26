@@ -9,11 +9,18 @@ import SwiftUI
 
 private class BundleLocator {}
 
+/// A collection of static assets and theming capabilities for the community application.
+///
+/// This enum provides access to the application's current theme and a helper for loading images.
 public enum Assets {
-    // Current theme - can be swapped at runtime
+    /// The currently active theme for the application.
+    ///
+    /// This theme can be swapped at runtime to change the appearance of the app.
     public static var theme: Theme = DefaultTheme()
     
-    // Helper for images
+    /// Loads an image from the asset catalog.
+    /// - Parameter name: The name of the image asset.
+    /// - Returns: An `Image` view corresponding to the specified asset name.
     public static func image(_ name: String) -> Image {
         Image(name, bundle: Bundle(for: UIBundleLocator.self))
     }

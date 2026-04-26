@@ -6,15 +6,13 @@
 //
 
 import SwiftUI
-import UI
-
 
 /// A community implementation of the `Theme` protocol, providing a custom color scheme.
 /// Colors are loaded from asset catalogs within the Main app.
 public struct CommunityTheme: Theme {
     public var primary: Color { Color("BrandPink", bundle: Bundle(for: UIBundleLocator.self)) }
     public var secondary: Color { Color("BrandDarkGray", bundle: Bundle(for: UIBundleLocator.self)) }
-    public var tertiary: Color { Color("Light Blue", bundle: Bundle(for: UIBundleLocator.self)) }
+    public var tertiary: Color { Color("BrandLightBlue", bundle: Bundle(for: UIBundleLocator.self)) }
     public var neutral: Color { Color(.white) }
 
     // Mapping functional colors to the palette
@@ -25,4 +23,3 @@ public struct CommunityTheme: Theme {
     public var primaryText: Color { Color("BrandBlack", bundle: Bundle(for: UIBundleLocator.self)) }
     public var secondaryText: Color { neutral.opacity(0.8) }
 }
-
