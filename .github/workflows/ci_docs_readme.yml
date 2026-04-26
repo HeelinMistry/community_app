@@ -12,6 +12,11 @@ permissions:
 jobs:
   build-and-deploy:
     runs-on: macos-latest
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
     steps:
       - uses: actions/checkout@v4
 
@@ -80,8 +85,16 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add README.md docs/
-          git commit -m "chore: auto-update readme structure" || echo "No changes to commit"
-          git push
+
+        # Only commit if there are actual changes
+          if ! git diff --cached --exit-code; then
+            git commit -m "chore: auto-update readme structure"
+            # Pull latest changes and rebase your new commit on top
+            git pull --rebase origin main
+            git push
+          else
+            echo "No changes to commit"
+          fi
 
       # 4. Deploy to GitHub Pages
       - name: Upload artifact
