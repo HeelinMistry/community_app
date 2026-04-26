@@ -1,0 +1,66 @@
+name: Unit Tests & Coverage
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  run-tests:
+    runs-on: macos-latest
+
+    permissions:
+      pull-requests: write
+      contents: read
+    timeout-minutes: 30
+
+    steps:
+      - name: 🛎️ Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🛠️ Show Xcode Version
+        run: xcodebuild -version
+
+      - name: 💎 Install Ruby Gems (xcov)
+        run: sudo gem install xcov
+
+      - name: 🏃 Run Unit Tests
+        working-directory: community_app
+        run: |
+          set -o pipefail
+          xcodebuild test \
+            -scheme community_app \
+            -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
+            -enableCodeCoverage YES \
+            -derivedDataPath ./DerivedData \
+            | xcpretty
+
+      - name: 📝 Generate Coverage Report
+        id: coverage
+        working-directory: community_app
+        run: |
+          xcov \
+            -p community_app.xcodeproj \
+            --derived_data_path ./DerivedData \
+            --scheme community_app \
+            --output_directory ./xcov_output \
+            --exclude_targets "community_app.app" \
+            --minimum_coverage 80 \
+            --markdown_report
+
+      - name: 📦 Upload Coverage Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: CodeCoverageReport
+          path: community_app/xcov_output
+          retention-days: 7
+
+      - name: 💬 Post Coverage Comment
+        if: github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          path: community_app/xcov_output/report.md

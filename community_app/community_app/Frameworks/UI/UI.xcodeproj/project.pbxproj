@@ -6,23 +6,8 @@
 	objectVersion = 77;
 	objects = {
 
-/* Begin PBXBuildFile section */
-		F3ECC77F2F9CBA4C0015F1BB /* UI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F3ECC7732F9CBA4C0015F1BB /* UI.framework */; };
-/* End PBXBuildFile section */
-
-/* Begin PBXContainerItemProxy section */
-		F3ECC7802F9CBA4C0015F1BB /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = F3ECC76A2F9CBA4C0015F1BB /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = F3ECC7722F9CBA4C0015F1BB;
-			remoteInfo = UI;
-		};
-/* End PBXContainerItemProxy section */
-
 /* Begin PBXFileReference section */
 		F3ECC7732F9CBA4C0015F1BB /* UI.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = UI.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		F3ECC77E2F9CBA4C0015F1BB /* UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = UITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -41,14 +26,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		F3ECC77B2F9CBA4C0015F1BB /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				F3ECC77F2F9CBA4C0015F1BB /* UI.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -64,7 +41,6 @@
 			isa = PBXGroup;
 			children = (
 				F3ECC7732F9CBA4C0015F1BB /* UI.framework */,
-				F3ECC77E2F9CBA4C0015F1BB /* UITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -105,26 +81,6 @@
 			productReference = F3ECC7732F9CBA4C0015F1BB /* UI.framework */;
 			productType = "com.apple.product-type.framework";
 		};
-		F3ECC77D2F9CBA4C0015F1BB /* UITests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = F3ECC78A2F9CBA4C0015F1BB /* Build configuration list for PBXNativeTarget "UITests" */;
-			buildPhases = (
-				F3ECC77A2F9CBA4C0015F1BB /* Sources */,
-				F3ECC77B2F9CBA4C0015F1BB /* Frameworks */,
-				F3ECC77C2F9CBA4C0015F1BB /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				F3ECC7812F9CBA4C0015F1BB /* PBXTargetDependency */,
-			);
-			name = UITests;
-			packageProductDependencies = (
-			);
-			productName = UITests;
-			productReference = F3ECC77E2F9CBA4C0015F1BB /* UITests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -136,9 +92,6 @@
 				LastUpgradeCheck = 2600;
 				TargetAttributes = {
 					F3ECC7722F9CBA4C0015F1BB = {
-						CreatedOnToolsVersion = 26.0;
-					};
-					F3ECC77D2F9CBA4C0015F1BB = {
 						CreatedOnToolsVersion = 26.0;
 					};
 				};
@@ -158,20 +111,12 @@
 			projectRoot = "";
 			targets = (
 				F3ECC7722F9CBA4C0015F1BB /* UI */,
-				F3ECC77D2F9CBA4C0015F1BB /* UITests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		F3ECC7712F9CBA4C0015F1BB /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		F3ECC77C2F9CBA4C0015F1BB /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -188,22 +133,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		F3ECC77A2F9CBA4C0015F1BB /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		F3ECC7812F9CBA4C0015F1BB /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = F3ECC7722F9CBA4C0015F1BB /* UI */;
-			targetProxy = F3ECC7802F9CBA4C0015F1BB /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		F3ECC7852F9CBA4C0015F1BB /* Debug */ = {
@@ -401,50 +331,6 @@
 			};
 			name = Release;
 		};
-		F3ECC78B2F9CBA4C0015F1BB /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(PROJECT_DIR)/**",
-					"$(inherited)/**",
-				);
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.mistcreation.UITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				STRING_CATALOG_GENERATE_SYMBOLS = NO;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
-		F3ECC78C2F9CBA4C0015F1BB /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(PROJECT_DIR)/**",
-					"$(inherited)/**",
-				);
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.mistcreation.UITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				STRING_CATALOG_GENERATE_SYMBOLS = NO;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -462,15 +348,6 @@
 			buildConfigurations = (
 				F3ECC7882F9CBA4C0015F1BB /* Debug */,
 				F3ECC7892F9CBA4C0015F1BB /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		F3ECC78A2F9CBA4C0015F1BB /* Build configuration list for PBXNativeTarget "UITests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				F3ECC78B2F9CBA4C0015F1BB /* Debug */,
-				F3ECC78C2F9CBA4C0015F1BB /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

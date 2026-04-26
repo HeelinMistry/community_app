@@ -5,7 +5,6 @@
 //
 
 import SwiftUI
-import UI
 
 public struct LoginView: View {
     @State private var username: String = ""
