@@ -75,10 +75,11 @@ jobs:
 
       # 3. Commit and Push changes
       - name: Commit changes
+        working-directory: community_app
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add community_app/README.md community_app/docs/
+          git add README.md docs/
           git commit -m "chore: auto-update readme structure" || echo "No changes to commit"
           git push
 
