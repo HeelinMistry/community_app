@@ -54,7 +54,11 @@ community_backend/
     pip install -r requirements.txt
     ```
 
-2.  **Run Server:**
-    ```bash
-    uvicorn app.main:app --reload --port 8000
-    ```
+   2.  **Run Server:**
+       ```bash
+       dev:
+       uvicorn app.main:app --reload --port 8000
+
+       staging
+       docker run -d -p 8000:8000 --name community-api community-backend
+       ```
