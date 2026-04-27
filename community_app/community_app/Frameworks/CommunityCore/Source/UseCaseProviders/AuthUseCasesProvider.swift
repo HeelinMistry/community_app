@@ -6,6 +6,7 @@
 //
 
 /// A provider protocol for various authentication-related use cases.
+@MainActor
 public protocol AuthUseCasesProvider {
     
     /// The use case for verifying a user's login credentials.
