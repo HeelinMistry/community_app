@@ -7,20 +7,20 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F3057A8C2FA00D21007297CC /* CommunityData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F3057A792FA00D12007297CC /* CommunityData.framework */; };
+		F3057A8D2FA00D21007297CC /* CommunityData.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F3057A792FA00D12007297CC /* CommunityData.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		F32766232F9F77B0003BC9A8 /* CommunityUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F32765E32F9F76FF003BC9A8 /* CommunityUI.framework */; };
 		F32766242F9F77B0003BC9A8 /* CommunityUI.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F32765E32F9F76FF003BC9A8 /* CommunityUI.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		F32766C22F9FE8C2003BC9A8 /* CommunityCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F32766432F9F78CD003BC9A8 /* CommunityCore.framework */; };
 		F32766C32F9FE8C2003BC9A8 /* CommunityCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F32766432F9F78CD003BC9A8 /* CommunityCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		F32767602FA001A1003BC9A8 /* CommunityCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F32766432F9F78CD003BC9A8 /* CommunityCore.framework */; };
 		F32767612FA001A1003BC9A8 /* CommunityCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F32766432F9F78CD003BC9A8 /* CommunityCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		F327676A2FA00941003BC9A8 /* CommunityData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F32765AE2F9F7690003BC9A8 /* CommunityData.framework */; };
-		F327676B2FA00941003BC9A8 /* CommunityData.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F32765AE2F9F7690003BC9A8 /* CommunityData.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		F32765AD2F9F7690003BC9A8 /* PBXContainerItemProxy */ = {
+		F3057A782FA00D12007297CC /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = F327654E2F9F7023003BC9A8 /* CommunityData.xcodeproj */;
+			containerPortal = F34428832F9F5F2A007CD99D /* CommunityData.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = F34428772F9F5F2A007CD99D;
 			remoteInfo = CommunityData;
@@ -56,7 +56,7 @@
 			dstSubfolderSpec = 10;
 			files = (
 				F32766242F9F77B0003BC9A8 /* CommunityUI.framework in Embed Frameworks */,
-				F327676B2FA00941003BC9A8 /* CommunityData.framework in Embed Frameworks */,
+				F3057A8D2FA00D21007297CC /* CommunityData.framework in Embed Frameworks */,
 				F32766C32F9FE8C2003BC9A8 /* CommunityCore.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
@@ -76,6 +76,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		F30579FA2FA00D0A007297CC /* CommunityCore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CommunityCore.xcodeproj; sourceTree = "<group>"; };
+		F3057A0C2FA00D0A007297CC /* CommunityData.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CommunityData.xcodeproj; sourceTree = "<group>"; };
+		F3057A252FA00D0A007297CC /* CommunityUI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CommunityUI.xcodeproj; sourceTree = "<group>"; };
 		F327654E2F9F7023003BC9A8 /* CommunityData.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CommunityData.xcodeproj; sourceTree = "<group>"; };
 		F32765DA2F9F76FF003BC9A8 /* CommunityUI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = CommunityUI.xcodeproj; path = community_app/Frameworks/CommunityUI/CommunityUI.xcodeproj; sourceTree = "<group>"; };
 		F32765E72F9F7700003BC9A8 /* CommunityUI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CommunityUI.xcodeproj; sourceTree = "<group>"; };
@@ -144,7 +147,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F32766232F9F77B0003BC9A8 /* CommunityUI.framework in Frameworks */,
-				F327676A2FA00941003BC9A8 /* CommunityData.framework in Frameworks */,
+				F3057A8C2FA00D21007297CC /* CommunityData.framework in Frameworks */,
 				F32766C22F9FE8C2003BC9A8 /* CommunityCore.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -160,10 +163,30 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		F3057A282FA00D0A007297CC /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F3057A2A2FA00D0A007297CC /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F3057A2C2FA00D0A007297CC /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		F32765662F9F7023003BC9A8 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				F32765AE2F9F7690003BC9A8 /* CommunityData.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -215,6 +238,7 @@
 		F34428842F9F5F2A007CD99D /* Products */ = {
 			isa = PBXGroup;
 			children = (
+				F3057A792FA00D12007297CC /* CommunityData.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -373,12 +397,24 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
+					ProductGroup = F32766492F9F78CF003BC9A8 /* Products */;
+					ProjectRef = F32766472F9F78CF003BC9A8 /* CommunityCore.xcodeproj */;
+				},
+				{
 					ProductGroup = F327663F2F9F78CD003BC9A8 /* Products */;
 					ProjectRef = F327663E2F9F78CD003BC9A8 /* CommunityCore.xcodeproj */;
 				},
 				{
-					ProductGroup = F32766492F9F78CF003BC9A8 /* Products */;
-					ProjectRef = F32766472F9F78CF003BC9A8 /* CommunityCore.xcodeproj */;
+					ProductGroup = F3057A2C2FA00D0A007297CC /* Products */;
+					ProjectRef = F30579FA2FA00D0A007297CC /* CommunityCore.xcodeproj */;
+				},
+				{
+					ProductGroup = F34428842F9F5F2A007CD99D /* Products */;
+					ProjectRef = F34428832F9F5F2A007CD99D /* CommunityData.xcodeproj */;
+				},
+				{
+					ProductGroup = F3057A2A2FA00D0A007297CC /* Products */;
+					ProjectRef = F3057A0C2FA00D0A007297CC /* CommunityData.xcodeproj */;
 				},
 				{
 					ProductGroup = F32765662F9F7023003BC9A8 /* Products */;
@@ -389,24 +425,20 @@
 					ProjectRef = F34428892F9F5F2A007CD99D /* CommunityData.xcodeproj */;
 				},
 				{
-					ProductGroup = F34428842F9F5F2A007CD99D /* Products */;
-					ProjectRef = F34428832F9F5F2A007CD99D /* CommunityData.xcodeproj */;
-				},
-				{
-					ProductGroup = F32765DB2F9F76FF003BC9A8 /* Products */;
-					ProjectRef = F32765DA2F9F76FF003BC9A8 /* CommunityUI.xcodeproj */;
+					ProductGroup = F3057A282FA00D0A007297CC /* Products */;
+					ProjectRef = F3057A252FA00D0A007297CC /* CommunityUI.xcodeproj */;
 				},
 				{
 					ProductGroup = F32765E92F9F7700003BC9A8 /* Products */;
 					ProjectRef = F32765E72F9F7700003BC9A8 /* CommunityUI.xcodeproj */;
 				},
 				{
-					ProductGroup = F344281E2F9F54AD007CD99D /* Products */;
-					ProjectRef = F344281C2F9F54AD007CD99D /* Core.xcodeproj */;
+					ProductGroup = F32765DB2F9F76FF003BC9A8 /* Products */;
+					ProjectRef = F32765DA2F9F76FF003BC9A8 /* CommunityUI.xcodeproj */;
 				},
 				{
-					ProductGroup = F3F74CF42F9E17D400E3CCF1 /* Products */;
-					ProjectRef = F3F74CEF2F9E17D400E3CCF1 /* UI.xcodeproj */;
+					ProductGroup = F344281E2F9F54AD007CD99D /* Products */;
+					ProjectRef = F344281C2F9F54AD007CD99D /* Core.xcodeproj */;
 				},
 				{
 					ProductGroup = F3ECC7942F9CBA4C0015F1BB /* Products */;
@@ -417,16 +449,20 @@
 					ProjectRef = F37D60022F9D329C00E80151 /* UI.xcodeproj */;
 				},
 				{
-					ProductGroup = F344278F2F9F52F0007CD99D /* Products */;
-					ProjectRef = F344278C2F9F52F0007CD99D /* UI.xcodeproj */;
-				},
-				{
 					ProductGroup = F3E5D51A2F9E4A320059A283 /* Products */;
 					ProjectRef = F3E5D5152F9E4A320059A283 /* UI.xcodeproj */;
 				},
 				{
 					ProductGroup = F37D60AD2F9DF72A00E80151 /* Products */;
 					ProjectRef = F37D60A82F9DF72A00E80151 /* UI.xcodeproj */;
+				},
+				{
+					ProductGroup = F3F74CF42F9E17D400E3CCF1 /* Products */;
+					ProjectRef = F3F74CEF2F9E17D400E3CCF1 /* UI.xcodeproj */;
+				},
+				{
+					ProductGroup = F344278F2F9F52F0007CD99D /* Products */;
+					ProjectRef = F344278C2F9F52F0007CD99D /* UI.xcodeproj */;
 				},
 			);
 			projectRoot = "";
@@ -438,11 +474,11 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		F32765AE2F9F7690003BC9A8 /* CommunityData.framework */ = {
+		F3057A792FA00D12007297CC /* CommunityData.framework */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.framework;
 			path = CommunityData.framework;
-			remoteRef = F32765AD2F9F7690003BC9A8 /* PBXContainerItemProxy */;
+			remoteRef = F3057A782FA00D12007297CC /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		F32765E32F9F76FF003BC9A8 /* CommunityUI.framework */ = {
