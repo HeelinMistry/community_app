@@ -9,6 +9,7 @@ import CommunityCore
 import CommunityData
 import CommunityUI
 
+@MainActor
 final class DependencyContainer {
     
     private let networkClient = CommunityNetworkClient()
