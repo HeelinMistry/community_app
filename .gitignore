@@ -4,4 +4,4 @@ community_app/community_app/.DS_Store
 /community_backend/.idea
 /community_app/community_app.xcodeproj
 *.pyc
-community_backend/.DS_Store
+*.DS_Store

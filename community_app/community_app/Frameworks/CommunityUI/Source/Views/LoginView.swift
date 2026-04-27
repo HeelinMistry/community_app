@@ -6,10 +6,12 @@
 
 import SwiftUI
 
-public struct LoginView: View {
-    @State private var username: String = ""
+public struct LoginView<T: LoginViewModelProtocol>: View {
+    @StateObject private var viewModel: T
     
-    public init() { }
+    public init(viewModel: T) {
+        _viewModel = StateObject(wrappedValue: viewModel)
+    }
     
     public var body: some View {
         ZStack {
@@ -22,11 +24,17 @@ public struct LoginView: View {
                 )
                 PrimaryTextInput(
                     label: "Username",
-                    placeholder: "e.g. striker99",
-                    text: $username
+                    placeholder: "e.g. test_user",
+                    text: $viewModel.username
                 )
-                PrimaryButton("Password") {
-                    print("Button Tapped")
+                PrimaryTextInput(
+                    label: "Password",
+                    placeholder: "e.g. password123",
+                    text: $viewModel.password
+                )
+                
+                PrimaryButton("Login") {
+                    viewModel.loginAttempt()
                 }
                 
                 Divider()
@@ -48,8 +56,4 @@ public struct LoginView: View {
             .padding(.horizontal, 20)
         }
     }
-}
-
-#Preview {
-    LoginView()
 }

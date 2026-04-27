@@ -27,7 +27,7 @@ def generate_tree(start_dir, exclude_dirs):
     return "\n".join(tree)
 
 # Configuration remains the same
-exclude = ['DerivedData', 'Pods', 'build', '.xcresult', 'community_app.xcodeproj', 'docs', 'Assets.xcassets', 'UI.xcodeproj']
+exclude = ['DerivedData', 'Pods', 'build', '.xcresult', 'community_app.xcodeproj', 'docs', 'Assets.xcassets', 'CommunityUI.xcodeproj', 'CommunityCore.xcodeproj', 'CommunityData.xcodeproj']
 # Make sure 'community_app' is the correct relative path from where the script runs
 structure = generate_tree('community_app', exclude)
 
