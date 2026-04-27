@@ -44,7 +44,7 @@ jobs:
           xcodebuild build test \
             -project community_app.xcodeproj \
             -scheme community_app \
-            -destination 'platform=iOS Simulator,name=iPhone 17' \
+            -destination 'platform=iOS Simulator,name=iPhone 17,OS:26.2' \
             -enableCodeCoverage YES \
             -derivedDataPath ./DerivedData \
             | xcpretty
