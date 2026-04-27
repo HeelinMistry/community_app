@@ -2,7 +2,7 @@
 //
 
 import SwiftUI
-import UI
+import CommunityUI
 
 @main
 struct CommunitySwiftApp: App {
@@ -14,7 +14,7 @@ struct CommunitySwiftApp: App {
     
     var body: some Scene {
         WindowGroup {
-            LoginView()
+            LoginView(viewModel: container.makeLoginViewModel())
         }
     }
 }

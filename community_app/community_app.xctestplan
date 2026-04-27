@@ -24,14 +24,6 @@
         "identifier" : "F3A0CD472F90EA2700B052F7",
         "name" : "community_appTests"
       }
-    },
-    {
-      "enabled" : false,
-      "target" : {
-        "containerPath" : "container:community_app.xcodeproj",
-        "identifier" : "F3A0CD512F90EA2700B052F7",
-        "name" : "community_appUITests"
-      }
     }
   ],
   "version" : 1

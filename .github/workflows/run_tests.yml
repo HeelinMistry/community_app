@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'community_app/**'    
+      - 'community_app/**'
       - '.github/workflows/**'
   pull_request:
     branches:
@@ -25,6 +25,8 @@ jobs:
     steps:
       - name: 🛎️ Checkout Repository
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: 🛠️ Show Xcode Version
         run: xcodebuild -version
@@ -32,11 +34,15 @@ jobs:
       - name: 💎 Install Ruby Gems (xcov)
         run: sudo gem install xcov
 
+      - name: 🔍 Debug File Structure
+        run: find . -name "*.framework" -maxdepth 4
+
       - name: 🏃 Run Unit Tests
         working-directory: community_app
         run: |
           set -o pipefail
-          xcodebuild test \
+          xcodebuild build test \
+            -project community_app.xcodeproj \
             -scheme community_app \
             -destination 'platform=iOS Simulator,name=iPhone 16' \
             -enableCodeCoverage YES \
