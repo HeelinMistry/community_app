@@ -13,6 +13,8 @@
 		F32766242F9F77B0003BC9A8 /* CommunityUI.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F32765E32F9F76FF003BC9A8 /* CommunityUI.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		F32766C22F9FE8C2003BC9A8 /* CommunityCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F32766432F9F78CD003BC9A8 /* CommunityCore.framework */; };
 		F32766C32F9FE8C2003BC9A8 /* CommunityCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F32766432F9F78CD003BC9A8 /* CommunityCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		F327675D2FA0000B003BC9A8 /* CommunityData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F32765AE2F9F7690003BC9A8 /* CommunityData.framework */; };
+		F327675E2FA0000B003BC9A8 /* CommunityData.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F32765AE2F9F7690003BC9A8 /* CommunityData.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -37,6 +39,13 @@
 			remoteGlobalIDString = F32766322F9F78CD003BC9A8;
 			remoteInfo = CommunityCore;
 		};
+		F327675B2F9FFFEA003BC9A8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F327654E2F9F7023003BC9A8 /* CommunityData.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = F34428762F9F5F2A007CD99D;
+			remoteInfo = CommunityData;
+		};
 		F3A0CD492F90EA2700B052F7 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = F3A0CD332F90EA2600B052F7 /* Project object */;
@@ -56,6 +65,17 @@
 				F32766242F9F77B0003BC9A8 /* CommunityUI.framework in Embed Frameworks */,
 				F32766C32F9FE8C2003BC9A8 /* CommunityCore.framework in Embed Frameworks */,
 				F32766222F9F77B0003BC9A8 /* CommunityData.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F327675F2FA0000B003BC9A8 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				F327675E2FA0000B003BC9A8 /* CommunityData.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -140,6 +160,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F327675D2FA0000B003BC9A8 /* CommunityData.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -310,10 +331,12 @@
 				F3A0CD442F90EA2700B052F7 /* Sources */,
 				F3A0CD452F90EA2700B052F7 /* Frameworks */,
 				F3A0CD462F90EA2700B052F7 /* Resources */,
+				F327675F2FA0000B003BC9A8 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				F327675C2F9FFFEA003BC9A8 /* PBXTargetDependency */,
 				F3A0CD4A2F90EA2700B052F7 /* PBXTargetDependency */,
 			);
 			name = community_appTests;
@@ -505,6 +528,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		F327675C2F9FFFEA003BC9A8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = CommunityData;
+			targetProxy = F327675B2F9FFFEA003BC9A8 /* PBXContainerItemProxy */;
+		};
 		F3A0CD4A2F90EA2700B052F7 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = F3A0CD3A2F90EA2600B052F7 /* community_app */;
