@@ -8,14 +8,31 @@
 
 /* Begin PBXBuildFile section */
 		F32766AE2F9FA0E8003BC9A8 /* CommunityCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F32766AD2F9FA0E8003BC9A8 /* CommunityCore.framework */; };
+		F32767022F9FF2CE003BC9A8 /* CommunityData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F34428772F9F5F2A007CD99D /* CommunityData.framework */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		F32767032F9FF2CE003BC9A8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F344286E2F9F5F2A007CD99D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F34428762F9F5F2A007CD99D;
+			remoteInfo = CommunityData;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		F32766AD2F9FA0E8003BC9A8 /* CommunityCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = CommunityCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		F32766FE2F9FF2CE003BC9A8 /* CommunityDataTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CommunityDataTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F34428772F9F5F2A007CD99D /* CommunityData.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = CommunityData.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		F32766FF2F9FF2CE003BC9A8 /* CommunityDataTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = CommunityDataTests;
+			sourceTree = "<group>";
+		};
 		F34428792F9F5F2A007CD99D /* Source */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = Source;
@@ -24,6 +41,14 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		F32766FB2F9FF2CE003BC9A8 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F32767022F9FF2CE003BC9A8 /* CommunityData.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F34428742F9F5F2A007CD99D /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -47,6 +72,7 @@
 			isa = PBXGroup;
 			children = (
 				F34428792F9F5F2A007CD99D /* Source */,
+				F32766FF2F9FF2CE003BC9A8 /* CommunityDataTests */,
 				F32766AC2F9FA0E8003BC9A8 /* Frameworks */,
 				F34428782F9F5F2A007CD99D /* Products */,
 			);
@@ -56,6 +82,7 @@
 			isa = PBXGroup;
 			children = (
 				F34428772F9F5F2A007CD99D /* CommunityData.framework */,
+				F32766FE2F9FF2CE003BC9A8 /* CommunityDataTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -73,6 +100,29 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		F32766FD2F9FF2CE003BC9A8 /* CommunityDataTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F32767052F9FF2CE003BC9A8 /* Build configuration list for PBXNativeTarget "CommunityDataTests" */;
+			buildPhases = (
+				F32766FA2F9FF2CE003BC9A8 /* Sources */,
+				F32766FB2F9FF2CE003BC9A8 /* Frameworks */,
+				F32766FC2F9FF2CE003BC9A8 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F32767042F9FF2CE003BC9A8 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				F32766FF2F9FF2CE003BC9A8 /* CommunityDataTests */,
+			);
+			name = CommunityDataTests;
+			packageProductDependencies = (
+			);
+			productName = CommunityDataTests;
+			productReference = F32766FE2F9FF2CE003BC9A8 /* CommunityDataTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		F34428762F9F5F2A007CD99D /* CommunityData */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = F34428802F9F5F2A007CD99D /* Build configuration list for PBXNativeTarget "CommunityData" */;
@@ -106,6 +156,9 @@
 				LastSwiftUpdateCheck = 2600;
 				LastUpgradeCheck = 2600;
 				TargetAttributes = {
+					F32766FD2F9FF2CE003BC9A8 = {
+						CreatedOnToolsVersion = 26.0;
+					};
 					F34428762F9F5F2A007CD99D = {
 						CreatedOnToolsVersion = 26.0;
 					};
@@ -126,11 +179,19 @@
 			projectRoot = "";
 			targets = (
 				F34428762F9F5F2A007CD99D /* CommunityData */,
+				F32766FD2F9FF2CE003BC9A8 /* CommunityDataTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		F32766FC2F9FF2CE003BC9A8 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F34428752F9F5F2A007CD99D /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -141,6 +202,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		F32766FA2F9FF2CE003BC9A8 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F34428732F9F5F2A007CD99D /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -150,7 +218,61 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		F32767042F9FF2CE003BC9A8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F34428762F9F5F2A007CD99D /* CommunityData */;
+			targetProxy = F32767032F9FF2CE003BC9A8 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		F32767062F9FF2CE003BC9A8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mistcreation.CommunityDataTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		F32767072F9FF2CE003BC9A8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mistcreation.CommunityDataTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		F344287E2F9F5F2A007CD99D /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -359,6 +481,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		F32767052F9FF2CE003BC9A8 /* Build configuration list for PBXNativeTarget "CommunityDataTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F32767062F9FF2CE003BC9A8 /* Debug */,
+				F32767072F9FF2CE003BC9A8 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		F34428712F9F5F2A007CD99D /* Build configuration list for PBXProject "CommunityData" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
