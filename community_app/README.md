@@ -47,7 +47,6 @@ Caching is done storing to a local file on device, implemented so this can imple
                 - LoginViewState.swift
             - CommunityUI.docc/
                 - CommunityUI.md
-                - Resources/
             - Theming/
                 - Assets.swift
                 - DefaultTheme.swift
@@ -60,13 +59,25 @@ Caching is done storing to a local file on device, implemented so this can imple
                 - SecondaryButton.swift
             - Views/
                 - LoginView.swift
+        - CommunityUITests/
+            - Mocks/
+                - AuthUseCasesProviderMock.swift
+            - ViewModels/
+                - LoginViewModelTests.swift
     - CommunityCore/
+        - CommunityCoreTests/
+            - MockRepositories/
+                - AuthRepositoryMock.swift
+            - UseCases/
+                - VerifyLoginUseCaseTest.swift
         - Source/
             - Models/
                 - Login.swift
+                - AnyEncodable.swift
             - CommunityCore.docc/
                 - CommunityCore.md
-                - Resources/
+            - UseCaseProviders/
+                - AuthUseCasesProvider.swift
             - Protocols/
                 - AuthRepositoryProtocol.swift
             - UseCases/
@@ -80,8 +91,14 @@ Caching is done storing to a local file on device, implemented so this can imple
                 - AuthRepository.swift
             - CommunityData.docc/
                 - CommunityData.md
-                - Resources/
             - Errors/
                 - NetworkErrors.swift
+        - CommunityDataTests/
+            - Mocks/
+                - URLProtocolMock.swift
+            - Networking/
+                - CommunityNetworkClientTests.swift
+            - Repositories/
+                - AuthRepositoryTests.swift
 ```
 ``
