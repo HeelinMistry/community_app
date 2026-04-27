@@ -25,12 +25,17 @@ jobs:
     steps:
       - name: 🛎️ Checkout Repository
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: 🛠️ Show Xcode Version
         run: xcodebuild -version
 
       - name: 💎 Install Ruby Gems (xcov)
         run: sudo gem install xcov
+
+      - name: 🔍 Debug File Structure
+        run: find . -name "*.framework" -maxdepth 4
 
       - name: 🏃 Run Unit Tests
         working-directory: community_app
