@@ -37,11 +37,10 @@ public final class VerifyUserLoginUseCase: VerifyUserLoginUseCaseProtocol {
     /// This method forwards the `loginRequest` to the underlying `AuthRepositoryProtocol`
     /// to verify the user's credentials.
     /// - Parameter loginRequest: The `LoginRequest` containing the user's login information.
-    /// - Returns: `true` if the login is successful, `false` otherwise.
+    /// - Returns: `LoginResponse` otherwise.
     /// - Throws: An error if the authentication repository encounters an issue.
     public func execute(_ loginRequest: LoginRequest) async throws -> LoginResponse {
         do {
-            print(loginRequest)
             let loginResponse = try await auth.verifyUserLogin(loginRequest: loginRequest)
 //            Log.networking.json("Successfully fetched login", loginRequest) // Uncomment and ensure Log is available if needed.
             return (loginResponse)

@@ -20,8 +20,12 @@ final class AuthRepositoryTests: XCTestCase {
         let configuration = URLSessionConfiguration.ephemeral
         configuration.protocolClasses = [URLProtocolMock.self]
         session = URLSession(configuration: configuration)
-        
-        networkClient = CommunityNetworkClient(session: session)
+        networkClient = CommunityNetworkClient(
+            session: session,
+            networkConfig: .init(
+                baseURL: URL(string: "http://test.com/")!,
+                shouldLogSensitiveData: true)
+        )
         sut = AuthRepository(networkClient: networkClient)
     }
 

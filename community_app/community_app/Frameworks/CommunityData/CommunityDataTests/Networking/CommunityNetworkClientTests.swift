@@ -12,20 +12,29 @@ import XCTest
 final class CommunityNetworkClientTests: XCTestCase {
     var sut: CommunityNetworkClient!
     var session: URLSession!
-
+    
     override func setUp() {
         super.setUp()
         let configuration = URLSessionConfiguration.ephemeral
         configuration.protocolClasses = [URLProtocolMock.self]
         session = URLSession(configuration: configuration)
-        sut = CommunityNetworkClient(session: session)
+        
+        let mockBaseURL = URL(string: "https://api.test.com/")!
+        
+        sut = CommunityNetworkClient(
+            session: session,
+            networkConfig: .init(
+                baseURL: mockBaseURL,
+                shouldLogSensitiveData: true
+            )
+        )
     }
-
+    
     override func tearDown() {
         URLProtocolMock.requestHandler = nil
         super.tearDown()
     }
-
+    
     /// Tests that a non-200 HTTP status code throws a serverError with the correct code.
     func testFetch_WhenHttpStatusCodeIs404_ThrowsServerError() async {
         // Arrange
@@ -48,7 +57,7 @@ final class CommunityNetworkClientTests: XCTestCase {
             XCTFail("Unexpected error type: \(error)")
         }
     }
-
+    
     /// Tests that malformed JSON throws a decodingFailed error.
     func testFetch_WhenJsonIsMalformed_ThrowsDecodingFailed() async {
         // Arrange
@@ -57,7 +66,7 @@ final class CommunityNetworkClientTests: XCTestCase {
             let response = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
             return (response, invalidData)
         }
-
+        
         // Act & Assert
         do {
             let _: LoginResponse = try await sut.fetch(from: CommunityEndpoint.login(loginRequest: .init(username: "u", password: "p")))

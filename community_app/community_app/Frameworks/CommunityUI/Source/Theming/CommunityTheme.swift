@@ -18,7 +18,7 @@ public struct CommunityTheme: Theme {
     // Mapping functional colors to the palette
     public var primaryAccent: Color { primary }
     public var inputBackground: Color { Color("InputBg", bundle: Bundle(for: UIBundleLocator.self)) }
-    public var surfaceBackground: Color { Color("DarkGray", bundle: Bundle(for: UIBundleLocator.self)) }
+    public var surfaceBackground: Color { Color("BrandDarkGray", bundle: Bundle(for: UIBundleLocator.self)) }
     
     public var primaryText: Color { Color("BrandBlack", bundle: Bundle(for: UIBundleLocator.self)) }
     public var secondaryText: Color { neutral.opacity(0.8) }
