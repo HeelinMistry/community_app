@@ -64,6 +64,8 @@ Caching is done storing to a local file on device, implemented so this can imple
             - Models/
                 - Login.swift
                 - AnyEncodable.swift
+            - Observability/
+                - AppEnvironment.swift
             - CommunityCore.docc/
                 - CommunityCore.md
             - UseCaseProviders/
@@ -77,10 +79,16 @@ Caching is done storing to a local file on device, implemented so this can imple
             - Networking/
                 - CommunityEndpoint.swift
                 - CommunityNetworkClient.swift
+                - NetworkConfiguration.swift
             - Repositories/
                 - AuthRepository.swift
+            - Observability/
+                - NetworkLogger.swift
             - CommunityData.docc/
                 - CommunityData.md
+            - Extensions/
+                - APIEndpointExtension.swift
+                - URLRequestExtension.swift
             - Errors/
                 - NetworkErrors.swift
 ```
