@@ -44,7 +44,6 @@ jobs:
           xcodebuild build test \
             -project community_app.xcodeproj \
             -scheme community_app \
-            -configuration Debug
             -destination 'platform=iOS Simulator,name=iPhone 16' \
             -enableCodeCoverage YES \
             -derivedDataPath ./DerivedData \
