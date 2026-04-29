@@ -18,7 +18,7 @@ final class LoginViewModelTests: XCTestCase {
     override func setUp() {
         super.setUp()
         mockProvider = AuthUseCasesProviderMock()
-        sut = LoginViewModel(authUseCases: mockProvider)
+        sut = LoginViewModel(authUseCases: mockProvider, router: NavigationRouter())
     }
     
     @MainActor
@@ -37,7 +37,7 @@ final class LoginViewModelTests: XCTestCase {
         sut.password = "password123"
         
         // Act
-        sut.loginAttempt()
+        sut.login()
         
         // Wait for the Task to complete
         // We use a small delay or Task.yield since loginAttempt creates a detached Task
@@ -59,7 +59,7 @@ final class LoginViewModelTests: XCTestCase {
         mockProvider.mockVerifyLogin.result = .failure(error)
         
         // Act
-        sut.loginAttempt()
+        sut.login()
         try? await Task.sleep(nanoseconds: 100_000_000)
         
         // Assert

@@ -13,13 +13,14 @@ import SwiftUI
 
 @MainActor
 final class DependencyContainer {
+    private let router: NavigationRouter
     private let networkConfig: NetworkConfiguration
     private let networkClient: CommunityNetworkClient
     
     private var authRepository: AuthRepositoryProtocol!
-    /// Initializes a new dependency container.
-    public init() {
-        
+    
+    public init(router: NavigationRouter) {
+        self.router = router
         let environment: AppEnvironment
         
 #if DEBUG
@@ -38,7 +39,7 @@ final class DependencyContainer {
     
     /// Creates and returns a `LoginViewModel`.
     public func makeLoginViewModel() -> LoginViewModel {
-        return LoginViewModel(authUseCases: self)
+        return LoginViewModel(authUseCases: self, router: router)
     }
     
     /// Creates and returns a `LoginViewModel`.
@@ -58,7 +59,7 @@ extension DependencyContainer: AuthUseCasesProvider {
 extension DependencyContainer: ViewFactory {
     @MainActor
     public func makeLoginView() -> AnyView {
-        let viewModel = LoginViewModel(authUseCases: self)
+        let viewModel = makeLoginViewModel()
         return AnyView(LoginView(viewModel: viewModel))
     }
 

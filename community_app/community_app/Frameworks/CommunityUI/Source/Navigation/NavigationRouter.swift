@@ -8,31 +8,46 @@
 import SwiftUI
 import Combine
 
-/// Defines the possible navigation destinations.
-public enum AppRoute: Identifiable {
+public enum Destination: Hashable {
+    case login
+}
+
+public enum SheetDestination: Identifiable {
     case registration
-    case settings
-    case profile
     
     public var id: String { String(describing: self) }
 }
 
-/// Manages the navigation state for the application.
 @MainActor
 public final class NavigationRouter: ObservableObject {
-    @Published public var sheet: AppRoute?
-    @Published public var fullScreenCover: AppRoute?
+    // For Stack Navigation
+    @Published public var path = NavigationPath()
+    
+    // For Sheets and Modals
+    @Published public var sheet: SheetDestination?
+    
+    // For Alerts
     @Published public var alertItem: AlertItem?
-
+    
     public init() {}
     
-    public func dismissSheet() { sheet = nil }
+    public func navigate(to destination: Destination) {
+        path.append(destination)
+    }
+    
+    public func present(sheet: SheetDestination) {
+        self.sheet = sheet
+    }
+    
+    public func alert(title: String, message: String) {
+        self.alertItem = AlertItem(title: title, message: message, dismissButton: .default(Text("OK")))
+    }
 }
 
 /// A structure to manage alerts across the app.
 public struct AlertItem: Identifiable {
     public let id = UUID()
-    public let title: Text
-    public let message: Text
+    public let title: String
+    public let message: String
     public let dismissButton: Alert.Button
 }

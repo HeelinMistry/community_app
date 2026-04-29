@@ -42,7 +42,6 @@ public final class VerifyUserLoginUseCase: VerifyUserLoginUseCaseProtocol {
     public func execute(_ loginRequest: LoginRequest) async throws -> LoginResponse {
         do {
             let loginResponse = try await auth.verifyUserLogin(loginRequest: loginRequest)
-//            Log.networking.json("Successfully fetched login", loginRequest) // Uncomment and ensure Log is available if needed.
             return (loginResponse)
         } catch {
             // Re-throw the error to be handled by the caller.

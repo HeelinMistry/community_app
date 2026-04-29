@@ -7,7 +7,6 @@
 import SwiftUI
 
 public struct LoginView<T: LoginViewModelProtocol>: View {
-    @EnvironmentObject private var router: NavigationRouter
     @StateObject private var viewModel: T
     
     public init(viewModel: T) {
@@ -35,7 +34,7 @@ public struct LoginView<T: LoginViewModelProtocol>: View {
                 )
                 
                 PrimaryButton("Login") {
-                    viewModel.loginAttempt()
+                    viewModel.login()
                 }
                 .disabled(viewModel.isLoading)
                 
@@ -48,7 +47,7 @@ public struct LoginView<T: LoginViewModelProtocol>: View {
                         .foregroundColor(.gray)
                     
                     SecondaryButton("Register") {
-                        // Action
+                        viewModel.showRegistration()
                     }
                 }
             }
