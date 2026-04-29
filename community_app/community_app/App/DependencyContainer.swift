@@ -11,6 +11,7 @@ import CommunityUI
 import Foundation
 import SwiftUI
 
+/// A dependency injection container responsible for providing view models and other dependencies throughout the application.
 @MainActor
 final class DependencyContainer {
     private let router: NavigationRouter
@@ -19,6 +20,8 @@ final class DependencyContainer {
     
     private var authRepository: AuthRepositoryProtocol!
     
+    /// Initializes the dependency container with a navigation router and sets up networking components based on the current environment.
+    /// - Parameter router: The navigation router used for view transitions.
     public init(router: NavigationRouter) {
         self.router = router
         let environment: AppEnvironment

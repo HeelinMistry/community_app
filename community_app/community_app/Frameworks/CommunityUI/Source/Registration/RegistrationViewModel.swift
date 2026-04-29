@@ -10,31 +10,27 @@ import Foundation
 import CommunityCore
 
 @MainActor
-public protocol RegistrationViewModelProtocol: ObservableObject {
-    var state: RegisterViewState { get }
+public protocol RegistrationViewModelProtocol: StateDrivenViewModel {
     var username: String { get set }
     var displayName: String { get set }
     var email: String { get set }
     var cellNumber: String { get set }
     var password: String { get set }
     var confirmPassword: String { get set }
-    var isLoading: Bool { get }
     
     func register()
 }
 
 @MainActor
 public final class RegistrationViewModel: RegistrationViewModelProtocol {
-    @Published public private(set) var state: RegisterViewState = .idle
+    @Published public private(set) var state: ViewState<RegisterResponse> = .idle
     @Published public var username = ""
     @Published public var displayName = ""
     @Published public var email = ""
     @Published public var cellNumber = ""
     @Published public var password = ""
     @Published public var confirmPassword = ""
-    
-    public var isLoading: Bool { state == .loading }
-    
+
     private let router: NavigationRouter
     private let useCases: any AuthUseCasesProvider
     private var fetchTask: Task<Void, Never>?

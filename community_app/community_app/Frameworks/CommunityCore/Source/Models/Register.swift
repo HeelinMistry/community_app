@@ -5,8 +5,7 @@
 //  Created by Heelin Mistry on 2026/04/29.
 //
 
-
-public struct RegisterRequest: Sendable, Codable, Equatable {
+public nonisolated struct RegisterRequest: Sendable, Codable, Equatable {
     public let username: String
     public let displayName: String
     public let email: String
@@ -43,7 +42,7 @@ public struct RegisterRequest: Sendable, Codable, Equatable {
     }
 }
 
-public struct RegisterResponse: Sendable, Equatable, Encodable, Decodable {
+public nonisolated struct RegisterResponse: Sendable, Equatable, Encodable, Decodable {
     public let success: Bool
     public let message: String
 

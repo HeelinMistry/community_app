@@ -1,20 +1,23 @@
 //
-//  RegisterViewState.swift
+//  LoginViewState.swift
 //  CommunityUI
 //
-//  Created by Heelin Mistry on 2026/04/29.
+//  Created by Heelin Mistry on 2026/04/27.
 //
 
-import CommunityCore
-
 /// Represents the various states of the login process in the user interface.
-public enum RegisterViewState: Equatable {
+public enum ViewState<T: Equatable & Sendable>: Equatable, Sendable {
     /// The initial or reset state, where no login operation is active.
     case idle
     /// The state indicating that a login operation is currently in progress.
     case loading
-    /// The state indicating that the registration operation was successful, providing the `RegisterResponse`.
-    case success(RegisterResponse)
+    /// The state indicating that the login operation was successful, providing the `LoginResponse`.
+    case success(T)
     /// The state indicating that the login operation failed, providing an error message.
     case error(String)
+    
+    public var isLoading: Bool {
+        if case .loading = self { return true }
+        return false
+    }
 }

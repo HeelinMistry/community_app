@@ -10,11 +10,9 @@ import CommunityCore
 import Combine
 
 @MainActor
-public protocol LoginViewModelProtocol: ObservableObject {
-    var state: LoginViewState { get }
+public protocol LoginViewModelProtocol: StateDrivenViewModel {
     var username: String { get set }
     var password: String { get set }
-    var isLoading: Bool { get } 
     
     func login()
     func showRegistration()
@@ -22,14 +20,10 @@ public protocol LoginViewModelProtocol: ObservableObject {
 
 @MainActor
 public final class LoginViewModel: LoginViewModelProtocol {
-    
-    @Published public private(set) var state: LoginViewState = .idle
+
+    @Published public private(set) var state: ViewState<LoginResponse> = .idle
     @Published public var username = ""
     @Published public var password = ""
-    
-    public var isLoading: Bool {
-        state == .loading
-    }
     
     private let router: NavigationRouter
     private let useCases: any AuthUseCasesProvider

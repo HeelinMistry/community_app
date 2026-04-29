@@ -32,7 +32,7 @@ public struct RegistrationView<T: RegistrationViewModelProtocol>: View {
                     PrimaryButton("Create Account") {
                         viewModel.register()
                     }
-                    .disabled(viewModel.isLoading)
+                    .disabled(viewModel.state.isLoading)
                 }
                 .padding(30)
             }

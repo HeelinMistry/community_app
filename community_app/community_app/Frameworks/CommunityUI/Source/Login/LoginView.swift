@@ -36,7 +36,7 @@ public struct LoginView<T: LoginViewModelProtocol>: View {
                 PrimaryButton("Login") {
                     viewModel.login()
                 }
-                .disabled(viewModel.isLoading)
+                .disabled(viewModel.state.isLoading)
                 
                 Divider()
                     .background(Color.white.opacity(0.1))
@@ -56,7 +56,7 @@ public struct LoginView<T: LoginViewModelProtocol>: View {
             .cornerRadius(30)
             .padding(.horizontal, 20)
             .overlay {
-                if viewModel.isLoading {
+                if viewModel.state.isLoading {
                     ProgressView()
                         .progressViewStyle(.circular)
                         .tint(.white)
