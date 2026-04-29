@@ -115,7 +115,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Frameworks/CommunityCore/CommunityCoreTests/MockRepositories/AuthRepositoryMock.swift,
-				Frameworks/CommunityCore/CommunityCoreTests/UseCases/VerifyLoginUseCaseTest.swift,
+				Frameworks/CommunityCore/CommunityCoreTests/UseCases/AuthUseCasesTests.swift,
 				Frameworks/CommunityData/CommunityDataTests/Mocks/URLProtocolMock.swift,
 				Frameworks/CommunityData/CommunityDataTests/Networking/CommunityNetworkClientTests.swift,
 				Frameworks/CommunityData/CommunityDataTests/Repositories/AuthRepositoryTests.swift,
@@ -129,7 +129,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Frameworks/CommunityCore/CommunityCoreTests/MockRepositories/AuthRepositoryMock.swift,
-				Frameworks/CommunityCore/CommunityCoreTests/UseCases/VerifyLoginUseCaseTest.swift,
+				Frameworks/CommunityCore/CommunityCoreTests/UseCases/AuthUseCasesTests.swift,
 				Frameworks/CommunityData/CommunityDataTests/Mocks/URLProtocolMock.swift,
 				Frameworks/CommunityData/CommunityDataTests/Networking/CommunityNetworkClientTests.swift,
 				Frameworks/CommunityData/CommunityDataTests/Repositories/AuthRepositoryTests.swift,
