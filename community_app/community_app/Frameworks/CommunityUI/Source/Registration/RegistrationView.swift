@@ -23,11 +23,14 @@ public struct RegistrationView<T: RegistrationViewModelProtocol>: View {
                 
                 VStack(spacing: 20) {
                     PrimaryTextInput(label: "Username", placeholder: "e.g. newUser", text: $viewModel.username)
+                    PrimaryTextInput(label: "Display Name", placeholder: "e.g. Sparkles", text: $viewModel.displayName)
                     PrimaryTextInput(label: "Email", placeholder: "e.g. hello@community.com", text: $viewModel.email)
+                    PrimaryTextInput(label: "Cell Number", placeholder: "e.g. 0726759182", text: $viewModel.cellNumber)
                     PrimaryTextInput(label: "Password", placeholder: "********", text: $viewModel.password)
+                    PrimaryTextInput(label: "Confirm Password", placeholder: "********", text: $viewModel.confirmPassword)
                     
                     PrimaryButton("Create Account") {
-                        viewModel.registerAttempt()
+                        viewModel.register()
                     }
                     .disabled(viewModel.isLoading)
                 }
@@ -37,7 +40,7 @@ public struct RegistrationView<T: RegistrationViewModelProtocol>: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") { router.sheet = nil } // Dismiss the modal
+                    Button("Done") { router.sheet = nil }
                 }
             }
         }

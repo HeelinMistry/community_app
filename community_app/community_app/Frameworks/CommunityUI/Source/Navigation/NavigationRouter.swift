@@ -19,7 +19,7 @@ public enum SheetDestination: Identifiable {
 }
 
 @MainActor
-public final class NavigationRouter: ObservableObject {
+public class NavigationRouter: ObservableObject {
     // For Stack Navigation
     @Published public var path = NavigationPath()
     

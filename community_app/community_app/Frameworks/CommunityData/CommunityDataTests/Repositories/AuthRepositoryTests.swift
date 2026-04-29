@@ -52,7 +52,7 @@ final class AuthRepositoryTests: XCTestCase {
         }
 
         // Act
-        let result = try await sut.verifyUserLogin(loginRequest: request)
+        let result = try await sut.loginUser(loginRequest: request)
 
         // Assert
         XCTAssertTrue(result == expectedResponse)
@@ -74,7 +74,7 @@ final class AuthRepositoryTests: XCTestCase {
 
         // Act & Assert
         do {
-            _ = try await sut.verifyUserLogin(loginRequest: request)
+            _ = try await sut.loginUser(loginRequest: request)
             XCTFail("Should throw serverError(401)")
         } catch let error as NetworkError {
             if case .serverError(let code) = error {

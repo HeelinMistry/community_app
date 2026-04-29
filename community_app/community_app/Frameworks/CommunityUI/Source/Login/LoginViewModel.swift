@@ -49,7 +49,7 @@ public final class LoginViewModel: LoginViewModelProtocol {
         let loginRequest = LoginRequest(username: username, password: password)
         fetchTask = Task {
             do {
-                let response: LoginResponse = try await useCases.verifyLogin.execute(loginRequest)
+                let response: LoginResponse = try await useCases.loginUser.execute(loginRequest)
                 if !Task.isCancelled {
                     self.state = .success(response)
                 }

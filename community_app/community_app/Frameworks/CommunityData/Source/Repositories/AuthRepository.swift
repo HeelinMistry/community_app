@@ -17,10 +17,18 @@ public final class AuthRepository: AuthRepositoryProtocol {
         self.networkClient = networkClient
     }
     
-    public func verifyUserLogin(loginRequest: LoginRequest) async throws -> LoginResponse {
+    public func loginUser(loginRequest: LoginRequest) async throws -> LoginResponse {
         do {
-            let dto: LoginResponse = try await networkClient.fetch(from: CommunityEndpoint.login(loginRequest: loginRequest))
-//            Log.networking.json("Successfully fetched current weather", dto)
+            let dto: LoginResponse = try await networkClient.fetch(from: CommunityEndpoint.login(loginRequest))
+            return dto
+        } catch {
+            throw error
+        }
+    }
+    
+    public func registerUser(registerRequest: RegisterRequest) async throws -> RegisterResponse {
+        do {
+            let dto: RegisterResponse = try await networkClient.fetch(from: CommunityEndpoint.register(registerRequest))
             return dto
         } catch {
             throw error

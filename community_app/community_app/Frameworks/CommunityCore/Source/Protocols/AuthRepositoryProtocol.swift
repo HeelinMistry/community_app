@@ -17,5 +17,14 @@ public protocol AuthRepositoryProtocol: Sendable {
     ///   - loginRequest: LoginRequest.
     /// - Returns: A `LoginResponse` containing data.
     /// - Throws: `NetworkError` if the API call fails or `DatabaseError` if caching fails.
-    func verifyUserLogin(loginRequest: LoginRequest) async throws -> LoginResponse
+    func loginUser(loginRequest: LoginRequest) async throws -> LoginResponse
+    func registerUser(registerRequest: RegisterRequest) async throws -> RegisterResponse
+}
+
+public protocol LoginUseCaseProtocol: Sendable {
+    func execute(_ request: LoginRequest) async throws -> LoginResponse
+}
+
+public protocol RegisterUseCaseProtocol: Sendable {
+    func execute(_ request: RegisterRequest) async throws -> RegisterResponse
 }

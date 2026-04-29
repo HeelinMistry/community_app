@@ -10,7 +10,7 @@ import XCTest
 
 final class VerifyUserLoginUseCaseTests: XCTestCase {
     
-    private var sut: VerifyUserLoginUseCase! // System Under Test
+    private var sut: AuthUseCases!
     private var mockAuthRepository: AuthRepositoryMock!
 
     override func tearDown() {
@@ -23,11 +23,11 @@ final class VerifyUserLoginUseCaseTests: XCTestCase {
         mockAuthRepository = AuthRepositoryMock()
         
         let expected_response = LoginResponse(access_token: "12345_67890", token_type: "Bearer")
-        await mockAuthRepository.setResult(
+        await mockAuthRepository.setLoginResult(
             .success(expected_response)
         )
         
-        let sut = VerifyUserLoginUseCase(auth: mockAuthRepository)
+        let sut = AuthUseCases(auth: mockAuthRepository)
         let response = try await sut.execute(LoginRequest(username: "user", password: "pw"))
         
         XCTAssertTrue(response == expected_response)
@@ -38,11 +38,11 @@ final class VerifyUserLoginUseCaseTests: XCTestCase {
         
         let request = LoginRequest(username: "testUser", password: "password123")
         let expectedError = NSError(domain: "NetworkError", code: 401, userInfo: nil)
-        await mockAuthRepository.setResult(
+        await mockAuthRepository.setLoginResult(
             .failure(expectedError)
         )
         
-        let sut = VerifyUserLoginUseCase(auth: mockAuthRepository)
+        let sut = AuthUseCases(auth: mockAuthRepository)
         do {
             _ = try await sut.execute(request)
             XCTFail("Expected error to be thrown, but it succeeded.")

@@ -44,15 +44,17 @@ final class DependencyContainer {
     
     /// Creates and returns a `LoginViewModel`.
     public func makeRegistrationViewModel() -> RegistrationViewModel {
-        return RegistrationViewModel(authUseCases: self)
+        return RegistrationViewModel(authUseCases: self, router: router)
     }
 }
 
 extension DependencyContainer: AuthUseCasesProvider {
+    var loginUser: any LoginUseCaseProtocol {
+        AuthUseCases(auth: authRepository)
+    }
     
-    /// Provides a use case for verifying user login.
-    public var verifyLogin: VerifyUserLoginUseCaseProtocol {
-        VerifyUserLoginUseCase(auth: authRepository)
+    var registerUser: any RegisterUseCaseProtocol {
+        AuthUseCases(auth: authRepository)
     }
 }
 
@@ -65,7 +67,7 @@ extension DependencyContainer: ViewFactory {
 
     @MainActor
     public func makeRegistrationView() -> AnyView {
-        let viewModel = RegistrationViewModel(authUseCases: self)
+        let viewModel = makeRegistrationViewModel()
         return AnyView(RegistrationView(viewModel: viewModel))
     }
 }
