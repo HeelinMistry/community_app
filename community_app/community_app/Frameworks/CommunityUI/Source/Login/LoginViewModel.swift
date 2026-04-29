@@ -14,16 +14,22 @@ public protocol LoginViewModelProtocol: ObservableObject {
     var state: LoginViewState { get }
     var username: String { get set }
     var password: String { get set }
+    var isLoading: Bool { get } // Add this line
     
     func loginAttempt()
 }
 
 @MainActor
 public final class LoginViewModel: LoginViewModelProtocol {
-
+    
     @Published public private(set) var state: LoginViewState = .idle
     @Published public var username = ""
     @Published public var password = ""
+    
+    // Implement the new isLoading property
+    public var isLoading: Bool {
+        state == .loading
+    }
     
     private let useCases: any AuthUseCasesProvider
     private var fetchTask: Task<Void, Never>?
@@ -40,16 +46,12 @@ public final class LoginViewModel: LoginViewModelProtocol {
         let loginRequest = LoginRequest(username: username, password: password)
         fetchTask = Task {
             do {
-                //                Log.ui.debug("FetchCurrentWeatherUseCase executing (Includes Location Auth)")
                 let response: LoginResponse = try await useCases.verifyLogin.execute(loginRequest)
                 if !Task.isCancelled {
-                    print(response)
-                    //                    Log.ui.json("Coord fetched", coord, level: .info)
                     self.state = .success(response)
                 }
             } catch {
                 if !Task.isCancelled {
-                    //                    Log.ui.error("Error login: \(error.localizedDescription)")
                     self.state = .error(error.localizedDescription)
                 }
             }

@@ -6,6 +6,7 @@ import CommunityUI
 
 @main
 struct CommunitySwiftApp: App {
+    let router = NavigationRouter()
     let container = DependencyContainer()
     
     init() {
@@ -14,7 +15,8 @@ struct CommunitySwiftApp: App {
     
     var body: some Scene {
         WindowGroup {
-            LoginView(viewModel: container.makeLoginViewModel())
+            container.makeLoginView()
+                .environmentObject(router)
         }
     }
 }

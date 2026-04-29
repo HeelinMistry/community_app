@@ -7,6 +7,7 @@
 import SwiftUI
 
 public struct LoginView<T: LoginViewModelProtocol>: View {
+    @EnvironmentObject private var router: NavigationRouter
     @StateObject private var viewModel: T
     
     public init(viewModel: T) {
@@ -36,6 +37,7 @@ public struct LoginView<T: LoginViewModelProtocol>: View {
                 PrimaryButton("Login") {
                     viewModel.loginAttempt()
                 }
+                .disabled(viewModel.isLoading)
                 
                 Divider()
                     .background(Color.white.opacity(0.1))
@@ -54,6 +56,17 @@ public struct LoginView<T: LoginViewModelProtocol>: View {
             .background(Assets.theme.inputBackground)
             .cornerRadius(30)
             .padding(.horizontal, 20)
+            .overlay {
+                if viewModel.isLoading {
+                    ProgressView()
+                        .progressViewStyle(.circular)
+                        .tint(.white)
+                        .scaleEffect(1.5)
+                        .padding()
+                        .background(Color.black.opacity(0.6))
+                        .cornerRadius(10)
+                }
+            }
         }
     }
 }
