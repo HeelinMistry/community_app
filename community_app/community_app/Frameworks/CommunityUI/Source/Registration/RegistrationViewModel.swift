@@ -51,8 +51,7 @@ public final class RegistrationViewModel: RegistrationViewModelProtocol {
             displayName: displayName,
             email: email,
             cellNumber: cellNumber,
-            password: password,
-            confirmPassword: confirmPassword
+            password: password
         )
         fetchTask = Task {
             do {

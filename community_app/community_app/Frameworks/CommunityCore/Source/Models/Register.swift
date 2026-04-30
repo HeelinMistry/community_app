@@ -40,16 +40,16 @@ public nonisolated struct RegisterRequest: Sendable, Codable, Equatable {
 
 public nonisolated struct RegisterResponse: Sendable, Equatable, Encodable, Decodable {
     public let success: Bool
-    public let message: String
+    public let detail: String
 
-    public init(success: Bool, message: String) {
+    public init(success: Bool, detail: String) {
         self.success = success
-        self.message = message
+        self.detail = detail
     }
     
     public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         success = try values.decode(Bool.self, forKey: .success)
-        message = try values.decode(String.self, forKey: .message)
+        detail = try values.decode(String.self, forKey: .detail)
     }
 }
