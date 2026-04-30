@@ -10,6 +10,7 @@ import Foundation
 public enum NetworkError: Error, LocalizedError, Equatable { 
     case invalidURL
     case serverError(Int)
+    case customError(String)
     case decodingFailed
     case noData
     case unknown(Error)
@@ -18,6 +19,7 @@ public enum NetworkError: Error, LocalizedError, Equatable {
         switch self {
         case .invalidURL: return "The URL provided was invalid."
         case .serverError(let code): return "Server returned an error: \(code)."
+        case .customError(let description): return description
         case .decodingFailed: return "Failed to parse the weather data."
         case .noData: return "No data was returned from the server."
         case .unknown(let error): return error.localizedDescription
@@ -29,6 +31,8 @@ public enum NetworkError: Error, LocalizedError, Equatable {
         case (.invalidURL, .invalidURL):
             return true
         case (.serverError(let lhsCode), .serverError(let rhsCode)):
+            return lhsCode == rhsCode
+        case (.customError(let lhsCode), .customError(let rhsCode)):
             return lhsCode == rhsCode
         case (.decodingFailed, .decodingFailed):
             return true

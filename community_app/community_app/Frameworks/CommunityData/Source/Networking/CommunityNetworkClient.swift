@@ -40,6 +40,14 @@ public actor CommunityNetworkClient {
         }
         logger.logResponse(httpResponse, data: data)
         
+        if (400...499).contains(httpResponse.statusCode) {
+            if let errorBody = try? JSONDecoder().decode(APIErrorResponse.self, from: data) {
+                throw NetworkError.customError(errorBody.detail)
+            } else {
+                throw NetworkError.serverError(httpResponse.statusCode)
+            }
+        }
+        
         if !(200...299).contains(httpResponse.statusCode) {
             throw NetworkError.serverError(httpResponse.statusCode)
         }
