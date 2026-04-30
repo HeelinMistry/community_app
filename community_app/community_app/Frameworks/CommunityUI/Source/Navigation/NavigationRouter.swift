@@ -10,6 +10,7 @@ import Combine
 
 public enum Destination: Hashable {
     case login
+    case dashboard
 }
 
 public enum SheetDestination: Identifiable {
@@ -29,6 +30,8 @@ public class NavigationRouter: ObservableObject {
     // For Alerts
     @Published public var alertItem: AlertItem?
     
+    @Published public var isAuthenticated: Bool = false
+    
     public init() {}
     
     public func navigate(to destination: Destination) {
@@ -41,6 +44,12 @@ public class NavigationRouter: ObservableObject {
     
     public func alert(title: String, message: String) {
         self.alertItem = AlertItem(title: title, message: message, dismissButton: .default(Text("OK")))
+    }
+    
+    public func loginSuccess() {
+        self.sheet = nil // Close the registration/login sheet
+        self.isAuthenticated = true
+        self.path = NavigationPath() // Clear stack for a fresh start
     }
 }
 

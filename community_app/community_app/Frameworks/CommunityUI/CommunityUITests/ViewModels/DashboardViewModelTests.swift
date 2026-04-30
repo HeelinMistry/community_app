@@ -1,8 +1,8 @@
 //
-//  LoginViewModelTests.swift
-//  CommunityUI
+//  DashboardViewModelTests.swift
+//  community_app
 //
-//  Created by Heelin Mistry on 2026/04/27.
+//  Created by Heelin Mistry on 2026/04/30.
 //
 
 import XCTest
@@ -11,16 +11,16 @@ import Combine
 @testable import CommunityCore
 
 @MainActor
-final class LoginViewModelTests: XCTestCase {
-    private var sut: LoginViewModel!
+final class DashboardViewModelTests: XCTestCase {
+    private var sut: DashboardViewModel!
     private var mockRouter: NavigationRouter!
-    private var mockProvider: AuthUseCasesProviderMock!
+    private var mockProvider: DashboardUseCasesProviderMock!
     
     override func setUp() {
         super.setUp()
         mockProvider = .init()
         mockRouter = .init()
-        sut = .init(authUseCases: mockProvider, router: mockRouter)
+        sut = .init(useCases: mockProvider, router: mockRouter)
     }
     
     override func tearDown() {
@@ -32,13 +32,11 @@ final class LoginViewModelTests: XCTestCase {
     
     func testLogin_WhenSuccessful_SetsSuccessState() async {
         // Arrange
-        let expectedResponse = LoginResponse(access_token: "12345_67890", token_type: "Bearer")
-        mockProvider.mockAuthUseCases.loginResult = .success(expectedResponse)
-        sut.username = "test_user"
-        sut.password = "password123"
+        let expectedResponse = MatchResponse(success: true, id: "12345")
+        mockProvider.mockDashboardUseCases.matchResult = .success(expectedResponse)
         
         // Act
-        sut.login()
+        sut.matchFeed()
         
         // Wait for the Task to complete
         // We use a small delay or Task.yield since loginAttempt creates a detached Task
@@ -47,7 +45,6 @@ final class LoginViewModelTests: XCTestCase {
         // Assert
         if case .success(let response) = sut.state {
             XCTAssertTrue(response == expectedResponse)
-            XCTAssertTrue(mockRouter.isAuthenticated)
         } else {
             XCTFail("Expected .success state, got \(sut.state)")
         }
@@ -57,10 +54,10 @@ final class LoginViewModelTests: XCTestCase {
         // Arrange
         let errorMessage = "Invalid Credentials"
         let error = NSError(domain: "Auth", code: 401, userInfo: [NSLocalizedDescriptionKey: errorMessage])
-        mockProvider.mockAuthUseCases.loginResult = .failure(error)
+        mockProvider.mockDashboardUseCases.matchResult = .failure(error)
         
         // Act
-        sut.login()
+        sut.matchFeed()
         try? await Task.sleep(nanoseconds: 100_000_000)
         
         // Assert
@@ -69,13 +66,5 @@ final class LoginViewModelTests: XCTestCase {
         } else {
             XCTFail("Expected .error state")
         }
-    }
-    
-    func test_whenShowRegistrationIsCalled_routerNavigatesToRegistration() {
-        // Act
-        sut.showRegistration()
-        
-        // Assert
-        XCTAssertEqual(mockRouter.sheet, .registration)
     }
 }
