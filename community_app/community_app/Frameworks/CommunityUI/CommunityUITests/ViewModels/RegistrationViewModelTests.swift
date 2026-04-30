@@ -1,8 +1,8 @@
 //
-//  LoginViewModelTests.swift
+//  RegistrationViewModelTests.swift
 //  CommunityUI
 //
-//  Created by Heelin Mistry on 2026/04/27.
+//  Created by Heelin Mistry on 2026/04/29.
 //
 
 import XCTest
@@ -11,8 +11,8 @@ import Combine
 @testable import CommunityCore
 
 @MainActor
-final class LoginViewModelTests: XCTestCase {
-    private var sut: LoginViewModel!
+final class RegistrationViewModelTests: XCTestCase {
+    private var sut: RegistrationViewModel!
     private var mockRouter: NavigationRouter!
     private var mockProvider: AuthUseCasesProviderMock!
     
@@ -30,15 +30,13 @@ final class LoginViewModelTests: XCTestCase {
         super.tearDown()
     }
     
-    func testLogin_WhenSuccessful_SetsSuccessState() async {
+    func testRegister_WhenSuccessful_SetsSuccessState() async {
         // Arrange
-        let expectedResponse = LoginResponse(access_token: "12345_67890", token_type: "Bearer")
-        mockProvider.mockAuthUseCases.loginResult = .success(expectedResponse)
-        sut.username = "test_user"
-        sut.password = "password123"
+        let expectedResponse = RegisterResponse(success: true, detail: "Registered successfully")
+        mockProvider.mockAuthUseCases.registerResult = .success(expectedResponse)
         
         // Act
-        sut.login()
+        sut.register()
         
         // Wait for the Task to complete
         // We use a small delay or Task.yield since loginAttempt creates a detached Task
@@ -52,14 +50,14 @@ final class LoginViewModelTests: XCTestCase {
         }
     }
     
-    func testLogin_WhenFails_SetsErrorState() async {
+    func testRegister_WhenFails_SetsErrorState() async {
         // Arrange
         let errorMessage = "Invalid Credentials"
         let error = NSError(domain: "Auth", code: 401, userInfo: [NSLocalizedDescriptionKey: errorMessage])
-        mockProvider.mockAuthUseCases.loginResult = .failure(error)
+        mockProvider.mockAuthUseCases.registerResult = .failure(error)
         
         // Act
-        sut.login()
+        sut.register()
         try? await Task.sleep(nanoseconds: 100_000_000)
         
         // Assert
@@ -68,13 +66,5 @@ final class LoginViewModelTests: XCTestCase {
         } else {
             XCTFail("Expected .error state")
         }
-    }
-    
-    func test_whenShowRegistrationIsCalled_routerNavigatesToRegistration() {
-        // Act
-        sut.showRegistration()
-        
-        // Assert
-        XCTAssertEqual(mockRouter.sheet, .registration)
     }
 }

@@ -34,9 +34,6 @@ jobs:
       - name: 💎 Install Ruby Gems (xcov)
         run: sudo gem install xcov
 
-      - name: 🔍 Debug File Structure
-        run: find . -name "*.framework" -maxdepth 4
-
       - name: 🏃 Run Unit Tests
         working-directory: community_app
         run: |

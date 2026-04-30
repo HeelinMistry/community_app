@@ -5,7 +5,7 @@
 //  Created by Heelin Mistry on 2026/04/27.
 //
 
-public struct LoginRequest: Sendable, Codable, Equatable {
+public nonisolated struct LoginRequest: Sendable, Codable, Equatable {
     public let username: String
     public let password: String
     
@@ -26,7 +26,7 @@ public struct LoginRequest: Sendable, Codable, Equatable {
     }
 }
 
-public struct LoginResponse: Sendable, Equatable, Encodable, Decodable {
+public nonisolated struct LoginResponse: Sendable, Equatable, Encodable, Decodable {
     public let access_token: String
     public let token_type: String
 

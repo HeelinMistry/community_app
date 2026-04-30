@@ -45,7 +45,7 @@ final class CommunityNetworkClientTests: XCTestCase {
         
         // Act & Assert
         do {
-            let _: LoginResponse = try await sut.fetch(from: CommunityEndpoint.login(loginRequest: .init(username: "u", password: "p")))
+            let _: LoginResponse = try await sut.fetch(from: CommunityEndpoint.login(.init(username: "u", password: "p")))
             XCTFail("Expected .serverError(404), but no error was thrown.")
         } catch let error as NetworkError {
             if case .serverError(let code) = error {
@@ -69,7 +69,7 @@ final class CommunityNetworkClientTests: XCTestCase {
         
         // Act & Assert
         do {
-            let _: LoginResponse = try await sut.fetch(from: CommunityEndpoint.login(loginRequest: .init(username: "u", password: "p")))
+            let _: LoginResponse = try await sut.fetch(from: CommunityEndpoint.login(.init(username: "u", password: "p")))
             XCTFail("Expected .decodingFailed, but no error was thrown.")
         } catch let error as NetworkError {
             XCTAssertEqual(error, .decodingFailed)

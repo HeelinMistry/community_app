@@ -10,8 +10,6 @@ import CommunityCore
 
 /// A protocol defining the basic requirements for an API endpoint.
 public protocol APIEndpoint: Sendable {
-    /// The base URL for the API endpoint.
-    nonisolated var baseURL: URL { get }
     /// The specific path component for the API endpoint.
     nonisolated var path: String { get }
     /// The HTTP method to be used for the request (e.g., GET, POST).
@@ -37,10 +35,9 @@ enum CommunityEndpoint: APIEndpoint {
     /// - Parameters:
     ///   - lat: The latitude for the location.
     ///   - lon: The longitude for the location.
-    case login(loginRequest: LoginRequest)
+    case login(_ loginRequest: LoginRequest)
     
-    /// The base URL for the OpenWeatherMap API.
-    var baseURL: URL { URL(string: "http://localhost:8000/")! }
+    case register(_ registerRequest: RegisterRequest)
     
     /// The HTTP method for all OpenWeatherMap endpoints, which is GET.
     var method: HTTPMethod {
@@ -51,13 +48,15 @@ enum CommunityEndpoint: APIEndpoint {
     var path: String {
         switch self {
         case .login: return "api/v1/auth/login"
+        case .register: return "api/v1/auth/register"
         }
     }
     
     /// The query items required for each endpoint
     var queryItems: [URLQueryItem] {
         switch self {
-        case .login:
+        case .login,
+                .register:
             return []
         }
     }
@@ -67,6 +66,8 @@ enum CommunityEndpoint: APIEndpoint {
         switch self {
         case .login(let loginRequest):
             return loginRequest
+        case .register(let registerRequest):
+            return registerRequest
         }
     }
 }

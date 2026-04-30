@@ -10,49 +10,56 @@ import CommunityCore
 import Combine
 
 @MainActor
-public protocol LoginViewModelProtocol: ObservableObject {
-    var state: LoginViewState { get }
+public protocol LoginViewModelProtocol: StateDrivenViewModel {
     var username: String { get set }
     var password: String { get set }
     
-    func loginAttempt()
+    func login()
+    func showRegistration()
 }
 
 @MainActor
 public final class LoginViewModel: LoginViewModelProtocol {
 
-    @Published public private(set) var state: LoginViewState = .idle
+    @Published public private(set) var state: ViewState<LoginResponse> = .idle
     @Published public var username = ""
     @Published public var password = ""
     
+    private let router: NavigationRouter
     private let useCases: any AuthUseCasesProvider
     private var fetchTask: Task<Void, Never>?
     
     public init(
-        authUseCases: any AuthUseCasesProvider
+        authUseCases: any AuthUseCasesProvider,
+        router: NavigationRouter
     ) {
         self.useCases = authUseCases
+        self.router = router
     }
     
-    public func loginAttempt() {
+    public func login() {
         fetchTask?.cancel()
         state = .loading
         let loginRequest = LoginRequest(username: username, password: password)
         fetchTask = Task {
             do {
-                //                Log.ui.debug("FetchCurrentWeatherUseCase executing (Includes Location Auth)")
-                let response: LoginResponse = try await useCases.verifyLogin.execute(loginRequest)
+                let response: LoginResponse = try await useCases.loginUser.execute(loginRequest)
                 if !Task.isCancelled {
-                    print(response)
-                    //                    Log.ui.json("Coord fetched", coord, level: .info)
                     self.state = .success(response)
                 }
             } catch {
                 if !Task.isCancelled {
-                    //                    Log.ui.error("Error login: \(error.localizedDescription)")
                     self.state = .error(error.localizedDescription)
+                    router.alert(
+                        title: "Error",
+                        message: "Unable to login. Please try again."
+                    )
                 }
             }
         }
+    }
+    
+    public func showRegistration() {
+        router.present(sheet: .registration)
     }
 }

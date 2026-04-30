@@ -10,7 +10,7 @@
 public protocol AuthUseCasesProvider {
     
     /// The use case for verifying a user's login credentials.
-    var verifyLogin: VerifyUserLoginUseCaseProtocol { get }
-//    var register: RegisterUseCaseProtocol { get }
-    // Add future auth-related use cases here
+    var loginUser: LoginUseCaseProtocol { get }
+    /// The use case for registering a new user.
+    var registerUser: RegisterUseCaseProtocol { get }
 }

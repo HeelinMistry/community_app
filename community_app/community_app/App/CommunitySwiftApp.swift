@@ -6,15 +6,22 @@ import CommunityUI
 
 @main
 struct CommunitySwiftApp: App {
-    let container = DependencyContainer()
+    @StateObject private var router = NavigationRouter()
+    private let container: DependencyContainer
     
     init() {
         Assets.theme = CommunityTheme()
+        
+        let sharedRouter = NavigationRouter()
+        self._router = StateObject(wrappedValue: sharedRouter)
+        self.container = DependencyContainer(router: sharedRouter)
     }
     
     var body: some Scene {
         WindowGroup {
-            LoginView(viewModel: container.makeLoginViewModel())
+            RootNavigationView()
+                .environmentObject(router)
+                .environment(\.viewFactory, container)
         }
     }
 }

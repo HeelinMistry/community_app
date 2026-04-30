@@ -34,8 +34,9 @@ public struct LoginView<T: LoginViewModelProtocol>: View {
                 )
                 
                 PrimaryButton("Login") {
-                    viewModel.loginAttempt()
+                    viewModel.login()
                 }
+                .disabled(viewModel.state.isLoading)
                 
                 Divider()
                     .background(Color.white.opacity(0.1))
@@ -46,7 +47,7 @@ public struct LoginView<T: LoginViewModelProtocol>: View {
                         .foregroundColor(.gray)
                     
                     SecondaryButton("Register") {
-                        // Action
+                        viewModel.showRegistration()
                     }
                 }
             }
@@ -54,6 +55,17 @@ public struct LoginView<T: LoginViewModelProtocol>: View {
             .background(Assets.theme.inputBackground)
             .cornerRadius(30)
             .padding(.horizontal, 20)
+            .overlay {
+                if viewModel.state.isLoading {
+                    ProgressView()
+                        .progressViewStyle(.circular)
+                        .tint(.white)
+                        .scaleEffect(1.5)
+                        .padding()
+                        .background(Color.black.opacity(0.6))
+                        .cornerRadius(10)
+                }
+            }
         }
     }
 }
