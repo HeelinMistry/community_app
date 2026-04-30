@@ -42,11 +42,17 @@ Caching is done storing to a local file on device, implemented so this can imple
 - Frameworks/
     - CommunityUI/
         - Source/
-            - ViewModels/
-                - LoginViewModel.swift
-                - LoginViewState.swift
+            - ViewState.swift
+            - StateDrivenViewModel.swift
+            - Registration/
+                - RegistrationView.swift
+                - RegistrationViewModel.swift
             - CommunityUI.docc/
                 - CommunityUI.md
+            - Navigation/
+                - NavigationRouter.swift
+                - ViewFactory.swift
+                - RootNavigationView.swift
             - Theming/
                 - Assets.swift
                 - DefaultTheme.swift
@@ -57,12 +63,14 @@ Caching is done storing to a local file on device, implemented so this can imple
                 - PrimaryButton.swift
                 - BrandLogo.swift
                 - SecondaryButton.swift
-            - Views/
+            - Login/
+                - LoginViewModel.swift
                 - LoginView.swift
     - CommunityCore/
         - Source/
             - Models/
                 - Login.swift
+                - Register.swift
                 - AnyEncodable.swift
             - Observability/
                 - AppEnvironment.swift
@@ -73,7 +81,7 @@ Caching is done storing to a local file on device, implemented so this can imple
             - Protocols/
                 - AuthRepositoryProtocol.swift
             - UseCases/
-                - VerifyLoginUseCase.swift
+                - AuthUseCase.swift
     - CommunityData/
         - Source/
             - Networking/
