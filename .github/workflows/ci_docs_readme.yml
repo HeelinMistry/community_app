@@ -81,19 +81,18 @@ jobs:
         run: python3 generate_structure.py
 
       # 3. Commit and Push changes
-      - name: Commit changes
+      - name: Commit README changes
         working-directory: community_app
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add README.md docs/
-
+          git add README.md # Only track the README structure
+          
           if ! git diff --cached --exit-code; then
-            git commit -m "chore: auto-update readme structure"
-            git pull --rebase origin main
-            git push
+            git commit -m "chore: auto-update readme structure [skip ci]"
+            git push origin main
           else
-            echo "No changes to commit"
+            echo "No changes to README"
           fi
 
       # 4. Deploy to GitHub Pages
