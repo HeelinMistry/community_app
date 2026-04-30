@@ -64,6 +64,7 @@ public final class RegistrationViewModel: RegistrationViewModelProtocol {
                 let response: RegisterResponse = try await useCases.registerUser.execute(registerRequest)
                 if !Task.isCancelled {
                     self.state = .success(response)
+                    router.sheet = nil
                 }
             } catch {
                 if !Task.isCancelled {

@@ -24,6 +24,8 @@ public struct PrimaryTextInput: View {
     ///   - label: The label for the input field.
     ///   - placeholder: The placeholder text to display when the field is empty.
     ///   - text: A `Binding` to the string variable that will hold the input's value.
+    ///   - errorMessage: An optional error message to display below the input field. If present, the border and label will turn red.
+    ///   - isSecure: A Boolean value indicating whether the text input should obscure the text for secure entry, such as passwords.
     public init(
         label: String,
         placeholder: String,
