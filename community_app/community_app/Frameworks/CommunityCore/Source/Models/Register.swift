@@ -11,7 +11,6 @@ public nonisolated struct RegisterRequest: Sendable, Codable, Equatable {
     public let email: String
     public let cellNumber: String
     public let password: String
-    public let confirmPassword: String
     
     enum CodingKeys: String, CodingKey {
         case username
@@ -19,16 +18,14 @@ public nonisolated struct RegisterRequest: Sendable, Codable, Equatable {
         case email
         case cellNumber
         case password
-        case confirmPassword
     }
     
-    public init(username: String, displayName: String, email: String, cellNumber: String, password: String, confirmPassword: String) {
+    public init(username: String, displayName: String, email: String, cellNumber: String, password: String) {
         self.username = username
         self.displayName = displayName
         self.email = email
         self.cellNumber = cellNumber
         self.password = password
-        self.confirmPassword = confirmPassword
     }
     
     public init(from decoder: Decoder) throws {
@@ -38,7 +35,6 @@ public nonisolated struct RegisterRequest: Sendable, Codable, Equatable {
         email = try values.decode(String.self, forKey: .email)
         cellNumber = try values.decode(String.self, forKey: .cellNumber)
         password = try values.decode(String.self, forKey: .password)
-        confirmPassword = try values.decode(String.self, forKey: .confirmPassword)
     }
 }
 
