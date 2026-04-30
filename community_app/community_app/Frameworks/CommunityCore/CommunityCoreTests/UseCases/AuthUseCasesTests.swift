@@ -56,7 +56,7 @@ final class AuthUseCasesTests: XCTestCase {
     func testRegisterExecute_WhenLoginIsSuccessful_ReturnsSuccessResponse() async throws {
         mockAuthRepository = AuthRepositoryMock()
         
-        let expected_response = RegisterResponse(success: true, message: "Successful register")
+        let expected_response = RegisterResponse(success: true, detail: "Successful register")
         await mockAuthRepository.setRegisterResult(
             .success(expected_response)
         )
@@ -68,8 +68,7 @@ final class AuthUseCasesTests: XCTestCase {
                 displayName: "DisplayName",
                 email: "test@test.com",
                 cellNumber: "0743575272",
-                password: "hidden",
-                confirmPassword: "hidden"
+                password: "hidden"
             )
         )
         
@@ -84,8 +83,7 @@ final class AuthUseCasesTests: XCTestCase {
             displayName: "DisplayName",
             email: "test@test.com",
             cellNumber: "0743575272",
-            password: "hidden",
-            confirmPassword: "hidden"
+            password: "hidden"
         )
         let expectedError = NSError(domain: "NetworkError", code: 401, userInfo: nil)
         await mockAuthRepository.setRegisterResult(

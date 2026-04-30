@@ -32,7 +32,7 @@ final class RegistrationViewModelTests: XCTestCase {
     
     func testRegister_WhenSuccessful_SetsSuccessState() async {
         // Arrange
-        let expectedResponse = RegisterResponse(success: true, message: "Registered successfully")
+        let expectedResponse = RegisterResponse(success: true, detail: "Registered successfully")
         mockProvider.mockAuthUseCases.registerResult = .success(expectedResponse)
         
         // Act
