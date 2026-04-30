@@ -60,5 +60,6 @@ community_backend/
        uvicorn app.main:app --reload --port 8000
 
        staging
+       docker build -t community-backend .  
        docker run -d -p 8000:8000 --name community-api community-backend
        ```
