@@ -31,17 +31,20 @@ public enum HTTPMethod: String, Sendable {
 
 /// An enumeration representing specific endpoints for the OpenWeatherMap API.
 enum CommunityEndpoint: APIEndpoint {
-    /// Represents the current weather endpoint.
-    /// - Parameters:
-    ///   - lat: The latitude for the location.
-    ///   - lon: The longitude for the location.
     case login(_ loginRequest: LoginRequest)
     
     case register(_ registerRequest: RegisterRequest)
     
+    case matches
+    
     /// The HTTP method for all OpenWeatherMap endpoints, which is GET.
     var method: HTTPMethod {
-        return .post
+        switch self {
+        case .matches:
+            return .get
+        case .login, .register:
+            return .post
+        }
     }
     
     /// The specific path for each OpenWeatherMap endpoint.
@@ -49,6 +52,7 @@ enum CommunityEndpoint: APIEndpoint {
         switch self {
         case .login: return "api/v1/auth/login"
         case .register: return "api/v1/auth/register"
+        case .matches: return "api/v1/auth/matches"
         }
     }
     
@@ -56,7 +60,8 @@ enum CommunityEndpoint: APIEndpoint {
     var queryItems: [URLQueryItem] {
         switch self {
         case .login,
-                .register:
+                .register,
+                .matches:
             return []
         }
     }
@@ -68,6 +73,8 @@ enum CommunityEndpoint: APIEndpoint {
             return loginRequest
         case .register(let registerRequest):
             return registerRequest
+        default:
+            return nil
         }
     }
 }

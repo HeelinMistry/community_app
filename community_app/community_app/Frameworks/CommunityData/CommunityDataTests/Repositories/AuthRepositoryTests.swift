@@ -86,4 +86,56 @@ final class AuthRepositoryTests: XCTestCase {
             XCTFail("Unexpected error type: \(error)")
         }
     }
+    
+    
+    func testRegisterUser_WhenServerReturnsSuccess_ReturnsLoginResponse() async throws {
+        let expectedResponse = RegisterResponse(success: true, detail: "User created")
+        let responseData = try JSONEncoder().encode(expectedResponse)
+        let request = RegisterRequest(username: "", displayName: "", email: "", cellNumber: "", password: "")
+        
+        URLProtocolMock.requestHandler = { request in
+            let response = HTTPURLResponse(
+                url: request.url!,
+                statusCode: 200,
+                httpVersion: nil,
+                headerFields: ["Content-Type": "application/json"]
+            )!
+            return (response, responseData)
+        }
+
+        // Act
+        let result = try await sut.registerUser(registerRequest: request)
+
+        // Assert
+        XCTAssertTrue(result == expectedResponse)
+    }
+
+    func testRegisterUser_WhenServerReturns401_ThrowsServerError() async {
+        // Arrange
+        let request = RegisterRequest(username: "", displayName: "", email: "", cellNumber: "", password: "")
+
+        URLProtocolMock.requestHandler = { request in
+            let response = HTTPURLResponse(
+                url: request.url!,
+                statusCode: 401,
+                httpVersion: nil,
+                headerFields: nil
+            )!
+            return (response, Data())
+        }
+
+        // Act & Assert
+        do {
+            _ = try await sut.registerUser(registerRequest: request)
+            XCTFail("Should throw serverError(401)")
+        } catch let error as NetworkError {
+            if case .serverError(let code) = error {
+                XCTAssertEqual(code, 401)
+            } else {
+                XCTFail("Expected serverError, got \(error)")
+            }
+        } catch {
+            XCTFail("Unexpected error type: \(error)")
+        }
+    }
 }

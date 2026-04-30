@@ -40,12 +40,14 @@ public final class LoginViewModel: LoginViewModelProtocol {
     public func login() {
         fetchTask?.cancel()
         state = .loading
-        let loginRequest = LoginRequest(username: username, password: password)
+//        let loginRequest = LoginRequest(username: username, password: password)
+        let loginRequest = LoginRequest(username: "richard", password: "password")
         fetchTask = Task {
             do {
                 let response: LoginResponse = try await useCases.loginUser.execute(loginRequest)
                 if !Task.isCancelled {
                     self.state = .success(response)
+                    router.loginSuccess()
                 }
             } catch {
                 if !Task.isCancelled {

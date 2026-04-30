@@ -11,7 +11,6 @@ import CommunityCore
 public final class AuthRepository: AuthRepositoryProtocol {
     
     private let networkClient: CommunityNetworkClient
-//    private let cache: WeatherCacheService
 
     public init(networkClient: CommunityNetworkClient) {
         self.networkClient = networkClient

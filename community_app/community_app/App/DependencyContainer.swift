@@ -19,6 +19,7 @@ final class DependencyContainer {
     private let networkClient: CommunityNetworkClient
     
     private var authRepository: AuthRepositoryProtocol!
+    private var dashboardRepository: DashboardRepositoryProtocol!
     
     /// Initializes the dependency container with a navigation router and sets up networking components based on the current environment.
     /// - Parameter router: The navigation router used for view transitions.
@@ -38,6 +39,7 @@ final class DependencyContainer {
         )
         self.networkClient = .init(networkConfig: networkConfig)
         self.authRepository = AuthRepository(networkClient: networkClient)
+        self.dashboardRepository = DashboardRepository(networkClient: networkClient)
     }
     
     /// Creates and returns a `LoginViewModel`.
@@ -45,9 +47,14 @@ final class DependencyContainer {
         return LoginViewModel(authUseCases: self, router: router)
     }
     
-    /// Creates and returns a `LoginViewModel`.
+    /// Creates and returns a `RegistrationViewModel`.
     public func makeRegistrationViewModel() -> RegistrationViewModel {
         return RegistrationViewModel(authUseCases: self, router: router)
+    }
+    
+    /// Creates and returns a `DashboardViewModel`.
+    public func makeDashboardViewModel() -> DashboardViewModel {
+        return DashboardViewModel(useCases: self, router: router)
     }
 }
 
@@ -61,6 +68,13 @@ extension DependencyContainer: AuthUseCasesProvider {
     }
 }
 
+extension DependencyContainer: DashboardUseCasesProvider {
+    var matches: any MatchUseCaseProtocol {
+        DashboardUseCases(dashboard: dashboardRepository)
+    }
+    
+}
+
 extension DependencyContainer: ViewFactory {
     @MainActor
     public func makeLoginView() -> AnyView {
@@ -72,5 +86,11 @@ extension DependencyContainer: ViewFactory {
     public func makeRegistrationView() -> AnyView {
         let viewModel = makeRegistrationViewModel()
         return AnyView(RegistrationView(viewModel: viewModel))
+    }
+    
+    @MainActor
+    public func makeDashboardView() -> AnyView {
+        let viewModel = makeDashboardViewModel()
+        return AnyView(DashboardView(viewModel: viewModel))
     }
 }

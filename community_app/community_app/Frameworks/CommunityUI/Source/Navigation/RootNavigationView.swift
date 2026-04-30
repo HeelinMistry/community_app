@@ -12,21 +12,40 @@ struct RootNavigationView: View {
     @Environment(\.viewFactory) var factory
     
     var body: some View {
-        NavigationStack(path: $router.path) {
-            factory.makeLoginView()
-                .navigationDestination(for: Destination.self) { destination in
-                    buildDestination(destination)
-                }
-                .sheet(item: $router.sheet) { sheet in
-                    buildSheet(sheet)
-                }
-                .alert(item: $router.alertItem) { alert in
-                    Alert(
-                        title: Text(alert.title),
-                        message: Text(alert.message),
-                        dismissButton: alert.dismissButton
-                    )
-                }
+        if router.isAuthenticated {
+            NavigationStack(path: $router.path) {
+                factory.makeDashboardView()
+                    .navigationDestination(for: Destination.self) { destination in
+                        buildDestination(destination)
+                    }
+                    .sheet(item: $router.sheet) { sheet in
+                        buildSheet(sheet)
+                    }
+                    .alert(item: $router.alertItem) { alert in
+                        Alert(
+                            title: Text(alert.title),
+                            message: Text(alert.message),
+                            dismissButton: alert.dismissButton
+                        )
+                    }
+            }
+        } else {
+            NavigationStack(path: $router.path) {
+                factory.makeLoginView()
+                    .navigationDestination(for: Destination.self) { destination in
+                        buildDestination(destination)
+                    }
+                    .sheet(item: $router.sheet) { sheet in
+                        buildSheet(sheet)
+                    }
+                    .alert(item: $router.alertItem) { alert in
+                        Alert(
+                            title: Text(alert.title),
+                            message: Text(alert.message),
+                            dismissButton: alert.dismissButton
+                        )
+                    }
+            }
         }
     }
     
@@ -34,6 +53,7 @@ struct RootNavigationView: View {
     private func buildDestination(_ destination: Destination) -> some View {
         switch destination {
         case .login: factory.makeLoginView()
+        case .dashboard: factory.makeDashboardView()
         }
     }
     
