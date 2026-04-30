@@ -67,4 +67,24 @@ final class RegistrationViewModelTests: XCTestCase {
             XCTFail("Expected .error state")
         }
     }
+    
+    func testRegister_InputValidation() async {
+        var result = sut.isFormValid
+        XCTAssertFalse(result)
+        XCTAssertFalse(sut.validationErrors.isEmpty)
+        
+        sut.username = "test"
+        sut.displayName = "test"
+        sut.email = "test@test.com"
+        sut.cellNumber = "0987654567"
+        sut.password = "longenough"
+        result = sut.isFormValid
+        XCTAssertFalse(result)
+        XCTAssertFalse(sut.validationErrors.isEmpty)
+        
+        sut.confirmPassword = "longenough"
+        result = sut.isFormValid
+        XCTAssertTrue(result)
+        XCTAssertTrue(sut.validationErrors.isEmpty)
+    }
 }

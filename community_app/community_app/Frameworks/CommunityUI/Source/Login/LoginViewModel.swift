@@ -52,7 +52,7 @@ public final class LoginViewModel: LoginViewModelProtocol {
                     self.state = .error(error.localizedDescription)
                     router.alert(
                         title: "Error",
-                        message: "Unable to login. Please try again."
+                        message: error.localizedDescription
                     )
                 }
             }

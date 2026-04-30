@@ -1,5 +1,5 @@
 //
-//  Untitled.swift
+//  RegistrationViewModel.swift
 //  CommunityUI
 //
 //  Created by Heelin Mistry on 2026/04/28.
@@ -10,7 +10,7 @@ import Foundation
 import CommunityCore
 
 @MainActor
-public protocol RegistrationViewModelProtocol: StateDrivenViewModel {
+public protocol RegistrationViewModelProtocol: ValidatableViewModel {
     var username: String { get set }
     var displayName: String { get set }
     var email: String { get set }
@@ -24,13 +24,19 @@ public protocol RegistrationViewModelProtocol: StateDrivenViewModel {
 @MainActor
 public final class RegistrationViewModel: RegistrationViewModelProtocol {
     @Published public private(set) var state: ViewState<RegisterResponse> = .idle
+    @Published public var validationErrors: [String: String] = [:]
     @Published public var username = ""
     @Published public var displayName = ""
     @Published public var email = ""
     @Published public var cellNumber = ""
     @Published public var password = ""
     @Published public var confirmPassword = ""
-
+    
+    public var isFormValid: Bool {
+        incompleteForm()
+        return validationErrors.isEmpty
+    }
+    
     private let router: NavigationRouter
     private let useCases: any AuthUseCasesProvider
     private var fetchTask: Task<Void, Never>?
@@ -61,13 +67,44 @@ public final class RegistrationViewModel: RegistrationViewModelProtocol {
                 }
             } catch {
                 if !Task.isCancelled {
+                    self.validationErrors["username"] = "\(error.localizedDescription)"
                     self.state = .error(error.localizedDescription)
-                    router.alert(
-                        title: "Error",
-                        message: "Unable to login. Please try again."
-                    )
                 }
             }
         }
+    }
+    
+    private func incompleteForm() {
+        var errors: [String: String] = [:]
+        if username.trimmingCharacters(in: .whitespaces).isEmpty { errors["username"] = "Username is for your login" }
+        if displayName.isEmpty { errors["displayName"] = "Display name is what the public can see" }
+        if !isValidEmail(email) { errors["email"] = "Check your email format" }
+        if !isValidPhone(cellNumber) { errors["cellNumber"] = "Check your cell number format" }
+        if !isValidPassword(password) { errors["password"] = "Password is kinda required" }
+        if !isValidConfirm(password, confirm: confirmPassword) { errors["confirm"] = "Passwords do not match" }
+        self.validationErrors = errors
+    }
+    
+    // MARK: - Validation Helpers
+    
+    private func isValidPassword(_ password: String) -> Bool {
+        password.count > 4
+    }
+    
+    private func isValidConfirm(_ password: String, confirm: String) -> Bool {
+        password == confirm
+    }
+    
+    private func isValidEmail(_ email: String) -> Bool {
+        let emailRegEx = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
+        let emailPred = NSPredicate(format: "SELF MATCHES %@", emailRegEx)
+        return emailPred.evaluate(with: email)
+    }
+    
+    private func isValidPhone(_ phone: String) -> Bool {
+        // Simple regex for 10+ digits; adjust based on your region's requirements
+        let phoneRegEx = "^[0-9]{10,15}$"
+        let phonePred = NSPredicate(format: "SELF MATCHES %@", phoneRegEx)
+        return phonePred.evaluate(with: phone)
     }
 }

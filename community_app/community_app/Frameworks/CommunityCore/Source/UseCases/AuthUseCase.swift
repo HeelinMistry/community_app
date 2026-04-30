@@ -37,8 +37,8 @@ public final class AuthUseCases: LoginUseCaseProtocol, RegisterUseCaseProtocol {
     
     public func execute(_ request: RegisterRequest) async throws -> RegisterResponse {
         do {
-            let registerRequest = try await auth.registerUser(registerRequest: request)
-            return (registerRequest)
+            let registerResponse = try await auth.registerUser(registerRequest: request)
+            return (registerResponse)
         } catch {
             throw error
         }
