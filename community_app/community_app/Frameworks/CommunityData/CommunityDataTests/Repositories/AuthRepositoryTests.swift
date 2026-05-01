@@ -36,8 +36,8 @@ final class AuthRepositoryTests: XCTestCase {
         super.tearDown()
     }
 
-    func testVerifyUserLogin_WhenServerReturnsSuccess_ReturnsLoginResponse() async throws {
-        let expectedResponse = LoginResponse(access_token: "12345_67890", token_type: "Bearer")
+    func testUserLogin_WhenServerReturnsSuccess_ReturnsLoginResponse() async throws {
+        let expectedResponse = LoginResponse(access_token: "12345_67890", token_type: "Bearer", display_name: "Test")
         let responseData = try JSONEncoder().encode(expectedResponse)
         let request = LoginRequest(username: "test", password: "password")
         
@@ -86,7 +86,6 @@ final class AuthRepositoryTests: XCTestCase {
             XCTFail("Unexpected error type: \(error)")
         }
     }
-    
     
     func testRegisterUser_WhenServerReturnsSuccess_ReturnsLoginResponse() async throws {
         let expectedResponse = RegisterResponse(success: true, detail: "User created")

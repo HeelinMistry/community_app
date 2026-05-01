@@ -23,7 +23,6 @@ extension APIEndpoint {
         
         var request = URLRequest(url: url)
         request.httpMethod = method.rawValue
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         
         if let body = body {
             do {

@@ -40,10 +40,8 @@ enum CommunityEndpoint: APIEndpoint {
     /// The HTTP method for all OpenWeatherMap endpoints, which is GET.
     var method: HTTPMethod {
         switch self {
-        case .matches:
-            return .get
-        case .login, .register:
-            return .post
+        case .matches: return .get
+        case .login, .register: return .post
         }
     }
     
@@ -52,7 +50,7 @@ enum CommunityEndpoint: APIEndpoint {
         switch self {
         case .login: return "api/v1/auth/login"
         case .register: return "api/v1/auth/register"
-        case .matches: return "api/v1/auth/matches"
+        case .matches: return "api/v1/matches"
         }
     }
     

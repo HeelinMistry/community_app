@@ -30,7 +30,7 @@ final class DashboardViewModelTests: XCTestCase {
         super.tearDown()
     }
     
-    func testLogin_WhenSuccessful_SetsSuccessState() async {
+    func testMatches_WhenSuccessful_SetsSuccessState() async {
         // Arrange
         let expectedResponse = MatchResponse(success: true, id: "12345")
         mockProvider.mockDashboardUseCases.matchResult = .success(expectedResponse)
