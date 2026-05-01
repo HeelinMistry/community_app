@@ -7,7 +7,7 @@ from app.db.database import get_db
 from app.core.security import decode_access_token
 from pydantic import BaseModel
 
-router = APIRouter(prefix="/matches", tags=["Matches"])
+router = APIRouter(prefix="/api/v1/matches", tags=["matches"])
 
 class MatchCreate(BaseModel):
     title: str
@@ -19,12 +19,13 @@ class MatchCreate(BaseModel):
     roster_size: int
     cost: float
 
-@router.get("/")
+@router.get("")
 async def get_matches(
         current_user: dict = Depends(decode_access_token),
         db: Session = Depends(get_db)
 ):
-    user_id = current_user["id"]
+    user_id = int(current_user["sub"])
+    print(user_id)
     all_matches = db.query(tables.Match).all()
     user_matches = []
 
