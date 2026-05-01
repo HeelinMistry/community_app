@@ -32,7 +32,7 @@ final class LoginViewModelTests: XCTestCase {
     
     func testLogin_WhenSuccessful_SetsSuccessState() async {
         // Arrange
-        let expectedResponse = LoginResponse(access_token: "12345_67890", token_type: "Bearer")
+        let expectedResponse = LoginResponse(access_token: "12345_67890", token_type: "Bearer", display_name: "Test")
         mockProvider.mockAuthUseCases.loginResult = .success(expectedResponse)
         sut.username = "test_user"
         sut.password = "password123"

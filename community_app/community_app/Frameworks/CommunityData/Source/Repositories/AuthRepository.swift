@@ -19,6 +19,7 @@ public final class AuthRepository: AuthRepositoryProtocol {
     public func loginUser(loginRequest: LoginRequest) async throws -> LoginResponse {
         do {
             let dto: LoginResponse = try await networkClient.fetch(from: CommunityEndpoint.login(loginRequest))
+            await AuthSessionManager.shared.saveSession(response: dto)
             return dto
         } catch {
             throw error

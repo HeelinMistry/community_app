@@ -22,7 +22,7 @@ final class AuthUseCasesTests: XCTestCase {
     func testLoginExecute_WhenLoginIsSuccessful_ReturnsSuccessResponse() async throws {
         mockAuthRepository = AuthRepositoryMock()
         
-        let expected_response = LoginResponse(access_token: "12345_67890", token_type: "Bearer")
+        let expected_response = LoginResponse(access_token: "12345_67890", token_type: "Bearer", display_name: "Test")
         await mockAuthRepository.setLoginResult(
             .success(expected_response)
         )

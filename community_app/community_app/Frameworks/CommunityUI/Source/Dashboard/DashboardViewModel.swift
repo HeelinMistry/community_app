@@ -29,7 +29,6 @@ public final class DashboardViewModel: DashboardViewModelProtocol {
     ) {
         self.useCases = useCases
         self.router = router
-        matchFeed()
     }
     
     public func matchFeed() {
@@ -40,7 +39,6 @@ public final class DashboardViewModel: DashboardViewModelProtocol {
                 let response: MatchResponse = try await useCases.matches.execute()
                 if !Task.isCancelled {
                     self.state = .success(response)
-                    router.sheet = nil
                 }
             } catch {
                 if !Task.isCancelled {

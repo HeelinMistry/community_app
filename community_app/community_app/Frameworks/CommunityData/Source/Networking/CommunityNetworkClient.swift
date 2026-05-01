@@ -28,10 +28,15 @@ public actor CommunityNetworkClient {
     }
     
     func fetch<T: Decodable>(from endpoint: APIEndpoint) async throws -> T {
-        guard let request = endpoint.createRequest(relativeTo: networkConfig.baseURL) else {
+        guard var request = endpoint.createRequest(relativeTo: networkConfig.baseURL) else {
             logger.logError(NetworkError.invalidURL, for: endpoint.path)
             throw NetworkError.invalidURL
         }
+        if let token: String = await AuthSessionManager.shared.getToken() {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+                
+        }
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         logger.logRequest(request)
             
         let (data, response) = try await session.data(for: request)
