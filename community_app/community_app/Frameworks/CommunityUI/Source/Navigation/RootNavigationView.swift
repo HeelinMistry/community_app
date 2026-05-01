@@ -62,6 +62,8 @@ struct RootNavigationView: View {
         switch sheet {
         case .registration:
             factory.makeRegistrationView()
+        case .createMatch:
+            factory.makeCreateMatchView()
         }
     }
 }

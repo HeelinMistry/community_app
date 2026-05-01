@@ -32,7 +32,7 @@ final class DashboardViewModelTests: XCTestCase {
     
     func testMatches_WhenSuccessful_SetsSuccessState() async {
         // Arrange
-        let expectedResponse = MatchResponse(success: true, id: "12345")
+        let expectedResponse: Matches = [.init()]
         mockProvider.mockDashboardUseCases.matchResult = .success(expectedResponse)
         
         // Act

@@ -37,7 +37,7 @@ final class DashboardRepositoryTests: XCTestCase {
     }
 
     func testGetMatches_WhenServerReturnsSuccess_ReturnsResponse() async throws {
-        let expectedResponse = MatchResponse(success: true, id: "12345")
+        let expectedResponse: Matches = [.init()]
         let responseData = try JSONEncoder().encode(expectedResponse)
         
         URLProtocolMock.requestHandler = { request in

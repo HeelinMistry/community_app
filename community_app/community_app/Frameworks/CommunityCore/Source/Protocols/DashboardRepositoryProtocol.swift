@@ -11,15 +11,9 @@
 /// and remote API calls.
 public protocol DashboardRepositoryProtocol: Sendable {
 
-    /// Performs the login request.
-    ///
-    /// - Parameters:
-    ///   - loginRequest: LoginRequest.
-    /// - Returns: A `LoginResponse` containing data.
-    /// - Throws: `NetworkError` if the API call fails or `DatabaseError` if caching fails.
-    func getMatches() async throws -> MatchResponse
+    func getMatches() async throws -> Matches
 }
 
 public protocol MatchUseCaseProtocol: Sendable {
-    func execute() async throws -> MatchResponse
+    func userRelatedMatches() async throws -> Matches
 }

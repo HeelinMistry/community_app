@@ -22,15 +22,15 @@ final class DashboardUseCasesTests: XCTestCase {
     func testMatchesExecute_WhenSuccessful_ReturnsSuccessResponse() async throws {
         mockRepository = DashboardRepositoryMock()
         
-        let expected_response = MatchResponse(success: true, id: "12345")
+        let expectedResponse: Matches = [.init()]
         await mockRepository.setMatchResult(
-            .success(expected_response)
+            .success(expectedResponse)
         )
         
         let sut = DashboardUseCases(dashboard: mockRepository)
-        let response = try await sut.execute()
+        let response = try await sut.userRelatedMatches()
         
-        XCTAssertTrue(response == expected_response)
+        XCTAssertTrue(response == expectedResponse)
     }
     
     func testLoginExecute_WhenRepositoryThrowsError_ThrowsSameError() async {
@@ -43,7 +43,7 @@ final class DashboardUseCasesTests: XCTestCase {
         
         let sut = DashboardUseCases(dashboard: mockRepository)
         do {
-            _ = try await sut.execute()
+            _ = try await sut.userRelatedMatches()
             XCTFail("Expected error to be thrown, but it succeeded.")
         } catch {
             let nsError = error as NSError

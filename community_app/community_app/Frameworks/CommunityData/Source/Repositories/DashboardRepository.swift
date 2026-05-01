@@ -16,9 +16,9 @@ public final class DashboardRepository: DashboardRepositoryProtocol {
         self.networkClient = networkClient
     }
     
-    public func getMatches() async throws -> MatchResponse {
+    public func getMatches() async throws -> Matches {
         do {
-            let dto: MatchResponse = try await networkClient.fetch(from: CommunityEndpoint.matches)
+            let dto: Matches = try await networkClient.fetch(from: CommunityEndpoint.matches)
             return dto
         } catch {
             throw error

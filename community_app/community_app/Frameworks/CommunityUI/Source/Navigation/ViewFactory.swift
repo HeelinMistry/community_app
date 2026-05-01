@@ -18,6 +18,7 @@ public protocol ViewFactory: Sendable {
     @MainActor func makeLoginView() -> AnyView
     /// Creates and returns an `AnyView` for the dashbaord flow.
     @MainActor func makeDashboardView() -> AnyView
+    @MainActor func makeCreateMatchView() -> AnyView
 }
 
 private struct ViewFactoryKey: EnvironmentKey {
@@ -39,4 +40,5 @@ private struct DefaultViewFactory: ViewFactory {
     func makeLoginView() -> AnyView { AnyView(Text("Factory Missing")) }
     func makeRegistrationView() -> AnyView { AnyView(Text("Factory Missing")) }
     func makeDashboardView() -> AnyView { AnyView(Text("Factory Missing")) }
+    func makeCreateMatchView() -> AnyView { AnyView(Text("Factory Missing")) }
 }

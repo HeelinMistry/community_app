@@ -19,7 +19,7 @@ public final class DashboardUseCases: MatchUseCaseProtocol {
         self.dashboard = dashboard
     }
 
-    public func execute() async throws -> MatchResponse {
+    public func userRelatedMatches() async throws -> Matches {
         do {
             let matchResponse = try await dashboard.getMatches()
             return (matchResponse)

@@ -11,13 +11,13 @@ import CommunityCore
 // A mock repository to simulate network behavior
 public actor DashboardRepositoryMock: DashboardRepositoryProtocol {
     
-    var matchesResult: Result<MatchResponse, Error>?
+    var matchesResult: Result<Matches, Error>?
     
-    func setMatchResult(_ result: Result<MatchResponse, Error>) {
+    func setMatchResult(_ result: Result<Matches, Error>) {
         self.matchesResult = result
     }
     
-    public func getMatches() async throws -> MatchResponse {
+    public func getMatches() async throws -> Matches {
         guard let result = matchesResult else {
             fatalError("Result not set in RepositoryMock")
         }

@@ -11,9 +11,9 @@ import CommunityCore
 
 final class DashboardUseCasesMock: MatchUseCaseProtocol, @unchecked Sendable {
     
-    var matchResult: Result<MatchResponse, Error>?
+    var matchResult: Result<Matches, Error>?
     
-    func execute() async throws -> MatchResponse {
+    func userRelatedMatches() async throws -> Matches {
         if let result = matchResult {
             switch result {
             case .success(let response): return response

@@ -56,6 +56,11 @@ final class DependencyContainer {
     public func makeDashboardViewModel() -> DashboardViewModel {
         return DashboardViewModel(useCases: self, router: router)
     }
+    
+    /// Creates and returns a `CreateMatchViewModel`.
+    public func makeCreateMatchViewModel() -> CreateMatchViewModel {
+        return CreateMatchViewModel(useCases: self, router: router)
+    }
 }
 
 extension DependencyContainer: AuthUseCasesProvider {
@@ -92,5 +97,11 @@ extension DependencyContainer: ViewFactory {
     public func makeDashboardView() -> AnyView {
         let viewModel = makeDashboardViewModel()
         return AnyView(DashboardView(viewModel: viewModel))
+    }
+    
+    @MainActor
+    public func makeCreateMatchView() -> AnyView {
+        let viewModel = makeCreateMatchViewModel()
+        return AnyView(CreateMatchView(viewModel: viewModel))
     }
 }
