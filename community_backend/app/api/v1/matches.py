@@ -70,7 +70,7 @@ async def create_match(match: MatchCreate, user: dict = Depends(decode_access_to
     )
     db.add(new_match)
     db.commit()
-    return {"status": "success", "id": new_match.id}
+    return {"match_id": new_match.id}
 
 @router.get("/{match_id}")
 async def get_match_details(
