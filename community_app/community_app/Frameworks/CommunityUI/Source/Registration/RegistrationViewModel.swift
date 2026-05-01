@@ -52,12 +52,19 @@ public final class RegistrationViewModel: RegistrationViewModelProtocol {
     public func register() {
         fetchTask?.cancel()
         state = .loading
+//        let registerRequest = RegisterRequest(
+//            username: username,
+//            displayName: displayName,
+//            email: email,
+//            cellNumber: cellNumber,
+//            password: password
+//        )
         let registerRequest = RegisterRequest(
-            username: username,
-            displayName: displayName,
-            email: email,
-            cellNumber: cellNumber,
-            password: password
+            username: "test_user",
+            displayName: "Test User",
+            email: "test@test.com",
+            cellNumber: "0738466576",
+            password: "password123"
         )
         fetchTask = Task {
             do {

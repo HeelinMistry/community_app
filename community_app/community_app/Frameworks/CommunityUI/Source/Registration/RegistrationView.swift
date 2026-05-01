@@ -62,9 +62,9 @@ public struct RegistrationView<T: RegistrationViewModelProtocol>: View {
                     )
                     
                     PrimaryButton("Create Account") {
-                        if viewModel.isFormValid {
-                            viewModel.register()
-                        }
+//                        if viewModel.isFormValid {
+                        viewModel.register()
+//                        }
                     }
                     .disabled(viewModel.state.isLoading)
                 }

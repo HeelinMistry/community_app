@@ -10,8 +10,8 @@ import XCTest
 
 final class DashboardUseCasesTests: XCTestCase {
     
-    private var sut: DashboardUseCases!
-    private var mockRepository: DashboardRepositoryMock!
+    private var sut: MatchUseCases!
+    private var mockRepository: MatchRepositoryMock!
     
     override func tearDown() {
         sut = nil
@@ -20,28 +20,28 @@ final class DashboardUseCasesTests: XCTestCase {
     }
     
     func testMatchesExecute_WhenSuccessful_ReturnsSuccessResponse() async throws {
-        mockRepository = DashboardRepositoryMock()
+        mockRepository = MatchRepositoryMock()
         
         let expectedResponse: Matches = [.init()]
         await mockRepository.setMatchResult(
             .success(expectedResponse)
         )
         
-        let sut = DashboardUseCases(dashboard: mockRepository)
+        let sut = MatchUseCases(match: mockRepository)
         let response = try await sut.userRelatedMatches()
         
         XCTAssertTrue(response == expectedResponse)
     }
     
     func testLoginExecute_WhenRepositoryThrowsError_ThrowsSameError() async {
-        mockRepository = DashboardRepositoryMock()
+        mockRepository = MatchRepositoryMock()
         
         let expectedError = NSError(domain: "NetworkError", code: 401, userInfo: nil)
         await mockRepository.setMatchResult(
             .failure(expectedError)
         )
         
-        let sut = DashboardUseCases(dashboard: mockRepository)
+        let sut = MatchUseCases(match: mockRepository)
         do {
             _ = try await sut.userRelatedMatches()
             XCTFail("Expected error to be thrown, but it succeeded.")

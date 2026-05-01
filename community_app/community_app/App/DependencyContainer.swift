@@ -19,7 +19,7 @@ final class DependencyContainer {
     private let networkClient: CommunityNetworkClient
     
     private var authRepository: AuthRepositoryProtocol!
-    private var dashboardRepository: DashboardRepositoryProtocol!
+    private var matchRepository: MatchRepositoryProtocol!
     
     /// Initializes the dependency container with a navigation router and sets up networking components based on the current environment.
     /// - Parameter router: The navigation router used for view transitions.
@@ -39,7 +39,7 @@ final class DependencyContainer {
         )
         self.networkClient = .init(networkConfig: networkConfig)
         self.authRepository = AuthRepository(networkClient: networkClient)
-        self.dashboardRepository = DashboardRepository(networkClient: networkClient)
+        self.matchRepository = MatchRepository(networkClient: networkClient)
     }
     
     /// Creates and returns a `LoginViewModel`.
@@ -73,9 +73,9 @@ extension DependencyContainer: AuthUseCasesProvider {
     }
 }
 
-extension DependencyContainer: DashboardUseCasesProvider {
+extension DependencyContainer: MatchUseCasesProvider {
     var matches: any MatchUseCaseProtocol {
-        DashboardUseCases(dashboard: dashboardRepository)
+        MatchUseCases(match: matchRepository)
     }
     
 }

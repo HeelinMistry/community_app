@@ -14,7 +14,7 @@ import Combine
 final class DashboardViewModelTests: XCTestCase {
     private var sut: DashboardViewModel!
     private var mockRouter: NavigationRouter!
-    private var mockProvider: DashboardUseCasesProviderMock!
+    private var mockProvider: MatchUseCasesProviderMock!
     
     override func setUp() {
         super.setUp()
@@ -33,7 +33,7 @@ final class DashboardViewModelTests: XCTestCase {
     func testMatches_WhenSuccessful_SetsSuccessState() async {
         // Arrange
         let expectedResponse: Matches = [.init()]
-        mockProvider.mockDashboardUseCases.matchResult = .success(expectedResponse)
+        mockProvider.mockUseCases.matchResult = .success(expectedResponse)
         
         // Act
         sut.matchFeed()
@@ -54,7 +54,7 @@ final class DashboardViewModelTests: XCTestCase {
         // Arrange
         let errorMessage = "Invalid Credentials"
         let error = NSError(domain: "Auth", code: 401, userInfo: [NSLocalizedDescriptionKey: errorMessage])
-        mockProvider.mockDashboardUseCases.matchResult = .failure(error)
+        mockProvider.mockUseCases.matchResult = .failure(error)
         
         // Act
         sut.matchFeed()

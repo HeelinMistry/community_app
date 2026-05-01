@@ -11,20 +11,30 @@ public protocol DashboardUseCaseProtocol: Sendable {
 
 }
 
-public final class DashboardUseCases: MatchUseCaseProtocol {
+public final class MatchUseCases: MatchUseCaseProtocol {
     
-    private let dashboard: any DashboardRepositoryProtocol
+    private let match: any MatchRepositoryProtocol
 
-    public init(dashboard: any DashboardRepositoryProtocol) {
-        self.dashboard = dashboard
+    public init(match: any MatchRepositoryProtocol) {
+        self.match = match
     }
 
     public func userRelatedMatches() async throws -> Matches {
         do {
-            let matchResponse = try await dashboard.getMatches()
+            let matchResponse = try await match.getMatches()
             return (matchResponse)
         } catch {
             throw error
         }
     }
+    
+    public func userCreateMatch(_ request: CreateMatchRequest) async throws -> CreateMatchResponse {
+        do {
+            let matchResponse = try await match.createMatch(request)
+            return (matchResponse)
+        } catch {
+            throw error
+        }
+    }
+    
 }

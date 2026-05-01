@@ -9,8 +9,8 @@ import XCTest
 @testable import CommunityData
 @testable import CommunityCore
 
-final class DashboardRepositoryTests: XCTestCase {
-    var sut: DashboardRepository!
+final class MatchRepositoryTests: XCTestCase {
+    var sut: MatchRepository!
     var networkClient: CommunityNetworkClient!
     var session: URLSession!
 
@@ -26,7 +26,7 @@ final class DashboardRepositoryTests: XCTestCase {
                 baseURL: URL(string: "http://test.com/")!,
                 shouldLogSensitiveData: true)
         )
-        sut = DashboardRepository(networkClient: networkClient)
+        sut = MatchRepository(networkClient: networkClient)
     }
 
     override func tearDown() {
