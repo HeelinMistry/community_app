@@ -39,7 +39,6 @@ public final class CreateMatchViewModel: CreateMatchViewModelProtocol {
     
     public var isFormValid: Bool {
         incompleteForm()
-        
         return validationErrors.isEmpty
     }
     
@@ -60,17 +59,17 @@ public final class CreateMatchViewModel: CreateMatchViewModelProtocol {
         state = .loading
         fetchTask = Task {
             do {
-                let request = CreateMatchRequest(
-                    title: title,
-                    sport: sport,
-                    duration: duration,
-                    date_event: date_event,
-                    time: time,
-                    location: location,
-                    roster_size: roster_size,
-                    cost: cost
-                )
-                
+//                let request = CreateMatchRequest(
+//                    title: title,
+//                    sport: sport,
+//                    duration: duration,
+//                    date_event: date_event,
+//                    time: time,
+//                    location: location,
+//                    roster_size: roster_size,
+//                    cost: cost
+//                )
+                let request: CreateMatchRequest = .init()
                 let response: CreateMatchResponse = try await useCases.matches.userCreateMatch(request)
                 if !Task.isCancelled {
                     self.state = .success(response)

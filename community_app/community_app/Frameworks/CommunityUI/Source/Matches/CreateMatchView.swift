@@ -48,6 +48,12 @@ public struct CreateMatchView<T: CreateMatchViewModelProtocol>: View {
                             errorMessage: viewModel.validationErrors["date_event"]
                         )
                         PrimaryTextInput(
+                            label: "Time",
+                            placeholder: "e.g. 17:00",
+                            text: $viewModel.time,
+                            errorMessage: viewModel.validationErrors["time"]
+                        )
+                        PrimaryTextInput(
                             label: "Roster size",
                             placeholder: "12",
                             text: $viewModel.roster_size,
