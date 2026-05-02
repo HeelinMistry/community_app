@@ -25,7 +25,7 @@ public protocol CreateMatchViewModelProtocol: ValidatableViewModel {
 
 @MainActor
 public final class CreateMatchViewModel: CreateMatchViewModelProtocol {
-    @Published public private(set) var state: ViewState<Matches> = .idle
+    @Published public private(set) var state: ViewState<CreateMatchResponse> = .idle
     @Published public var validationErrors: [String: String] = [:]
     
     @Published public var title = ""
@@ -39,6 +39,7 @@ public final class CreateMatchViewModel: CreateMatchViewModelProtocol {
     
     public var isFormValid: Bool {
         incompleteForm()
+        
         return validationErrors.isEmpty
     }
     
@@ -54,20 +55,31 @@ public final class CreateMatchViewModel: CreateMatchViewModelProtocol {
         self.router = router
     }
     
-    public func create() {
+    public func create() {        
         fetchTask?.cancel()
         state = .loading
         fetchTask = Task {
             do {
-                let response: Matches = try await useCases.matches.userRelatedMatches()
+                let request = CreateMatchRequest(
+                    title: title,
+                    sport: sport,
+                    duration: duration,
+                    date_event: date_event,
+                    time: time,
+                    location: location,
+                    roster_size: roster_size,
+                    cost: cost
+                )
+                
+                let response: CreateMatchResponse = try await useCases.matches.userCreateMatch(request)
                 if !Task.isCancelled {
                     self.state = .success(response)
                     router.sheet = nil
                 }
             } catch {
                 if !Task.isCancelled {
-                    self.validationErrors["username"] = "\(error.localizedDescription)"
                     self.state = .error(error.localizedDescription)
+                    self.validationErrors["general"] = "Failed to create match: \(error.localizedDescription)"
                 }
             }
         }
@@ -75,29 +87,62 @@ public final class CreateMatchViewModel: CreateMatchViewModelProtocol {
     
     private func incompleteForm() {
         var errors: [String: String] = [:]
+        
+        validateAndCollectError(forField: "title", value: title, nonEmptyMessage: "Title cannot be empty", in: &errors)
+        validateAndCollectError(forField: "sport", value: sport, nonEmptyMessage: "Sport cannot be empty", in: &errors)
+        validateAndCollectError(forField: "duration", value: duration, nonEmptyMessage: "Duration cannot be empty", in: &errors)
+        validateAndCollectError(forField: "date_event", value: date_event, nonEmptyMessage: "Date cannot be empty", in: &errors)
+        validateAndCollectError(forField: "time", value: time, nonEmptyMessage: "Time cannot be empty", in: &errors)
+        validateAndCollectError(forField: "location", value: location, nonEmptyMessage: "Location cannot be empty", in: &errors)
+        
+        validateAndCollectError(
+            forField: "roster_size",
+            value: roster_size,
+            nonEmptyMessage: "Roster size cannot be empty",
+            numericValidator: { [weak self] val in self?.validatePositiveInteger(value: val, fieldName: "Roster size") },
+            in: &errors
+        )
+        
+        validateAndCollectError(
+            forField: "cost",
+            value: cost,
+            nonEmptyMessage: "Cost cannot be empty",
+            numericValidator: { [weak self] val in self?.validateNonNegativeDouble(value: val, fieldName: "Cost") },
+            in: &errors
+        )
+        
         self.validationErrors = errors
     }
     
     // MARK: - Validation Helpers
     
-    private func isValidPassword(_ password: String) -> Bool {
-        password.count > 4
+    private func validatePositiveInteger(value: String, fieldName: String) -> String? {
+        guard !value.isEmpty else { return nil }
+        if let intValue = Int(value), intValue > 0 {
+            return nil
+        }
+        return "\(fieldName) must be a positive number"
     }
     
-    private func isValidConfirm(_ password: String, confirm: String) -> Bool {
-        password == confirm
+    private func validateNonNegativeDouble(value: String, fieldName: String) -> String? {
+        guard !value.isEmpty else { return nil }
+        if let doubleValue = Double(value), doubleValue >= 0 {
+            return nil
+        }
+        return "\(fieldName) must be a non-negative number"
     }
     
-    private func isValidEmail(_ email: String) -> Bool {
-        let emailRegEx = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
-        let emailPred = NSPredicate(format: "SELF MATCHES %@", emailRegEx)
-        return emailPred.evaluate(with: email)
-    }
-    
-    private func isValidPhone(_ phone: String) -> Bool {
-        // Simple regex for 10+ digits; adjust based on your region's requirements
-        let phoneRegEx = "^[0-9]{10,15}$"
-        let phonePred = NSPredicate(format: "SELF MATCHES %@", phoneRegEx)
-        return phonePred.evaluate(with: phone)
+    private func validateAndCollectError(
+        forField key: String,
+        value: String,
+        nonEmptyMessage: String,
+        numericValidator: ((String) -> String?)? = nil,
+        in errors: inout [String: String]
+    ) {
+        if value.isEmpty {
+            errors[key] = nonEmptyMessage
+        } else if let numericValidator = numericValidator, let error = numericValidator(value) {
+            errors[key] = error
+        }
     }
 }
