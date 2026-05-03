@@ -55,7 +55,7 @@ final class DashboardUseCasesTests: XCTestCase {
     func testCreateMatch_WhenSuccessful_ReturnsSuccessResponse() async throws {
         mockRepository = MatchRepositoryMock()
         
-        let expectedResponse: CreateMatchResponse = .init()
+        let expectedResponse: CreateMatchResponse = .init(match_id: "m_6cfbde8b")
         await mockRepository.setCreateMatchResult(
             .success(expectedResponse)
         )

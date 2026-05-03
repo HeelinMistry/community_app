@@ -83,7 +83,7 @@ class Match(Base):
     location = Column(String)
     roster_size = Column(Integer, default=0)
     cost = Column(String)
-    host_id = Column(String, ForeignKey("users.id"))
+    host_id = Column(Integer, ForeignKey("users.id"))
     is_cancelled = Column(Boolean, default=False)
 
     host = relationship("User", back_populates="matches_hosted")
@@ -105,7 +105,7 @@ class MatchPlayer(Base):
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     match_id = Column(String, ForeignKey("matches.id"))
-    user_id = Column(String, ForeignKey("users.id"))
+    user_id = Column(Integer, ForeignKey("users.id"))
     status = Column(String, default="confirmed")
     date_modified = Column(DateTime, server_default=func.now(), onupdate=func.now())
 

@@ -75,6 +75,8 @@ enum CommunityEndpoint: APIEndpoint {
             return loginRequest
         case .register(let registerRequest):
             return registerRequest
+        case .createMatch(let req):
+            return req
         default:
             return nil
         }
