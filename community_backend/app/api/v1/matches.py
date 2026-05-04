@@ -25,7 +25,6 @@ async def get_matches(
         db: Session = Depends(get_db)
 ):
     user_id = int(current_user["sub"])
-    print(user_id)
     all_matches = db.query(tables.Match).all()
     user_matches = []
 
@@ -36,10 +35,9 @@ async def get_matches(
             for p in m.players
         )
         is_participant = any(p.user_id == user_id for p in m.players)
-
         if is_host or is_participant:
             user_matches.append({
-                "id": m.id,
+                "match_id": m.id,
                 "title": m.title,
                 "date": m.date_event,
                 "time": m.time,
@@ -56,6 +54,7 @@ async def get_matches(
 @router.post("/create")
 async def create_match(match: MatchCreate, user: dict = Depends(decode_access_token), db: Session = Depends(get_db)):
     match_id = f"m_{uuid.uuid4().hex[:8]}"
+    user_id = user["sub"]
     new_match = tables.Match(
         id=match_id,
         title=match.title,
@@ -66,7 +65,7 @@ async def create_match(match: MatchCreate, user: dict = Depends(decode_access_to
         location=match.location,
         roster_size=match.roster_size,
         cost=match.cost,
-        host_id=user["id"]
+        host_id=user_id
     )
     db.add(new_match)
     db.commit()

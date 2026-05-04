@@ -13,18 +13,19 @@ import CommunityCore
 public protocol DashboardViewModelProtocol: StateDrivenViewModel {
     
     func matchFeed()
+    func createMatchTapped()
 }
 
 @MainActor
 public final class DashboardViewModel: DashboardViewModelProtocol {
-    @Published public private(set) var state: ViewState<MatchResponse> = .idle
+    @Published public private(set) var state: ViewState<Matches> = .idle
     
     private let router: NavigationRouter
-    private let useCases: any DashboardUseCasesProvider
+    private let useCases: any MatchUseCasesProvider
     private var fetchTask: Task<Void, Never>?
     
     public init(
-        useCases: any DashboardUseCasesProvider,
+        useCases: any MatchUseCasesProvider,
         router: NavigationRouter
     ) {
         self.useCases = useCases
@@ -36,7 +37,7 @@ public final class DashboardViewModel: DashboardViewModelProtocol {
         state = .loading
         fetchTask = Task {
             do {
-                let response: MatchResponse = try await useCases.matches.execute()
+                let response: Matches = try await useCases.matches.userRelatedMatches()
                 if !Task.isCancelled {
                     self.state = .success(response)
                 }
@@ -46,5 +47,9 @@ public final class DashboardViewModel: DashboardViewModelProtocol {
                 }
             }
         }
+    }
+    
+    public func createMatchTapped() {
+        router.sheet = .createMatch
     }
 }

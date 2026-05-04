@@ -9,8 +9,8 @@ import XCTest
 @testable import CommunityData
 @testable import CommunityCore
 
-final class DashboardRepositoryTests: XCTestCase {
-    var sut: DashboardRepository!
+final class MatchRepositoryTests: XCTestCase {
+    var sut: MatchRepository!
     var networkClient: CommunityNetworkClient!
     var session: URLSession!
 
@@ -26,7 +26,7 @@ final class DashboardRepositoryTests: XCTestCase {
                 baseURL: URL(string: "http://test.com/")!,
                 shouldLogSensitiveData: true)
         )
-        sut = DashboardRepository(networkClient: networkClient)
+        sut = MatchRepository(networkClient: networkClient)
     }
 
     override func tearDown() {
@@ -37,7 +37,7 @@ final class DashboardRepositoryTests: XCTestCase {
     }
 
     func testGetMatches_WhenServerReturnsSuccess_ReturnsResponse() async throws {
-        let expectedResponse = MatchResponse(success: true, id: "12345")
+        let expectedResponse: Matches = [.init()]
         let responseData = try JSONEncoder().encode(expectedResponse)
         
         URLProtocolMock.requestHandler = { request in

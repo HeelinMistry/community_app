@@ -10,8 +10,8 @@ import XCTest
 
 final class DashboardUseCasesTests: XCTestCase {
     
-    private var sut: DashboardUseCases!
-    private var mockRepository: DashboardRepositoryMock!
+    private var sut: MatchUseCases!
+    private var mockRepository: MatchRepositoryMock!
     
     override func tearDown() {
         sut = nil
@@ -20,30 +20,63 @@ final class DashboardUseCasesTests: XCTestCase {
     }
     
     func testMatchesExecute_WhenSuccessful_ReturnsSuccessResponse() async throws {
-        mockRepository = DashboardRepositoryMock()
+        mockRepository = MatchRepositoryMock()
         
-        let expected_response = MatchResponse(success: true, id: "12345")
+        let expectedResponse: Matches = [.init()]
         await mockRepository.setMatchResult(
-            .success(expected_response)
+            .success(expectedResponse)
         )
         
-        let sut = DashboardUseCases(dashboard: mockRepository)
-        let response = try await sut.execute()
+        let sut = MatchUseCases(match: mockRepository)
+        let response = try await sut.userRelatedMatches()
         
-        XCTAssertTrue(response == expected_response)
+        XCTAssertTrue(response == expectedResponse)
     }
     
-    func testLoginExecute_WhenRepositoryThrowsError_ThrowsSameError() async {
-        mockRepository = DashboardRepositoryMock()
+    func testMatchesExecute_WhenRepositoryThrowsError_ThrowsSameError() async {
+        mockRepository = MatchRepositoryMock()
         
         let expectedError = NSError(domain: "NetworkError", code: 401, userInfo: nil)
         await mockRepository.setMatchResult(
             .failure(expectedError)
         )
         
-        let sut = DashboardUseCases(dashboard: mockRepository)
+        let sut = MatchUseCases(match: mockRepository)
         do {
-            _ = try await sut.execute()
+            _ = try await sut.userRelatedMatches()
+            XCTFail("Expected error to be thrown, but it succeeded.")
+        } catch {
+            let nsError = error as NSError
+            XCTAssertEqual(nsError.domain, "NetworkError")
+            XCTAssertEqual(nsError.code, 401)
+        }
+    }
+    
+    func testCreateMatch_WhenSuccessful_ReturnsSuccessResponse() async throws {
+        mockRepository = MatchRepositoryMock()
+        
+        let expectedResponse: CreateMatchResponse = .init(match_id: "m_6cfbde8b")
+        await mockRepository.setCreateMatchResult(
+            .success(expectedResponse)
+        )
+        
+        let sut = MatchUseCases(match: mockRepository)
+        let response = try await sut.userCreateMatch(.init())
+        
+        XCTAssertTrue(response == expectedResponse)
+    }
+    
+    func testCreateMatch_WhenRepositoryThrowsError_ThrowsSameError() async {
+        mockRepository = MatchRepositoryMock()
+        
+        let expectedError = NSError(domain: "NetworkError", code: 401, userInfo: nil)
+        await mockRepository.setCreateMatchResult(
+            .failure(expectedError)
+        )
+        
+        let sut = MatchUseCases(match: mockRepository)
+        do {
+            _ = try await sut.userCreateMatch(.init())
             XCTFail("Expected error to be thrown, but it succeeded.")
         } catch {
             let nsError = error as NSError

@@ -1,8 +1,8 @@
 //
-//  DashboardViewModelTests.swift
+//  CreateMatchViewModelTests.swift
 //  community_app
 //
-//  Created by Heelin Mistry on 2026/04/30.
+//  Created by Heelin Mistry on 2026/05/02.
 //
 
 import XCTest
@@ -11,8 +11,8 @@ import Combine
 @testable import CommunityCore
 
 @MainActor
-final class DashboardViewModelTests: XCTestCase {
-    private var sut: DashboardViewModel!
+final class CreateMatchViewModelTests: XCTestCase {
+    private var sut: CreateMatchViewModel!
     private var mockRouter: NavigationRouter!
     private var mockProvider: MatchUseCasesProviderMock!
     
@@ -30,13 +30,13 @@ final class DashboardViewModelTests: XCTestCase {
         super.tearDown()
     }
     
-    func testMatches_WhenSuccessful_SetsSuccessState() async {
+    func testCreate_WhenSuccessful_SetsSuccessState() async {
         // Arrange
-        let expectedResponse: Matches = [.init()]
-        mockProvider.mockUseCases.matchResult = .success(expectedResponse)
+        let expectedResponse = CreateMatchResponse(match_id: "98765")
+        mockProvider.mockUseCases.createMatchResult = .success(expectedResponse)
         
         // Act
-        sut.matchFeed()
+        sut.create()
         
         // Wait for the Task to complete
         // We use a small delay or Task.yield since loginAttempt creates a detached Task
@@ -50,14 +50,14 @@ final class DashboardViewModelTests: XCTestCase {
         }
     }
     
-    func testMatches_WhenFails_SetsErrorState() async {
+    func testCreate_WhenFails_SetsErrorState() async {
         // Arrange
         let errorMessage = "Invalid Credentials"
-        let error = NSError(domain: "Auth", code: 401, userInfo: [NSLocalizedDescriptionKey: errorMessage])
-        mockProvider.mockUseCases.matchResult = .failure(error)
+        let error = NSError(domain: "Match", code: 401, userInfo: [NSLocalizedDescriptionKey: errorMessage])
+        mockProvider.mockUseCases.createMatchResult = .failure(error)
         
         // Act
-        sut.matchFeed()
+        sut.create()
         try? await Task.sleep(nanoseconds: 100_000_000)
         
         // Assert
@@ -68,9 +68,21 @@ final class DashboardViewModelTests: XCTestCase {
         }
     }
     
-    func testCreateMatch_WhenTapped_RoutesNavigation() async {
-        sut.createMatchTapped()
+    func testCreate_InputValidation() async {
+        var result = sut.isFormValid
+        XCTAssertFalse(result)
+        XCTAssertFalse(sut.validationErrors.isEmpty)
         
-        XCTAssertEqual(mockRouter.sheet, .createMatch)
+        sut.title = "test"
+        sut.sport = "test"
+        sut.duration = "30"
+        sut.date_event = "0987654567"
+        sut.time = "longenough"
+        sut.location = "longenough"
+        sut.roster_size = "12"
+        sut.cost = "30"
+        result = sut.isFormValid
+        XCTAssertTrue(result)
+        XCTAssertTrue(sut.validationErrors.isEmpty)
     }
 }

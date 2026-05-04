@@ -6,10 +6,11 @@
 //
 
 import SwiftUI
+import CommunityCore
 
 struct DashboardView<T: DashboardViewModelProtocol>: View {
     @StateObject private var viewModel: T
-    
+
     public init(viewModel: T) {
         _viewModel = StateObject(wrappedValue: viewModel)
     }
@@ -18,7 +19,7 @@ struct DashboardView<T: DashboardViewModelProtocol>: View {
             ScrollView {
                 VStack(spacing: 16) { // Add spacing between feed items
                     // Header or welcome message
-                    Text("Welcome to Your Feed!")
+                    PrimaryText(label: "Welcome to Your Feed!")
                         .font(.largeTitle)
                         .fontWeight(.bold)
                         .padding(.bottom, 20)
@@ -30,8 +31,21 @@ struct DashboardView<T: DashboardViewModelProtocol>: View {
                 }
                 .padding() // Padding for the entire scrollable content
             }
+            .background(Assets.theme.inputBackground.ignoresSafeArea()) // Using theme color for background
             .navigationTitle("Dashboard") // Set the navigation bar title
             .navigationBarTitleDisplayMode(.large) // Make the title large
+            .toolbar { // Add toolbar content
+                ToolbarItem(placement: .navigationBarTrailing) { // Place the button on the trailing side
+                    Button {
+                        viewModel.createMatchTapped()
+                    } label: {
+                        Label("Create Match", systemImage: "plus.circle.fill")
+                    }
+                }
+            }
+            .onAppear {
+                viewModel.matchFeed()
+            }
         }
     }
 }
@@ -47,13 +61,14 @@ struct FeedItemPlaceholder: View {
                 Image(systemName: "person.circle.fill")
                     .resizable()
                     .frame(width: 40, height: 40)
-                    .foregroundColor(.gray)
+                    .foregroundColor(Assets.theme.secondaryText) // Using theme color
                 VStack(alignment: .leading) {
                     Text("User Name \(index)")
                         .font(.headline)
+                        .foregroundColor(Assets.theme.primaryText) // Using theme color
                     Text("Posted 2 hours ago")
                         .font(.subheadline)
-                        .foregroundColor(.gray)
+                        .foregroundColor(Assets.theme.secondaryText) // Using theme color
                 }
             }
             .padding(.bottom, 4)
@@ -62,10 +77,11 @@ struct FeedItemPlaceholder: View {
             Text("This is a placeholder for a feed item's content. It can be a short message, a status update, or a description of an image/video.")
                 .font(.body)
                 .lineLimit(3) // Limit text to 3 lines
+                .foregroundColor(Assets.theme.primaryText) // Using theme color
 
             // Placeholder for an image or media
             Rectangle()
-                .fill(Color.secondary.opacity(0.3)) // A light gray rectangle
+                .fill(Assets.theme.tertiary.opacity(0.3)) // Using theme color with opacity
                 .frame(height: 200)
                 .cornerRadius(10)
                 .padding(.vertical, 8)
@@ -76,26 +92,29 @@ struct FeedItemPlaceholder: View {
                     // Action for like
                 } label: {
                     Label("Like", systemImage: "hand.thumbsup")
+                        .foregroundColor(Assets.theme.primaryText) // Using theme color
                 }
                 Spacer()
                 Button {
                     // Action for comment
                 } label: {
                     Label("Comment", systemImage: "text.bubble")
+                        .foregroundColor(Assets.theme.primaryText) // Using theme color
                 }
                 Spacer()
                 Button {
                     // Action for share
                 } label: {
                     Label("Share", systemImage: "square.and.arrow.up")
+                        .foregroundColor(Assets.theme.primaryText) // Using theme color
                 }
             }
             .font(.subheadline)
             .padding(.horizontal)
         }
         .padding()
-        .background(Color.white) // Use a white background for the card
+        .background(Assets.theme.neutral) // Using theme color for the card background
         .cornerRadius(15) // Rounded corners for the card
-        .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2) // Subtle shadow
+        .shadow(color: Assets.theme.primaryText.opacity(0.1), radius: 5, x: 0, y: 2) // Using theme color for shadow
     }
 }
