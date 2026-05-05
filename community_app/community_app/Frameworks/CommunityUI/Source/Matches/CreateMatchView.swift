@@ -45,9 +45,9 @@ public struct CreateMatchView<T: CreateMatchViewModelProtocol>: View {
                 }
             }
             .padding(30)
-            .navigationTitle("Create") // Moved here
-            .navigationBarTitleDisplayMode(.inline) // Moved here
-            .toolbar { // Moved here
+            .navigationTitle("Create")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Done") { router.sheet = nil }
                 }
@@ -62,37 +62,13 @@ public struct CreateMatchView<T: CreateMatchViewModelProtocol>: View {
                              text: $viewModel.title,
                              errorMessage: viewModel.validationErrors["title"]
             )
-            // Replaced PrimaryTextInput with Picker for Sport
-//            VStack(alignment: .leading, spacing: 8) {
-//                Text("SPORT")
-//                    .font(.caption)
-//                    .fontWeight(.bold)
-//                    .foregroundColor(viewModel.validationErrors["sport"] == nil ? Assets.theme.secondaryText : .red)
-//                
-//                Picker("Select Sport", selection: $viewModel.sport) {
-//                    ForEach(Sport.allCases) { sport in
-//                        Text(sport.localizedName).tag(sport)
-//                    }
-//                }
-//                .pickerStyle(.menu) // or .segmented, .inline, etc. based on design preference
-//                .labelsHidden() // Hide the default picker label if Text("SPORT") is used
-//                .padding()
-//                .background(Assets.theme.inputBackground)
-//                .cornerRadius(12)
-//                .overlay(
-//                    RoundedRectangle(cornerRadius: 12)
-//                        .stroke(viewModel.validationErrors["sport"] == nil ? Color.white.opacity(0.1) : Color.red, lineWidth: 1)
-//                )
-//                .accentColor(Assets.theme.primary)
-//                
-//                if let errorMessage = viewModel.validationErrors["sport"] {
-//                    Text(errorMessage)
-//                        .font(.caption2)
-//                        .foregroundColor(.red)
-//                        .transition(.opacity)
-//                }
-//            }
-            PrimaryPicker(label: "Sport", text: $viewModel.sport)
+            PrimaryPicker(
+                label: "Sport",
+                selection: $viewModel.sport,
+                options: Sport.allCases,
+                optionLabel: { sport in Text(sport.localizedName) },
+                errorMessage: viewModel.validationErrors["sport"]
+            )
             PrimaryTextInput(label: "Location",
                              placeholder: "Jala",
                              text: $viewModel.location,
@@ -159,10 +135,13 @@ public struct CreateMatchView<T: CreateMatchViewModelProtocol>: View {
                         .transition(.opacity)
                 }
             }
-            PrimaryTextInput(label: "Duration",
-                             placeholder: "e.g. 30",
-                             text: $viewModel.duration,
-                             errorMessage: viewModel.validationErrors["duration"])
+            PrimaryPicker(
+                label: "Duration",
+                selection: durationBinding,
+                options: durationOptions,
+                optionLabel: { duration in Text("\(duration) minutes") },
+                errorMessage: viewModel.validationErrors["duration"]
+            )
         }
     }
     
@@ -205,5 +184,28 @@ public struct CreateMatchView<T: CreateMatchViewModelProtocol>: View {
             }
         }
         .padding(.horizontal, 30)
+    }
+
+    // Helper properties for the duration picker
+    private var durationOptions: [Int] {
+        // Generates duration options incrementing by 30 minutes, from 30 up to 300 (5 hours)
+        Array(stride(from: 30, through: 300, by: 30))
+    }
+
+    private var durationBinding: Binding<Int> {
+        Binding<Int>(
+            get: {
+                // Safely convert viewModel.duration (String) to Int.
+                // If conversion fails or if the value is not in `durationOptions`,
+                // default to the first option (30 minutes) or a reasonable fallback.
+                if let intValue = Int(viewModel.duration), durationOptions.contains(intValue) {
+                    return intValue
+                }
+                return durationOptions.first ?? 30 // Fallback to 30 or the first available option
+            },
+            set: { newValue in
+                viewModel.duration = String(newValue)
+            }
+        )
     }
 }
