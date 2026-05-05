@@ -147,14 +147,19 @@ public struct CreateMatchView<T: CreateMatchViewModelProtocol>: View {
     
     private var stepThreeInputs: some View {
         VStack(spacing: 20) {
-            PrimaryTextInput(label: "Roster size",
-                             placeholder: "12",
-                             text: $viewModel.roster_size,
-                             errorMessage: viewModel.validationErrors["roster_size"])
-            PrimaryTextInput(label: "Cost",
-                             placeholder: "30",
-                             text: $viewModel.cost,
-                             errorMessage: viewModel.validationErrors["cost"]
+            PrimaryPicker(
+                label: "Roster size",
+                selection: rosterSizeBinding,
+                options: rosterSizeOptions,
+                optionLabel: { size in Text("\(size)") },
+                errorMessage: viewModel.validationErrors["roster_size"]
+            )
+            PrimaryPicker(
+                label: "Cost",
+                selection: costBinding,
+                options: costOptions,
+                optionLabel: { cost in Text("\(cost)") },
+                errorMessage: viewModel.validationErrors["cost"]
             )
         }
     }
@@ -205,6 +210,46 @@ public struct CreateMatchView<T: CreateMatchViewModelProtocol>: View {
             },
             set: { newValue in
                 viewModel.duration = String(newValue)
+            }
+        )
+    }
+
+    // Helper properties for the roster size picker
+    private var rosterSizeOptions: [Int] {
+        // Generates roster size options from 1 to 50, incrementing by 1
+        Array(1...50)
+    }
+
+    private var rosterSizeBinding: Binding<Int> {
+        Binding<Int>(
+            get: {
+                if let intValue = Int(viewModel.roster_size), rosterSizeOptions.contains(intValue) {
+                    return intValue
+                }
+                return rosterSizeOptions.first ?? 1 // Fallback to 1 or the first available option
+            },
+            set: { newValue in
+                viewModel.roster_size = String(newValue)
+            }
+        )
+    }
+
+    // Helper properties for the cost picker
+    private var costOptions: [Int] {
+        // Generates cost options from 0 to 500, incrementing by 10
+        Array(stride(from: 0, through: 500, by: 10))
+    }
+
+    private var costBinding: Binding<Int> {
+        Binding<Int>(
+            get: {
+                if let intValue = Int(viewModel.cost), costOptions.contains(intValue) {
+                    return intValue
+                }
+                return costOptions.first ?? 0 // Fallback to 0 or the first available option
+            },
+            set: { newValue in
+                viewModel.cost = String(newValue)
             }
         )
     }
