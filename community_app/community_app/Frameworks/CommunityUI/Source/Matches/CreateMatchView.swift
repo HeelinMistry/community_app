@@ -8,6 +8,11 @@
 import SwiftUI
 import CommunityCore
 
+private enum Sport: String {
+    case soccer
+    case padel
+}
+
 public struct CreateMatchView<T: CreateMatchViewModelProtocol>: View {
     @EnvironmentObject private var router: NavigationRouter
     @StateObject private var viewModel: T
@@ -104,11 +109,34 @@ public struct CreateMatchView<T: CreateMatchViewModelProtocol>: View {
                         .transition(.opacity)
                 }
             }
-            
-            PrimaryTextInput(label: "Time",
-                             placeholder: "e.g. 17:00",
-                             text: $viewModel.time,
-                             errorMessage: viewModel.validationErrors["time"])
+            VStack(alignment: .leading, spacing: 8) {
+                Text("TIME")
+                    .font(.caption)
+                    .fontWeight(.bold)
+                    .foregroundColor(viewModel.validationErrors["time"] == nil ? Assets.theme.secondaryText : .red)
+                
+                DatePicker(
+                    "Select Time",
+                    selection: $viewModel.time,
+                    displayedComponents: .hourAndMinute
+                )
+                .labelsHidden()
+                .padding()
+                .background(Assets.theme.inputBackground)
+                .cornerRadius(12)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(viewModel.validationErrors["time"] == nil ? Color.white.opacity(0.1) : Color.red, lineWidth: 1)
+                )
+                .accentColor(Assets.theme.primary)
+                
+                if let errorMessage = viewModel.validationErrors["time"] {
+                    Text(errorMessage)
+                        .font(.caption2)
+                        .foregroundColor(.red)
+                        .transition(.opacity)
+                }
+            }
             PrimaryTextInput(label: "Duration",
                              placeholder: "e.g. 30",
                              text: $viewModel.duration,

@@ -21,7 +21,7 @@ public protocol CreateMatchViewModelProtocol: ValidatableViewModel {
     var sport: String { get set }
     var duration: String { get set }
     var date_event: Date { get set }
-    var time: String { get set }
+    var time: Date { get set }
     var location: String { get set }
     var roster_size: String { get set }
     var cost: String { get set }
@@ -38,7 +38,7 @@ public final class CreateMatchViewModel: CreateMatchViewModelProtocol {
     @Published public var sport = ""
     @Published public var duration = ""
     @Published public var date_event: Date = .now
-    @Published public var time = ""
+    @Published public var time: Date = .now
     @Published public var location = ""
     @Published public var roster_size = ""
     @Published public var cost = ""
@@ -81,23 +81,27 @@ public final class CreateMatchViewModel: CreateMatchViewModelProtocol {
                 let dateFormatter: DateFormatter = {
                     let formatter = DateFormatter()
                     formatter.dateFormat = "yyyy-MM-dd"
-//                    formatter.locale = Locale(identifier: "en_US_POSIX") // Consider setting locale/timezone explicitly for consistency
-//                    formatter.timeZone = TimeZone(secondsFromGMT: 0) // Or your desired timezone
                     return formatter
                 }()
-//                let dateString = dateFormatter.string(from: date_event)
+                let dateString = dateFormatter.string(from: date_event)
 
-//                let request = CreateMatchRequest(
-//                    title: title,
-//                    sport: sport,
-//                    duration: duration,
-//                    date_event: dateString,
-//                    time: time,
-//                    location: location,
-//                    roster_size: roster_size,
-//                    cost: cost
-//                )
-                let request: CreateMatchRequest = .init()
+                let timeFormatter: DateFormatter = {
+                    let formatter = DateFormatter()
+                    formatter.dateFormat = "HH:mm"
+                    return formatter
+                }()
+                let timeString = timeFormatter.string(from: time)
+                
+                let request = CreateMatchRequest(
+                    title: title,
+                    sport: sport,
+                    duration: duration,
+                    date_event: dateString,
+                    time: timeString,
+                    location: location,
+                    roster_size: roster_size,
+                    cost: cost
+                )
                 let response: CreateMatchResponse = try await useCases.matches.userCreateMatch(request)
                 if !Task.isCancelled {
                     self.state = .success(response)
@@ -129,7 +133,8 @@ public final class CreateMatchViewModel: CreateMatchViewModelProtocol {
         if selectedDateStartOfDay < todayStartOfDay {
             errors["date_event"] = "Date cannot be in the past"
         }
-        validateAndCollectError(forField: "time", value: time, nonEmptyMessage: "Time cannot be empty", in: &errors)
+        // No explicit validation for `time` as `Date` objects from UI pickers are usually valid.
+        // If specific time constraints are needed (e.g., not too far in future/past), add them here.
         self.validationErrors = errors
     }
     
@@ -184,3 +189,4 @@ public final class CreateMatchViewModel: CreateMatchViewModelProtocol {
         }
     }
 }
+
