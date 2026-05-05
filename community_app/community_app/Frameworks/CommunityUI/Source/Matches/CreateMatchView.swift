@@ -8,11 +8,6 @@
 import SwiftUI
 import CommunityCore
 
-private enum Sport: String {
-    case soccer
-    case padel
-}
-
 public struct CreateMatchView<T: CreateMatchViewModelProtocol>: View {
     @EnvironmentObject private var router: NavigationRouter
     @StateObject private var viewModel: T
@@ -67,10 +62,37 @@ public struct CreateMatchView<T: CreateMatchViewModelProtocol>: View {
                              text: $viewModel.title,
                              errorMessage: viewModel.validationErrors["title"]
             )
-            PrimaryTextInput(label: "Sport",
-                             placeholder: "e.g. Soccer",
-                             text: $viewModel.sport,
-                             errorMessage: viewModel.validationErrors["sport"])
+            // Replaced PrimaryTextInput with Picker for Sport
+//            VStack(alignment: .leading, spacing: 8) {
+//                Text("SPORT")
+//                    .font(.caption)
+//                    .fontWeight(.bold)
+//                    .foregroundColor(viewModel.validationErrors["sport"] == nil ? Assets.theme.secondaryText : .red)
+//                
+//                Picker("Select Sport", selection: $viewModel.sport) {
+//                    ForEach(Sport.allCases) { sport in
+//                        Text(sport.localizedName).tag(sport)
+//                    }
+//                }
+//                .pickerStyle(.menu) // or .segmented, .inline, etc. based on design preference
+//                .labelsHidden() // Hide the default picker label if Text("SPORT") is used
+//                .padding()
+//                .background(Assets.theme.inputBackground)
+//                .cornerRadius(12)
+//                .overlay(
+//                    RoundedRectangle(cornerRadius: 12)
+//                        .stroke(viewModel.validationErrors["sport"] == nil ? Color.white.opacity(0.1) : Color.red, lineWidth: 1)
+//                )
+//                .accentColor(Assets.theme.primary)
+//                
+//                if let errorMessage = viewModel.validationErrors["sport"] {
+//                    Text(errorMessage)
+//                        .font(.caption2)
+//                        .foregroundColor(.red)
+//                        .transition(.opacity)
+//                }
+//            }
+            PrimaryPicker(label: "Sport", text: $viewModel.sport)
             PrimaryTextInput(label: "Location",
                              placeholder: "Jala",
                              text: $viewModel.location,

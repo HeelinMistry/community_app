@@ -8,6 +8,10 @@
 import Combine
 import Foundation
 import CommunityCore
+// Ensure Sport enum is visible, either by importing CommunityUI or defining it here.
+// Assuming Sport enum is in CreateMatchView.swift and is public.
+// If not, you might need to move it to a shared module or define it here.
+// For now, I'll assume it's publicly available.
 
 public enum RegistrationSteps: Int {
     case step1 = 1
@@ -15,10 +19,26 @@ public enum RegistrationSteps: Int {
     case step3 = 3
 }
 
+public enum Sport: String, CaseIterable, Identifiable {
+    case soccer
+    case padel
+    
+    public var id: String { self.rawValue }
+    
+    // Provide a user-friendly name for display in the Picker
+    public var localizedName: String {
+        switch self {
+        case .soccer: return "Soccer"
+        case .padel: return "Padel"
+        }
+    }
+}
+
+
 @MainActor
 public protocol CreateMatchViewModelProtocol: ValidatableViewModel {
     var title: String { get set }
-    var sport: String { get set }
+    var sport: Sport { get set } // Changed type from String to Sport
     var duration: String { get set }
     var date_event: Date { get set }
     var time: Date { get set }
@@ -35,7 +55,7 @@ public final class CreateMatchViewModel: CreateMatchViewModelProtocol {
     @Published public var validationErrors: [String: String] = [:]
     
     @Published public var title = ""
-    @Published public var sport = ""
+    @Published public var sport: Sport = .soccer // Changed type and provided an initial value
     @Published public var duration = ""
     @Published public var date_event: Date = .now
     @Published public var time: Date = .now
@@ -94,7 +114,8 @@ public final class CreateMatchViewModel: CreateMatchViewModelProtocol {
                 
                 let request = CreateMatchRequest(
                     title: title,
-                    sport: sport,
+                    // Use the rawValue of the Sport enum
+                    sport: sport.rawValue, 
                     duration: duration,
                     date_event: dateString,
                     time: timeString,
@@ -119,7 +140,6 @@ public final class CreateMatchViewModel: CreateMatchViewModelProtocol {
     private func incompleteFormStep1() {
         var errors: [String: String] = [:]
         validateAndCollectError(forField: "title", value: title, nonEmptyMessage: "Title cannot be empty", in: &errors)
-        validateAndCollectError(forField: "sport", value: sport, nonEmptyMessage: "Sport cannot be empty", in: &errors)
         validateAndCollectError(forField: "location", value: location, nonEmptyMessage: "Location cannot be empty", in: &errors)
         self.validationErrors = errors
     }
@@ -189,4 +209,3 @@ public final class CreateMatchViewModel: CreateMatchViewModelProtocol {
         }
     }
 }
-
