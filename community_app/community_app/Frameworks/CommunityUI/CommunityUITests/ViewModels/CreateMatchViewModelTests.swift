@@ -79,18 +79,18 @@ final class CreateMatchViewModelTests: XCTestCase {
         sut.title = "test"
         sut.sport = "test"
         sut.location = "longenough"
-        result = sut.isFormValid(step: 0)
+        result = sut.isFormValid(step: 1)
         XCTAssertTrue(result)
         
         sut.duration = "30"
-        sut.date_event = "0987654567"
+        sut.date_event = Date()
         sut.time = "longenough"
-        result = sut.isFormValid(step: 1)
+        result = sut.isFormValid(step: 2)
         XCTAssertTrue(result)
         
         sut.roster_size = "12"
         sut.cost = "30"
-        result = sut.isFormValid(step: 2)
+        result = sut.isFormValid(step: 3)
         XCTAssertTrue(result)
     }
 }
