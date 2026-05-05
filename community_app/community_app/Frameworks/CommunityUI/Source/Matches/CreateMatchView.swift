@@ -76,10 +76,35 @@ public struct CreateMatchView<T: CreateMatchViewModelProtocol>: View {
     
     private var stepTwoInputs: some View {
         VStack(spacing: 20) {
-            PrimaryTextInput(label: "Date",
-                             placeholder: "e.g. 03/04/2026",
-                             text: $viewModel.date_event,
-                             errorMessage: viewModel.validationErrors["date_event"])
+            VStack(alignment: .leading, spacing: 8) {
+                Text("DATE")
+                    .font(.caption)
+                    .fontWeight(.bold)
+                    .foregroundColor(viewModel.validationErrors["date_event"] == nil ? Assets.theme.secondaryText : .red)
+                
+                DatePicker(
+                    "Select Date",
+                    selection: $viewModel.date_event, 
+                    displayedComponents: .date
+                )
+                .labelsHidden()
+                .padding()
+                .background(Assets.theme.inputBackground)
+                .cornerRadius(12)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(viewModel.validationErrors["date_event"] == nil ? Color.white.opacity(0.1) : Color.red, lineWidth: 1)
+                )
+                .accentColor(Assets.theme.primary)
+                
+                if let errorMessage = viewModel.validationErrors["date_event"] {
+                    Text(errorMessage)
+                        .font(.caption2)
+                        .foregroundColor(.red)
+                        .transition(.opacity)
+                }
+            }
+            
             PrimaryTextInput(label: "Time",
                              placeholder: "e.g. 17:00",
                              text: $viewModel.time,

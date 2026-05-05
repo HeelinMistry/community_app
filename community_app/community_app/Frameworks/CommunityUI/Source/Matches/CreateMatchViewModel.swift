@@ -20,7 +20,7 @@ public protocol CreateMatchViewModelProtocol: ValidatableViewModel {
     var title: String { get set }
     var sport: String { get set }
     var duration: String { get set }
-    var date_event: String { get set }
+    var date_event: Date { get set }
     var time: String { get set }
     var location: String { get set }
     var roster_size: String { get set }
@@ -37,7 +37,7 @@ public final class CreateMatchViewModel: CreateMatchViewModelProtocol {
     @Published public var title = ""
     @Published public var sport = ""
     @Published public var duration = ""
-    @Published public var date_event = ""
+    @Published public var date_event: Date = .now
     @Published public var time = ""
     @Published public var location = ""
     @Published public var roster_size = ""
@@ -78,11 +78,20 @@ public final class CreateMatchViewModel: CreateMatchViewModelProtocol {
         state = .loading
         fetchTask = Task {
             do {
+                let dateFormatter: DateFormatter = {
+                    let formatter = DateFormatter()
+                    formatter.dateFormat = "yyyy-MM-dd"
+//                    formatter.locale = Locale(identifier: "en_US_POSIX") // Consider setting locale/timezone explicitly for consistency
+//                    formatter.timeZone = TimeZone(secondsFromGMT: 0) // Or your desired timezone
+                    return formatter
+                }()
+//                let dateString = dateFormatter.string(from: date_event)
+
 //                let request = CreateMatchRequest(
 //                    title: title,
 //                    sport: sport,
 //                    duration: duration,
-//                    date_event: date_event,
+//                    date_event: dateString,
 //                    time: time,
 //                    location: location,
 //                    roster_size: roster_size,
@@ -114,7 +123,12 @@ public final class CreateMatchViewModel: CreateMatchViewModelProtocol {
     private func incompleteFormStep2() {
         var errors: [String: String] = [:]
         validateAndCollectError(forField: "duration", value: duration, nonEmptyMessage: "Duration cannot be empty", in: &errors)
-        validateAndCollectError(forField: "date_event", value: date_event, nonEmptyMessage: "Date cannot be empty", in: &errors)
+        let calendar = Calendar.current
+        let todayStartOfDay = calendar.startOfDay(for: Date())
+        let selectedDateStartOfDay = calendar.startOfDay(for: date_event)
+        if selectedDateStartOfDay < todayStartOfDay {
+            errors["date_event"] = "Date cannot be in the past"
+        }
         validateAndCollectError(forField: "time", value: time, nonEmptyMessage: "Time cannot be empty", in: &errors)
         self.validationErrors = errors
     }
