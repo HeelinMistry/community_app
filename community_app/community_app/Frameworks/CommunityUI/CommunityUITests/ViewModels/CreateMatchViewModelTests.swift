@@ -69,20 +69,28 @@ final class CreateMatchViewModelTests: XCTestCase {
     }
     
     func testCreate_InputValidation() async {
-        var result = sut.isFormValid
+        var result = sut.isFormValid()
         XCTAssertFalse(result)
         XCTAssertFalse(sut.validationErrors.isEmpty)
         
+        result = sut.isFormValid()
+        XCTAssertFalse(result)
+        
         sut.title = "test"
         sut.sport = "test"
+        sut.location = "longenough"
+        result = sut.isFormValid(step: 0)
+        XCTAssertTrue(result)
+        
         sut.duration = "30"
         sut.date_event = "0987654567"
         sut.time = "longenough"
-        sut.location = "longenough"
+        result = sut.isFormValid(step: 1)
+        XCTAssertTrue(result)
+        
         sut.roster_size = "12"
         sut.cost = "30"
-        result = sut.isFormValid
+        result = sut.isFormValid(step: 2)
         XCTAssertTrue(result)
-        XCTAssertTrue(sut.validationErrors.isEmpty)
     }
 }

@@ -9,6 +9,12 @@ import Combine
 import Foundation
 import CommunityCore
 
+public enum RegistrationSteps: Int {
+    case step1 = 1
+    case step2 = 2
+    case step3 = 3
+}
+
 @MainActor
 public protocol CreateMatchViewModelProtocol: ValidatableViewModel {
     var title: String { get set }
@@ -37,8 +43,21 @@ public final class CreateMatchViewModel: CreateMatchViewModelProtocol {
     @Published public var roster_size = ""
     @Published public var cost = ""
     
-    public var isFormValid: Bool {
-        incompleteForm()
+    public func isFormValid(step: Int? = nil) -> Bool {
+        validationErrors = [:]
+        guard let step,
+              let validationStep = RegistrationSteps(rawValue: step) else {
+            validationErrors["general"] = "Validation step could not be determined."
+            return false
+        }
+        switch validationStep {
+        case .step1:
+            incompleteFormStep1()
+        case .step2:
+            incompleteFormStep2()
+        case .step3:
+            incompleteFormStep3()
+        }
         return validationErrors.isEmpty
     }
     
@@ -84,16 +103,24 @@ public final class CreateMatchViewModel: CreateMatchViewModelProtocol {
         }
     }
     
-    private func incompleteForm() {
+    private func incompleteFormStep1() {
         var errors: [String: String] = [:]
-        
         validateAndCollectError(forField: "title", value: title, nonEmptyMessage: "Title cannot be empty", in: &errors)
         validateAndCollectError(forField: "sport", value: sport, nonEmptyMessage: "Sport cannot be empty", in: &errors)
+        validateAndCollectError(forField: "location", value: location, nonEmptyMessage: "Location cannot be empty", in: &errors)
+        self.validationErrors = errors
+    }
+    
+    private func incompleteFormStep2() {
+        var errors: [String: String] = [:]
         validateAndCollectError(forField: "duration", value: duration, nonEmptyMessage: "Duration cannot be empty", in: &errors)
         validateAndCollectError(forField: "date_event", value: date_event, nonEmptyMessage: "Date cannot be empty", in: &errors)
         validateAndCollectError(forField: "time", value: time, nonEmptyMessage: "Time cannot be empty", in: &errors)
-        validateAndCollectError(forField: "location", value: location, nonEmptyMessage: "Location cannot be empty", in: &errors)
-        
+        self.validationErrors = errors
+    }
+    
+    private func incompleteFormStep3() {
+        var errors: [String: String] = [:]
         validateAndCollectError(
             forField: "roster_size",
             value: roster_size,
@@ -101,7 +128,6 @@ public final class CreateMatchViewModel: CreateMatchViewModelProtocol {
             numericValidator: { [weak self] val in self?.validatePositiveInteger(value: val, fieldName: "Roster size") },
             in: &errors
         )
-        
         validateAndCollectError(
             forField: "cost",
             value: cost,
@@ -109,7 +135,6 @@ public final class CreateMatchViewModel: CreateMatchViewModelProtocol {
             numericValidator: { [weak self] val in self?.validateNonNegativeDouble(value: val, fieldName: "Cost") },
             in: &errors
         )
-        
         self.validationErrors = errors
     }
     

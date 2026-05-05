@@ -8,5 +8,5 @@
 @MainActor
 public protocol ValidatableViewModel: StateDrivenViewModel {
     var validationErrors: [String: String] { get set }
-    var isFormValid: Bool { get }
+    func isFormValid(step: Int?) -> Bool
 }

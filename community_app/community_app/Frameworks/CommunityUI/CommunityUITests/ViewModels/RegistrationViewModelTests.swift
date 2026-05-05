@@ -69,7 +69,7 @@ final class RegistrationViewModelTests: XCTestCase {
     }
     
     func testRegister_InputValidation() async {
-        var result = sut.isFormValid
+        var result = sut.isFormValid()
         XCTAssertFalse(result)
         XCTAssertFalse(sut.validationErrors.isEmpty)
         
@@ -78,12 +78,12 @@ final class RegistrationViewModelTests: XCTestCase {
         sut.email = "test@test.com"
         sut.cellNumber = "0987654567"
         sut.password = "longenough"
-        result = sut.isFormValid
+        result = sut.isFormValid()
         XCTAssertFalse(result)
         XCTAssertFalse(sut.validationErrors.isEmpty)
         
         sut.confirmPassword = "longenough"
-        result = sut.isFormValid
+        result = sut.isFormValid()
         XCTAssertTrue(result)
         XCTAssertTrue(sut.validationErrors.isEmpty)
     }
