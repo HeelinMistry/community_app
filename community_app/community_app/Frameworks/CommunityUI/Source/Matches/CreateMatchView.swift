@@ -206,7 +206,7 @@ public struct CreateMatchView<T: CreateMatchViewModelProtocol>: View {
                 if let intValue = Int(viewModel.duration), durationOptions.contains(intValue) {
                     return intValue
                 }
-                return durationOptions.first ?? 30 // Fallback to 30 or the first available option
+                return durationOptions.first ?? 0 // Fallback to 30 or the first available option
             },
             set: { newValue in
                 viewModel.duration = String(newValue)
@@ -236,7 +236,6 @@ public struct CreateMatchView<T: CreateMatchViewModelProtocol>: View {
 
     // Helper properties for the cost picker
     private var costOptions: [Int] {
-        // Generates cost options from 0 to 500, incrementing by 10
         Array(stride(from: 0, through: 500, by: 10))
     }
 
