@@ -7,11 +7,14 @@
 
 import SwiftUI
 import CommunityCore
+import Combine
+import MapKit
 
 public struct CreateMatchView<T: CreateMatchViewModelProtocol>: View {
     @EnvironmentObject private var router: NavigationRouter
     @StateObject private var viewModel: T
     @State private var currentStep = 1
+    @State private var searchTask: Task<Void, Never>?
     
     public init(viewModel: @escaping @autoclosure () -> T) {
         _viewModel = StateObject(wrappedValue: viewModel())
@@ -69,11 +72,42 @@ public struct CreateMatchView<T: CreateMatchViewModelProtocol>: View {
                 optionLabel: { sport in Text(sport.localizedName) },
                 errorMessage: viewModel.validationErrors["sport"]
             )
-            PrimaryTextInput(label: "Location",
-                             placeholder: "Jala",
-                             text: $viewModel.location,
-                             errorMessage:
-                                viewModel.validationErrors["location"])
+            VStack(spacing: 20) {
+                PrimaryTextInput(
+                    label: "Search Location",
+                    placeholder: "e.g. Central Park Pitch",
+                    text: $viewModel.location
+                )
+                .onChange(of: viewModel.location) { _, newValue in
+                    searchTask?.cancel()
+                    searchTask = Task {
+                        do {
+                            try await Task.sleep(for: .milliseconds(500))
+                            if !Task.isCancelled {
+                                await viewModel.searchLocation(query: newValue)
+                            }
+                        } catch {
+                            // Task was cancelled, or other error occurred (e.g., during sleep)
+//                            print("Search task cancelled or error: \(error)")
+                        }
+                    }
+                }
+                
+                // The Visual Map
+                Map(position: $viewModel.mapCameraPosition) {
+                    // Add a marker at the found location if available
+                    if let coordinate = viewModel.selectedLocationCoordinate {
+                        // Use the validated name for the marker, not the raw input
+                        Marker(viewModel.validatedLocationName, coordinate: coordinate)
+                    }
+                }
+                .frame(height: 200)
+                .cornerRadius(12)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                )
+            }
         }
     }
     
@@ -87,7 +121,7 @@ public struct CreateMatchView<T: CreateMatchViewModelProtocol>: View {
                 
                 DatePicker(
                     "Select Date",
-                    selection: $viewModel.date_event, 
+                    selection: $viewModel.date_event,
                     displayedComponents: .date
                 )
                 .labelsHidden()
@@ -190,13 +224,11 @@ public struct CreateMatchView<T: CreateMatchViewModelProtocol>: View {
         }
         .padding(.horizontal, 30)
     }
-
-    // Helper properties for the duration picker
+    
     private var durationOptions: [Int] {
-        // Generates duration options incrementing by 30 minutes, from 30 up to 300 (5 hours)
         Array(stride(from: 30, through: 300, by: 30))
     }
-
+    
     private var durationBinding: Binding<Int> {
         Binding<Int>(
             get: {
@@ -206,46 +238,43 @@ public struct CreateMatchView<T: CreateMatchViewModelProtocol>: View {
                 if let intValue = Int(viewModel.duration), durationOptions.contains(intValue) {
                     return intValue
                 }
-                return durationOptions.first ?? 0 // Fallback to 30 or the first available option
+                return durationOptions.first ?? 0
             },
             set: { newValue in
                 viewModel.duration = String(newValue)
             }
         )
     }
-
-    // Helper properties for the roster size picker
+    
     private var rosterSizeOptions: [Int] {
-        // Generates roster size options from 1 to 50, incrementing by 1
         Array(1...50)
     }
-
+    
     private var rosterSizeBinding: Binding<Int> {
         Binding<Int>(
             get: {
                 if let intValue = Int(viewModel.roster_size), rosterSizeOptions.contains(intValue) {
                     return intValue
                 }
-                return rosterSizeOptions.first ?? 1 // Fallback to 1 or the first available option
+                return rosterSizeOptions.first ?? 1
             },
             set: { newValue in
                 viewModel.roster_size = String(newValue)
             }
         )
     }
-
-    // Helper properties for the cost picker
+    
     private var costOptions: [Int] {
         Array(stride(from: 0, through: 500, by: 10))
     }
-
+    
     private var costBinding: Binding<Int> {
         Binding<Int>(
             get: {
                 if let intValue = Int(viewModel.cost), costOptions.contains(intValue) {
                     return intValue
                 }
-                return costOptions.first ?? 0 // Fallback to 0 or the first available option
+                return costOptions.first ?? 0
             },
             set: { newValue in
                 viewModel.cost = String(newValue)

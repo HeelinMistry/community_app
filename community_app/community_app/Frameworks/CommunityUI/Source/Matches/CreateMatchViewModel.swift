@@ -5,9 +5,11 @@
 //  Created by Heelin Mistry on 2026/05/01.
 //
 
+import MapKit
 import Combine
 import Foundation
 import CommunityCore
+import _MapKit_SwiftUI
 // Ensure Sport enum is visible, either by importing CommunityUI or defining it here.
 // Assuming Sport enum is in CreateMatchView.swift and is public.
 // If not, you might need to move it to a shared module or define it here.
@@ -25,7 +27,6 @@ public enum Sport: String, CaseIterable, Identifiable {
     
     public var id: String { self.rawValue }
     
-    // Provide a user-friendly name for display in the Picker
     public var localizedName: String {
         switch self {
         case .soccer: return "Soccer"
@@ -34,19 +35,22 @@ public enum Sport: String, CaseIterable, Identifiable {
     }
 }
 
-
 @MainActor
 public protocol CreateMatchViewModelProtocol: ValidatableViewModel {
     var title: String { get set }
-    var sport: Sport { get set } // Changed type from String to Sport
+    var sport: Sport { get set }
     var duration: String { get set }
     var date_event: Date { get set }
     var time: Date { get set }
     var location: String { get set }
+    var validatedLocationName: String { get set }
     var roster_size: String { get set }
     var cost: String { get set }
+    var mapCameraPosition: MapCameraPosition { get set }
+    var selectedLocationCoordinate: CLLocationCoordinate2D? { get set }
     
     func create()
+    func searchLocation(query: String) async
 }
 
 @MainActor
@@ -55,13 +59,22 @@ public final class CreateMatchViewModel: CreateMatchViewModelProtocol {
     @Published public var validationErrors: [String: String] = [:]
     
     @Published public var title = ""
-    @Published public var sport: Sport = .soccer // Changed type and provided an initial value
+    @Published public var sport: Sport = .soccer
     @Published public var duration = ""
     @Published public var date_event: Date = .now
     @Published public var time: Date = .now
-    @Published public var location = ""
+    @Published public var location = "" // This stays bound to the TextField
+    @Published public var validatedLocationName = "" // Store the official name here
     @Published public var roster_size = ""
     @Published public var cost = ""
+    
+    // Initial map position, matching the default in CreateMatchView
+    @Published public var mapCameraPosition: MapCameraPosition = .region(MKCoordinateRegion(
+        center: CLLocationCoordinate2D(latitude: -25.86, longitude: 28.18),
+        span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+    ))
+    // Stores the coordinate for the map marker
+    @Published public var selectedLocationCoordinate: CLLocationCoordinate2D?
     
     public func isFormValid(step: Int? = nil) -> Bool {
         validationErrors = [:]
@@ -93,7 +106,7 @@ public final class CreateMatchViewModel: CreateMatchViewModelProtocol {
         self.router = router
     }
     
-    public func create() {        
+    public func create() {
         fetchTask?.cancel()
         state = .loading
         fetchTask = Task {
@@ -104,7 +117,7 @@ public final class CreateMatchViewModel: CreateMatchViewModelProtocol {
                     return formatter
                 }()
                 let dateString = dateFormatter.string(from: date_event)
-
+                
                 let timeFormatter: DateFormatter = {
                     let formatter = DateFormatter()
                     formatter.dateFormat = "HH:mm"
@@ -114,12 +127,12 @@ public final class CreateMatchViewModel: CreateMatchViewModelProtocol {
                 
                 let request = CreateMatchRequest(
                     title: title,
-                    // Use the rawValue of the Sport enum
-                    sport: sport.rawValue, 
+                    sport: sport.rawValue,
                     duration: duration,
                     date_event: dateString,
                     time: timeString,
-                    location: location,
+                    // Use validatedLocationName if available, otherwise fallback to user's raw input
+                    location: validatedLocationName.isEmpty ? location : validatedLocationName,
                     roster_size: roster_size,
                     cost: cost
                 )
@@ -140,7 +153,9 @@ public final class CreateMatchViewModel: CreateMatchViewModelProtocol {
     private func incompleteFormStep1() {
         var errors: [String: String] = [:]
         validateAndCollectError(forField: "title", value: title, nonEmptyMessage: "Title cannot be empty", in: &errors)
-        validateAndCollectError(forField: "location", value: location, nonEmptyMessage: "Location cannot be empty", in: &errors)
+        // Validate either the raw input or the validated name if available
+        let locationToValidate = validatedLocationName.isEmpty ? location : validatedLocationName
+        validateAndCollectError(forField: "location", value: locationToValidate, nonEmptyMessage: "Location cannot be empty", in: &errors)
         self.validationErrors = errors
     }
     
@@ -206,6 +221,48 @@ public final class CreateMatchViewModel: CreateMatchViewModelProtocol {
             errors[key] = nonEmptyMessage
         } else if let numericValidator = numericValidator, let error = numericValidator(value) {
             errors[key] = error
+        }
+    }
+    
+    public func searchLocation(query: String) async {
+        guard !query.isEmpty else {
+            // Reset map to default or current known location if query is empty
+            self.mapCameraPosition = .region(MKCoordinateRegion(
+                center: CLLocationCoordinate2D(latitude: -25.86, longitude: 28.18),
+                span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+            ))
+            self.selectedLocationCoordinate = nil // Clear the marker
+            self.validatedLocationName = "" // Clear validated name
+            return
+        }
+        
+        let request = MKLocalSearch.Request()
+        request.naturalLanguageQuery = query
+        let search = MKLocalSearch(request: request)
+        
+        do {
+            let response = try await search.start()
+            if let item = response.mapItems.first {
+                // DO NOT overwrite self.location here, it's bound to the TextField
+                self.validatedLocationName = item.name ?? query // Store the official name
+                
+                // Update map camera position to show the result
+                let coordinate = item.placemark.coordinate
+                self.mapCameraPosition = .region(MKCoordinateRegion(
+                    center: coordinate,
+                    span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01) // Zoom in a bit more
+                ))
+                self.selectedLocationCoordinate = coordinate // Set the coordinate for the marker
+            } else {
+                // If no item found, clear the marker and validated location name
+                self.selectedLocationCoordinate = nil
+                self.validatedLocationName = ""
+                // Keep the user's typed location in the `location` text field
+            }
+        } catch {
+//            print("Search error: \(error)")
+            self.selectedLocationCoordinate = nil // Clear marker on error
+            self.validatedLocationName = "" // Clear validated name on error
         }
     }
 }
