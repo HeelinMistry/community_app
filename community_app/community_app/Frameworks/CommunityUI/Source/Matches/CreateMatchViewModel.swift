@@ -31,35 +31,6 @@ public enum Sport: String, CaseIterable, Identifiable {
     }
 }
 
-// MARK: - New Map Search Service Protocol and Implementation
-
-/// Protocol for a map search service, allowing for mocking in tests.
-public protocol MapSearchServiceProtocol {
-    /// Searches for map items based on a given query string.
-    /// - Parameter query: The natural language query string to search for.
-    /// - Returns: An array of `MKMapItem` objects matching the query.
-    /// - Throws: An error if the search operation fails.
-    func search(query: String) async throws -> [MKMapItem]
-}
-
-/// Concrete implementation of MapSearchServiceProtocol using MKLocalSearch.
-public class MKLocalSearchService: MapSearchServiceProtocol, Sendable {
-    /// Initializes a new instance of the `MKLocalSearchService`.
-    public nonisolated init() {}
-    
-    /// Searches for map items using `MKLocalSearch` based on a given query string.
-    /// - Parameter query: The natural language query string to search for.
-    /// - Returns: An array of `MKMapItem` objects matching the query.
-    /// - Throws: An error if the `MKLocalSearch` operation fails.
-    public func search(query: String) async throws -> [MKMapItem] {
-        let request = MKLocalSearch.Request()
-        request.naturalLanguageQuery = query
-        let search = MKLocalSearch(request: request)
-        let response = try await search.start()
-        return response.mapItems
-    }
-}
-
 // MARK: - CreateMatchViewModelProtocol and CreateMatchViewModel
 
 @MainActor
@@ -123,13 +94,13 @@ public final class CreateMatchViewModel: CreateMatchViewModelProtocol {
     
     private let router: NavigationRouter
     private let useCases: any MatchUseCasesProvider
-    private let mapSearchService: MapSearchServiceProtocol // Injected dependency
+    private let mapSearchService: MapSearchServiceProtocol 
     private var fetchTask: Task<Void, Never>?
     
     public init(
         useCases: any MatchUseCasesProvider,
         router: NavigationRouter,
-        mapSearchService: MapSearchServiceProtocol = MKLocalSearchService()
+        mapSearchService: MapSearchServiceProtocol
     ) {
         self.useCases = useCases
         self.router = router
