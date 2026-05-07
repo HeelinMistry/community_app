@@ -13,39 +13,33 @@ public typealias Matches = [MatchResponse]
 public nonisolated struct MatchResponse: Sendable, Equatable, Encodable, Decodable {
     public let match_id: String
     public let title: String
-    public let sport: String
-    public let duration: String
-    public let date_event: String
+    public let date: String
     public let time: String
     public let location: String
-    public let roster_size: String
+    public let roster_size: Int
     public let cost: String
-    public let host_id: String
+    public let is_host: Bool
     public let is_cancelled: Bool
     
     public init(
         match_id: String = "m_8c45a00e",
         title: String = "Untitled Match",
-        sport: String = "Unknown Sport",
-        duration: String = "0",
         date_event: String = "2000-01-01",
         time: String = "00:00",
         location: String = "Undisclosed Location",
-        roster_size: String = "0",
+        roster_size: Int = 0,
         cost: String = "0.00",
-        host_id: String = "unknown_host",
+        is_host: Bool = false,
         is_cancelled: Bool = false
     ) {
         self.match_id = match_id
         self.title = title
-        self.sport = sport
-        self.duration = duration
-        self.date_event = date_event
+        self.date = date_event
         self.time = time
         self.location = location
         self.roster_size = roster_size
         self.cost = cost
-        self.host_id = host_id
+        self.is_host = is_host
         self.is_cancelled = is_cancelled
     }
     
@@ -53,14 +47,12 @@ public nonisolated struct MatchResponse: Sendable, Equatable, Encodable, Decodab
         let values = try decoder.container(keyedBy: CodingKeys.self)
         match_id = try values.decode(String.self, forKey: .match_id)
         title = try values.decode(String.self, forKey: .title)
-        sport = try values.decode(String.self, forKey: .sport)
-        duration = try values.decode(String.self, forKey: .duration)
-        date_event = try values.decode(String.self, forKey: .date_event)
+        date = try values.decode(String.self, forKey: .date)
         time = try values.decode(String.self, forKey: .time)
         location = try values.decode(String.self, forKey: .location)
-        roster_size = try values.decode(String.self, forKey: .roster_size)
+        roster_size = try values.decode(Int.self, forKey: .roster_size)
         cost = try values.decode(String.self, forKey: .cost)
-        host_id = try values.decode(String.self, forKey: .host_id)
+        is_host = try values.decode(Bool.self, forKey: .is_host)
         is_cancelled = try values.decode(Bool.self, forKey: .is_cancelled)
     }
 }

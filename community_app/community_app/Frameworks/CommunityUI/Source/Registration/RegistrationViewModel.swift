@@ -32,7 +32,7 @@ public final class RegistrationViewModel: RegistrationViewModelProtocol {
     @Published public var password = ""
     @Published public var confirmPassword = ""
     
-    public var isFormValid: Bool {
+    public func isFormValid(step: Int? = nil) -> Bool {
         incompleteForm()
         return validationErrors.isEmpty
     }
