@@ -11,6 +11,7 @@ import CoreLocation
 import MapKit
 @testable import CommunityUI
 @testable import CommunityCore
+import SwiftUI
 
 @MainActor
 final class CreateMatchViewModelTests: XCTestCase {
@@ -129,14 +130,11 @@ final class CreateMatchViewModelTests: XCTestCase {
         XCTAssertEqual(sut.selectedLocationCoordinate?.longitude ?? 0.0, expectedCoordinate.longitude, accuracy: 0.0001, "selectedLocationCoordinate longitude should match")
         
         // Assert mapCameraPosition
-        //        if case .region(let region) = sut.mapCameraPosition {
-        //            XCTAssertEqual(region.center.latitude, expectedCoordinate.latitude, accuracy: 0.0001, "Map camera center latitude should match")
-        //            XCTAssertEqual(region.center.longitude, expectedCoordinate.longitude, accuracy: 0.0001, "Map camera center longitude should match")
-        //            XCTAssertEqual(region.span.latitudeDelta, 0.01, accuracy: 0.0001, "Map camera span latitudeDelta should be 0.01 for zoom")
-        //            XCTAssertEqual(region.span.longitudeDelta, 0.01, accuracy: 0.0001, "Map camera span longitudeDelta should be 0.01 for zoom")
-        //        } else {
-        //            XCTFail("mapCameraPosition should be a region after a successful search")
-        //        }
+        let region = sut.mapCameraPosition.region
+
+        XCTAssertNotNil(region, "mapCameraPosition should be a region")
+        XCTAssertEqual(region?.center.latitude ?? 0.0, expectedCoordinate.latitude, accuracy: 0.0001)
+        XCTAssertEqual(region?.center.longitude ?? 0.0, expectedCoordinate.longitude, accuracy: 0.0001)
     }
     
     func testSearchLocation_emptyQueryResetsPropertiesToDefault() async {
@@ -151,93 +149,88 @@ final class CreateMatchViewModelTests: XCTestCase {
         XCTAssertTrue(sut.validatedLocationName.isEmpty, "validatedLocationName should be empty for an empty query")
         XCTAssertNil(sut.selectedLocationCoordinate, "selectedLocationCoordinate should be nil for an empty query")
         
-        // Assert mapCameraPosition resets to the default values from the ViewModel's initialization
-        //        if case .region(let region) = sut.mapCameraPosition {
-        //            XCTAssertEqual(region.center.latitude, -25.86, accuracy: 0.0001, "Map camera center latitude should reset to default")
-        //            XCTAssertEqual(region.center.longitude, 28.18, accuracy: 0.0001, "Map camera center longitude should reset to default")
-        //            XCTAssertEqual(region.span.latitudeDelta, 0.05, accuracy: 0.0001, "Map camera span latitudeDelta should reset to default")
-        //            XCTAssertEqual(region.span.longitudeDelta, 0.05, accuracy: 0.0001, "Map camera span longitudeDelta should reset to default")
-        //        } else {
-        //            XCTFail("mapCameraPosition should be the default region for an empty query")
-        //        }
+        let region = sut.mapCameraPosition.region
+        XCTAssertEqual(region?.center.latitude ?? 0, -25.86, accuracy: 0.0001, "Map camera center latitude should reset to default")
+        XCTAssertEqual(region?.center.longitude ?? 0, 28.18, accuracy: 0.0001, "Map camera center longitude should reset to default")
+        XCTAssertEqual(region?.span.latitudeDelta ?? 0, 0.05, accuracy: 0.0001, "Map camera span latitudeDelta should reset to default")
+        XCTAssertEqual(region?.span.longitudeDelta ?? 0, 0.05, accuracy: 0.0001, "Map camera span longitudeDelta should reset to default")
     }
     
     func testSearchLocation_noResultsClearsSelectedPropertiesButKeepsMapPosition() async {
+        // 1. Arrange
         let query = "NonExistentPlace"
-        mockMapSearchService.searchResult = .success([]) // Return an empty array of map items
+        mockMapSearchService.searchResult = .success([])
         
-        // Store initial map position before the search
-        let initialMapPosition = sut.mapCameraPosition
-        
-        // Simulate a previous search result being present before this 'no result' search
+        // Set a distinct initial state to verify it doesn't change
+        let initialRegion = MKCoordinateRegion(
+            center: CLLocationCoordinate2D(latitude: 10, longitude: 20),
+            span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+        )
+        sut.mapCameraPosition = .region(initialRegion)
         sut.validatedLocationName = "Previously Validated Place"
-        sut.selectedLocationCoordinate = CLLocationCoordinate2D(latitude: 10, longitude: 20)
+        sut.selectedLocationCoordinate = initialRegion.center
         
+        // 2. Act
         await sut.searchLocation(query: query)
         
-        // Assertions
-        XCTAssertTrue(sut.validatedLocationName.isEmpty, "validatedLocationName should be empty when no results are found")
-        XCTAssertNil(sut.selectedLocationCoordinate, "selectedLocationCoordinate should be nil when no results are found")
+        // 3. Assert
+        XCTAssertTrue(sut.validatedLocationName.isEmpty, "Name should be cleared")
+        XCTAssertNil(sut.selectedLocationCoordinate, "Coordinate should be cleared")
         
-        // Map camera position should remain unchanged from its state BEFORE the search
-        //        if case .region(let currentRegion) = sut.mapCameraPosition,
-        //           case .region(let initialRegion) = initialMapPosition {
-        //            XCTAssertEqual(currentRegion.center.latitude, initialRegion.center.latitude, accuracy: 0.0001, "Map camera position latitude should be unchanged")
-        //            XCTAssertEqual(currentRegion.center.longitude, initialRegion.center.longitude, accuracy: 0.0001, "Map camera position longitude should be unchanged")
-        //            XCTAssertEqual(currentRegion.span.latitudeDelta, initialRegion.span.latitudeDelta, accuracy: 0.0001, "Map camera span latitudeDelta should be unchanged")
-        //            XCTAssertEqual(currentRegion.span.longitudeDelta, initialRegion.span.longitudeDelta, accuracy: 0.0001, "Map camera span longitudeDelta should be unchanged")
-        //        } else {
-        //            XCTFail("mapCameraPosition should remain unchanged as a region")
-        //        }
+        // Use the .region property directly to avoid 'if case' syntax errors
+        let currentRegion = sut.mapCameraPosition.region
+        
+        XCTAssertNotNil(currentRegion, "Map position should still be a region")
+        XCTAssertEqual(currentRegion?.center.latitude ?? 0.0, initialRegion.center.latitude, accuracy: 0.0001)
+        XCTAssertEqual(currentRegion?.center.longitude ?? 0.0, initialRegion.center.longitude, accuracy: 0.0001)
+        XCTAssertEqual(currentRegion?.span.latitudeDelta ?? 0.0, initialRegion.span.latitudeDelta, accuracy: 0.0001)
     }
     
     func testSearchLocation_errorClearsSelectedPropertiesButKeepsMapPosition() async {
+        // 1. Arrange
         let query = "ErrorQuery"
-        enum TestError: Error, LocalizedError {
-            case searchFailed
-            var errorDescription: String? { "Test search failed" }
-        }
+        enum TestError: Error { case searchFailed }
         mockMapSearchService.searchResult = .failure(TestError.searchFailed)
         
-        // Store initial map position before the search
-        let initialMapPosition = sut.mapCameraPosition
-        
-        // Simulate a previous search result being present
+        // Explicitly set an initial region so we have something to compare against
+        let initialRegion = MKCoordinateRegion(
+            center: CLLocationCoordinate2D(latitude: 34.0522, longitude: -118.2437),
+            span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+        )
+        sut.mapCameraPosition = .region(initialRegion)
         sut.validatedLocationName = "Previously Validated Place"
-        sut.selectedLocationCoordinate = CLLocationCoordinate2D(latitude: 10, longitude: 20)
+        sut.selectedLocationCoordinate = initialRegion.center
+        
+        // 2. Act
+        await sut.searchLocation(query: query)
+        
+        // 3. Assert
+        XCTAssertTrue(sut.validatedLocationName.isEmpty, "Name should be cleared on error")
+        XCTAssertNil(sut.selectedLocationCoordinate, "Coordinate should be nil on error")
+        
+        // Access the region properties directly via the computed property
+        let currentRegion = sut.mapCameraPosition.region
+        
+        XCTAssertNotNil(currentRegion, "Map camera position should still be a region")
+        XCTAssertEqual(currentRegion?.center.latitude ?? 0.0, initialRegion.center.latitude, accuracy: 0.0001)
+        XCTAssertEqual(currentRegion?.center.longitude ?? 0.0, initialRegion.center.longitude, accuracy: 0.0001)
+        XCTAssertEqual(currentRegion?.span.latitudeDelta ?? 0.0, initialRegion.span.latitudeDelta, accuracy: 0.0001)
+    }
+    
+    func testSearchLocation_itemNameNilUsesQueryForValidatedLocationName() async throws {
+        let query = "Unknown Location"
+        let expectedCoordinate = CLLocationCoordinate2D(latitude: 10.0, longitude: 10.0)
+        
+        let placemark = MKPlacemark(coordinate: expectedCoordinate)
+        let mapItem = MKMapItem(placemark: placemark)
+        mapItem.name = nil
+        
+        mockMapSearchService.searchResult = .success([mapItem])
         
         await sut.searchLocation(query: query)
         
-        // Assertions
-        XCTAssertTrue(sut.validatedLocationName.isEmpty, "validatedLocationName should be empty on search error")
-        XCTAssertNil(sut.selectedLocationCoordinate, "selectedLocationCoordinate should be nil on search error")
-        
-        // Map camera position should remain unchanged from its state BEFORE the search
-        //        if case .region(let currentRegion) = sut.mapCameraPosition,
-        //           case .region(let initialRegion) = initialMapPosition {
-        //            XCTAssertEqual(currentRegion.center.latitude, initialRegion.center.latitude, accuracy: 0.0001, "Map camera position latitude should be unchanged on error")
-        //            XCTAssertEqual(currentRegion.center.longitude, initialRegion.center.longitude, accuracy: 0.0001, "Map camera position longitude should be unchanged on error")
-        //            XCTAssertEqual(currentRegion.span.latitudeDelta, initialRegion.span.latitudeDelta, accuracy: 0.0001, "Map camera span latitudeDelta should be unchanged on error")
-        //            XCTAssertEqual(currentRegion.span.longitudeDelta, initialRegion.span.longitudeDelta, accuracy: 0.0001, "Map camera span longitudeDelta should be unchanged on error")
-        //        } else {
-        //            XCTFail("mapCameraPosition should remain unchanged as a region on error")
-        //        }
+        XCTAssertEqual(sut.validatedLocationName, query, "validatedLocationName should fall back to query if map item's name is nil")
+        XCTAssertEqual(sut.selectedLocationCoordinate?.latitude ?? 0.0, expectedCoordinate.latitude, accuracy: 0.0001)
+        XCTAssertEqual(sut.selectedLocationCoordinate?.longitude ?? 0.0, expectedCoordinate.longitude, accuracy: 0.0001)
     }
-    
-    //    func testSearchLocation_itemNameNilUsesQueryForValidatedLocationName() async throws {
-    //        let query = "Unnamed Location"
-    //        let expectedCoordinate = CLLocationCoordinate2D(latitude: 10.0, longitude: 10.0)
-    //
-    //        let placemark = MKPlacemark(coordinate: expectedCoordinate)
-    //        let mapItem = MKMapItem(placemark: placemark)
-    //        mapItem.name = nil
-    //
-    //        mockMapSearchService.searchResult = .success([mapItem])
-    //
-    //        await sut.searchLocation(query: query)
-    //
-    //        XCTAssertEqual(sut.validatedLocationName, query, "validatedLocationName should fall back to query if map item's name is nil")
-    //        XCTAssertEqual(sut.selectedLocationCoordinate?.latitude, expectedCoordinate.latitude, accuracy: 0.0001)
-    //        XCTAssertEqual(sut.selectedLocationCoordinate?.longitude, expectedCoordinate.longitude, accuracy: 0.0001)
-    //    }
 }
