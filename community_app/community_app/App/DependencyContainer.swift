@@ -59,7 +59,8 @@ final class DependencyContainer {
     
     /// Creates and returns a `CreateMatchViewModel`.
     public func makeCreateMatchViewModel() -> CreateMatchViewModel {
-        return CreateMatchViewModel(useCases: self, router: router)
+        // Inject the concrete MKLocalSearchService
+        return CreateMatchViewModel(useCases: self, router: router, mapSearchService: MKLocalSearchService())
     }
 }
 

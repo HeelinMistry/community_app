@@ -10,10 +10,6 @@ import Combine
 import Foundation
 import CommunityCore
 import _MapKit_SwiftUI
-// Ensure Sport enum is visible, either by importing CommunityUI or defining it here.
-// Assuming Sport enum is in CreateMatchView.swift and is public.
-// If not, you might need to move it to a shared module or define it here.
-// For now, I'll assume it's publicly available.
 
 public enum RegistrationSteps: Int {
     case step1 = 1
@@ -34,6 +30,37 @@ public enum Sport: String, CaseIterable, Identifiable {
         }
     }
 }
+
+// MARK: - New Map Search Service Protocol and Implementation
+
+/// Protocol for a map search service, allowing for mocking in tests.
+public protocol MapSearchServiceProtocol {
+    /// Searches for map items based on a given query string.
+    /// - Parameter query: The natural language query string to search for.
+    /// - Returns: An array of `MKMapItem` objects matching the query.
+    /// - Throws: An error if the search operation fails.
+    func search(query: String) async throws -> [MKMapItem]
+}
+
+/// Concrete implementation of MapSearchServiceProtocol using MKLocalSearch.
+public class MKLocalSearchService: MapSearchServiceProtocol, Sendable {
+    /// Initializes a new instance of the `MKLocalSearchService`.
+    public nonisolated init() {}
+    
+    /// Searches for map items using `MKLocalSearch` based on a given query string.
+    /// - Parameter query: The natural language query string to search for.
+    /// - Returns: An array of `MKMapItem` objects matching the query.
+    /// - Throws: An error if the `MKLocalSearch` operation fails.
+    public func search(query: String) async throws -> [MKMapItem] {
+        let request = MKLocalSearch.Request()
+        request.naturalLanguageQuery = query
+        let search = MKLocalSearch(request: request)
+        let response = try await search.start()
+        return response.mapItems
+    }
+}
+
+// MARK: - CreateMatchViewModelProtocol and CreateMatchViewModel
 
 @MainActor
 public protocol CreateMatchViewModelProtocol: ValidatableViewModel {
@@ -96,14 +123,17 @@ public final class CreateMatchViewModel: CreateMatchViewModelProtocol {
     
     private let router: NavigationRouter
     private let useCases: any MatchUseCasesProvider
+    private let mapSearchService: MapSearchServiceProtocol // Injected dependency
     private var fetchTask: Task<Void, Never>?
     
     public init(
         useCases: any MatchUseCasesProvider,
-        router: NavigationRouter
+        router: NavigationRouter,
+        mapSearchService: MapSearchServiceProtocol = MKLocalSearchService()
     ) {
         self.useCases = useCases
         self.router = router
+        self.mapSearchService = mapSearchService
     }
     
     public func create() {
@@ -236,13 +266,10 @@ public final class CreateMatchViewModel: CreateMatchViewModelProtocol {
             return
         }
         
-        let request = MKLocalSearch.Request()
-        request.naturalLanguageQuery = query
-        let search = MKLocalSearch(request: request)
-        
         do {
-            let response = try await search.start()
-            if let item = response.mapItems.first {
+            let mapItems = try await mapSearchService.search(query: query)
+            
+            if let item = mapItems.first {
                 // DO NOT overwrite self.location here, it's bound to the TextField
                 self.validatedLocationName = item.name ?? query // Store the official name
                 
@@ -260,7 +287,7 @@ public final class CreateMatchViewModel: CreateMatchViewModelProtocol {
                 // Keep the user's typed location in the `location` text field
             }
         } catch {
-//            print("Search error: \(error)")
+//            print("Search error: \(error)") // Keeping original comment for context
             self.selectedLocationCoordinate = nil // Clear marker on error
             self.validatedLocationName = "" // Clear validated name on error
         }

@@ -77,14 +77,14 @@ final class CreateMatchViewModelTests: XCTestCase {
         XCTAssertFalse(result)
         
         sut.title = "test"
-        sut.sport = "test"
+        sut.sport = .soccer
         sut.location = "longenough"
         result = sut.isFormValid(step: 1)
         XCTAssertTrue(result)
         
         sut.duration = "30"
         sut.date_event = Date()
-        sut.time = "longenough"
+        sut.time = Date()
         result = sut.isFormValid(step: 2)
         XCTAssertTrue(result)
         
