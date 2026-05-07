@@ -94,7 +94,7 @@ public final class CreateMatchViewModel: CreateMatchViewModelProtocol {
     
     private let router: NavigationRouter
     private let useCases: any MatchUseCasesProvider
-    private let mapSearchService: MapSearchServiceProtocol 
+    private let mapSearchService: MapSearchServiceProtocol
     private var fetchTask: Task<Void, Never>?
     
     public init(
@@ -112,27 +112,25 @@ public final class CreateMatchViewModel: CreateMatchViewModelProtocol {
         state = .loading
         fetchTask = Task {
             do {
-                let dateFormatter: DateFormatter = {
-                    let formatter = DateFormatter()
-                    formatter.dateFormat = "yyyy-MM-dd"
-                    return formatter
-                }()
-                let dateString = dateFormatter.string(from: date_event)
+                let calendar = Calendar.current
+                let hour = calendar.component(.hour, from: time)
+                let minute = calendar.component(.minute, from: time)
+                guard let combinedDate = calendar.date(bySettingHour: hour,
+                                                       minute: minute,
+                                                       second: 0,
+                                                       of: date_event) else {
+                    throw NSError(domain: "DateError", code: 0, userInfo: [NSLocalizedDescriptionKey: "Could not combine date and time"])
+                }
                 
-                let timeFormatter: DateFormatter = {
-                    let formatter = DateFormatter()
-                    formatter.dateFormat = "HH:mm"
-                    return formatter
-                }()
-                let timeString = timeFormatter.string(from: time)
-                
+                // 2. Format the combined date to an ISO8601 string
+                let isoFormatter = ISO8601DateFormatter()
+                isoFormatter.formatOptions = [.withInternetDateTime, .withDashSeparatorInDate, .withColonSeparatorInTime]
+                let isoString = isoFormatter.string(from: combinedDate)
                 let request = CreateMatchRequest(
                     title: title,
                     sport: sport.rawValue,
                     duration: duration,
-                    date_event: dateString,
-                    time: timeString,
-                    // Use validatedLocationName if available, otherwise fallback to user's raw input
+                    start_datetime: isoString,
                     location: validatedLocationName.isEmpty ? location : validatedLocationName,
                     roster_size: roster_size,
                     cost: cost
@@ -258,7 +256,7 @@ public final class CreateMatchViewModel: CreateMatchViewModelProtocol {
                 // Keep the user's typed location in the `location` text field
             }
         } catch {
-//            print("Search error: \(error)") // Keeping original comment for context
+            //            print("Search error: \(error)") // Keeping original comment for context
             self.selectedLocationCoordinate = nil // Clear marker on error
             self.validatedLocationName = "" // Clear validated name on error
         }

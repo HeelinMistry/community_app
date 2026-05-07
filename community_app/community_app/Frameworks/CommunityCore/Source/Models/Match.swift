@@ -13,8 +13,7 @@ public typealias Matches = [MatchResponse]
 public nonisolated struct MatchResponse: Sendable, Equatable, Encodable, Decodable {
     public let match_id: String
     public let title: String
-    public let date: String
-    public let time: String
+    public let start_datetime: String
     public let location: String
     public let roster_size: Int
     public let cost: String
@@ -24,8 +23,7 @@ public nonisolated struct MatchResponse: Sendable, Equatable, Encodable, Decodab
     public init(
         match_id: String = "m_8c45a00e",
         title: String = "Untitled Match",
-        date_event: String = "2000-01-01",
-        time: String = "00:00",
+        start_datetime: String = "2026-05-07T18:00:00",
         location: String = "Undisclosed Location",
         roster_size: Int = 0,
         cost: String = "0.00",
@@ -34,8 +32,7 @@ public nonisolated struct MatchResponse: Sendable, Equatable, Encodable, Decodab
     ) {
         self.match_id = match_id
         self.title = title
-        self.date = date_event
-        self.time = time
+        self.start_datetime = start_datetime
         self.location = location
         self.roster_size = roster_size
         self.cost = cost
@@ -47,8 +44,7 @@ public nonisolated struct MatchResponse: Sendable, Equatable, Encodable, Decodab
         let values = try decoder.container(keyedBy: CodingKeys.self)
         match_id = try values.decode(String.self, forKey: .match_id)
         title = try values.decode(String.self, forKey: .title)
-        date = try values.decode(String.self, forKey: .date)
-        time = try values.decode(String.self, forKey: .time)
+        start_datetime = try values.decode(String.self, forKey: .start_datetime)
         location = try values.decode(String.self, forKey: .location)
         roster_size = try values.decode(Int.self, forKey: .roster_size)
         cost = try values.decode(String.self, forKey: .cost)
@@ -61,8 +57,7 @@ public nonisolated struct CreateMatchRequest: Sendable, Equatable, Encodable, De
     public let title: String
     public let sport: String
     public let duration: String
-    public let date_event: String
-    public let time: String
+    public let start_datetime: String
     public let location: String
     public let roster_size: String
     public let cost: String
@@ -71,8 +66,7 @@ public nonisolated struct CreateMatchRequest: Sendable, Equatable, Encodable, De
         title: String = "New Match",
         sport: String = "Soccer",
         duration: String = "60",
-        date_event: String = "2000-01-01",
-        time: String = "12:00",
+        start_datetime: String = "2000-01-01",
         location: String = "Local Park",
         roster_size: String = "10",
         cost: String = "50"
@@ -80,8 +74,7 @@ public nonisolated struct CreateMatchRequest: Sendable, Equatable, Encodable, De
         self.title = title
         self.sport = sport
         self.duration = duration
-        self.date_event = date_event
-        self.time = time
+        self.start_datetime = start_datetime
         self.location = location
         self.roster_size = roster_size
         self.cost = cost
@@ -92,8 +85,7 @@ public nonisolated struct CreateMatchRequest: Sendable, Equatable, Encodable, De
         title = try values.decode(String.self, forKey: .title)
         sport = try values.decode(String.self, forKey: .sport)
         duration = try values.decode(String.self, forKey: .duration)
-        date_event = try values.decode(String.self, forKey: .date_event)
-        time = try values.decode(String.self, forKey: .time)
+        start_datetime = try values.decode(String.self, forKey: .start_datetime)
         location = try values.decode(String.self, forKey: .location)
         roster_size = try values.decode(String.self, forKey: .roster_size)
         cost = try values.decode(String.self, forKey: .cost)

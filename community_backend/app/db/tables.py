@@ -60,9 +60,8 @@ class Match(Base):
         title (str): The title of the match.
         sport (str): The sport being played.
         duration (str): The duration of the match.
-        date_event (str): The date of the match.
+        start_datetime (datetime): The datetime of the match.
         date_modified (datetime): The last time the match was modified.
-        time (str): The time of the match.
         location (str): The location of the match.
         roster_size (int): The maximum number of players for the match.
         cost (str): The cost to participate in the match.
@@ -77,9 +76,8 @@ class Match(Base):
     title = Column(String)
     sport = Column(String)
     duration = Column(String)
-    date_event = Column(String)
+    start_datetime = Column(DateTime)
     date_modified = Column(DateTime, server_default=func.now(), onupdate=func.now())
-    time = Column(String)
     location = Column(String)
     roster_size = Column(Integer, default=0)
     cost = Column(String)

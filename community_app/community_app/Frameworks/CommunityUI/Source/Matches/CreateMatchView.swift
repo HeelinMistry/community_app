@@ -76,7 +76,8 @@ public struct CreateMatchView<T: CreateMatchViewModelProtocol>: View {
                 PrimaryTextInput(
                     label: "Search Location",
                     placeholder: "e.g. Central Park Pitch",
-                    text: $viewModel.location
+                    text: $viewModel.location,
+                    errorMessage: viewModel.validationErrors["location"]
                 )
                 .onChange(of: viewModel.location) { _, newValue in
                     searchTask?.cancel()
@@ -87,8 +88,7 @@ public struct CreateMatchView<T: CreateMatchViewModelProtocol>: View {
                                 await viewModel.searchLocation(query: newValue)
                             }
                         } catch {
-                            // Task was cancelled, or other error occurred (e.g., during sleep)
-//                            print("Search task cancelled or error: \(error)")
+                            router.alertItem = .init(title: "Error", message: "Location setting issue", dismissButton: .cancel())
                         }
                     }
                 }
