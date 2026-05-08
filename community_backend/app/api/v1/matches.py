@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
@@ -13,8 +14,7 @@ class MatchCreate(BaseModel):
     title: str
     sport: str
     duration: float
-    date_event: str
-    time: str
+    start_datetime: datetime
     location: str
     roster_size: int
     cost: float
@@ -39,8 +39,7 @@ async def get_matches(
             user_matches.append({
                 "match_id": m.id,
                 "title": m.title,
-                "date": m.date_event,
-                "time": m.time,
+                "start_datetime": m.start_datetime,
                 "location": m.location,
                 "cost": m.cost,
                 "is_host": is_host,
@@ -60,8 +59,7 @@ async def create_match(match: MatchCreate, user: dict = Depends(decode_access_to
         title=match.title,
         sport=match.sport,
         duration=match.duration,
-        date_event=match.date_event,
-        time=match.time,
+        start_datetime=match.start_datetime,
         location=match.location,
         roster_size=match.roster_size,
         cost=match.cost,
@@ -99,8 +97,7 @@ async def get_match_details(
     return {
         "id": match.id,
         "title": match.title,
-        "date": match.date_event,
-        "time": match.time,
+        "start_datetime": match.start_datetime,
         "location": match.location,
         "cost": match.cost,
         "roster_size": match.roster_size,
