@@ -10,7 +10,7 @@ import Foundation
 import CommunityCore
 
 @MainActor
-public protocol DashboardViewModelProtocol: StateDrivenViewModel {
+public protocol DashboardViewModelProtocol: StateDrivenViewModel where DataType == Matches, DataType: Collection, DataType.Element == MatchResponse {
     
     func matchFeed()
     func createMatchTapped()

@@ -19,6 +19,8 @@ public nonisolated struct MatchResponse: Sendable, Equatable, Encodable, Decodab
     public let cost: String
     public let is_host: Bool
     public let is_cancelled: Bool
+    public let is_joined: Bool
+    public let joined: Int
     
     public init(
         match_id: String = "m_8c45a00e",
@@ -28,7 +30,9 @@ public nonisolated struct MatchResponse: Sendable, Equatable, Encodable, Decodab
         roster_size: Int = 0,
         cost: String = "0.00",
         is_host: Bool = false,
-        is_cancelled: Bool = false
+        is_cancelled: Bool = false,
+        is_joined: Bool = false,
+        joined: Int = 0
     ) {
         self.match_id = match_id
         self.title = title
@@ -38,6 +42,8 @@ public nonisolated struct MatchResponse: Sendable, Equatable, Encodable, Decodab
         self.cost = cost
         self.is_host = is_host
         self.is_cancelled = is_cancelled
+        self.is_joined = is_joined
+        self.joined = joined
     }
     
     public init(from decoder: Decoder) throws {
@@ -50,6 +56,8 @@ public nonisolated struct MatchResponse: Sendable, Equatable, Encodable, Decodab
         cost = try values.decode(String.self, forKey: .cost)
         is_host = try values.decode(Bool.self, forKey: .is_host)
         is_cancelled = try values.decode(Bool.self, forKey: .is_cancelled)
+        is_joined = try values.decode(Bool.self, forKey: .is_joined)
+        joined = try values.decode(Int.self, forKey: .joined)
     }
 }
 
@@ -104,3 +112,4 @@ public nonisolated struct CreateMatchResponse: Sendable, Equatable, Encodable, D
         match_id = try values.decode(String.self, forKey: .match_id)
     }
 }
+

@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
@@ -39,7 +39,7 @@ async def get_matches(
             user_matches.append({
                 "match_id": m.id,
                 "title": m.title,
-                "start_datetime": m.start_datetime,
+                "start_datetime": m.start_datetime.replace(tzinfo=timezone.utc),
                 "location": m.location,
                 "cost": m.cost,
                 "is_host": is_host,
@@ -97,7 +97,7 @@ async def get_match_details(
     return {
         "id": match.id,
         "title": match.title,
-        "start_datetime": match.start_datetime,
+        "start_datetime": match.start_datetime.replace(tzinfo=timezone.utc),
         "location": match.location,
         "cost": match.cost,
         "roster_size": match.roster_size,

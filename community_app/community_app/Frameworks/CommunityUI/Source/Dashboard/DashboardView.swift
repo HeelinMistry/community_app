@@ -24,9 +24,26 @@ struct DashboardView<T: DashboardViewModelProtocol>: View {
                         .fontWeight(.bold)
                         .padding(.bottom, 20)
 
-                    // Placeholder feed items
-                    ForEach(0..<10) { index in
-                        FeedItemPlaceholder(index: index)
+                    // Display matches based on the view model's state
+                    switch viewModel.state {
+                    case .idle, .loading:
+                        ProgressView("Loading matches...")
+                            .padding()
+                    case .success(let matches):
+                        if matches.isEmpty {
+                            Text("No matches found. Create one to get started!")
+                                .font(.headline)
+                                .foregroundColor(Assets.theme.secondaryText)
+                                .padding()
+                        } else {
+                            ForEach(matches, id: \.match_id) { match in
+                                MatchFeedItemView(match: match)
+                            }
+                        }
+                    case .error(let message):
+                        Text("Error loading matches: \(message)")
+                            .foregroundColor(.red)
+                            .padding()
                     }
                 }
                 .padding() // Padding for the entire scrollable content
@@ -47,74 +64,5 @@ struct DashboardView<T: DashboardViewModelProtocol>: View {
                 viewModel.matchFeed()
             }
         }
-    }
-}
-
-// A simple placeholder struct to represent a feed item
-struct FeedItemPlaceholder: View {
-    let index: Int
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            // Placeholder for a user's profile picture and name
-            HStack {
-                Image(systemName: "person.circle.fill")
-                    .resizable()
-                    .frame(width: 40, height: 40)
-                    .foregroundColor(Assets.theme.secondaryText) // Using theme color
-                VStack(alignment: .leading) {
-                    Text("User Name \(index)")
-                        .font(.headline)
-                        .foregroundColor(Assets.theme.primaryText) // Using theme color
-                    Text("Posted 2 hours ago")
-                        .font(.subheadline)
-                        .foregroundColor(Assets.theme.secondaryText) // Using theme color
-                }
-            }
-            .padding(.bottom, 4)
-
-            // Placeholder for the post content
-            Text("This is a placeholder for a feed item's content. It can be a short message, a status update, or a description of an image/video.")
-                .font(.body)
-                .lineLimit(3) // Limit text to 3 lines
-                .foregroundColor(Assets.theme.primaryText) // Using theme color
-
-            // Placeholder for an image or media
-            Rectangle()
-                .fill(Assets.theme.tertiary.opacity(0.3)) // Using theme color with opacity
-                .frame(height: 200)
-                .cornerRadius(10)
-                .padding(.vertical, 8)
-
-            // Placeholder for actions (e.g., like, comment, share)
-            HStack {
-                Button {
-                    // Action for like
-                } label: {
-                    Label("Like", systemImage: "hand.thumbsup")
-                        .foregroundColor(Assets.theme.primaryText) // Using theme color
-                }
-                Spacer()
-                Button {
-                    // Action for comment
-                } label: {
-                    Label("Comment", systemImage: "text.bubble")
-                        .foregroundColor(Assets.theme.primaryText) // Using theme color
-                }
-                Spacer()
-                Button {
-                    // Action for share
-                } label: {
-                    Label("Share", systemImage: "square.and.arrow.up")
-                        .foregroundColor(Assets.theme.primaryText) // Using theme color
-                }
-            }
-            .font(.subheadline)
-            .padding(.horizontal)
-        }
-        .padding()
-        .background(Assets.theme.neutral) // Using theme color for the card background
-        .cornerRadius(15) // Rounded corners for the card
-        .shadow(color: Assets.theme.primaryText.opacity(0.1), radius: 5, x: 0, y: 2) // Using theme color for shadow
     }
 }
