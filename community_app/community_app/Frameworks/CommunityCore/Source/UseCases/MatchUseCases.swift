@@ -6,7 +6,7 @@
 //
 
 /// This protocol is `Sendable` to ensure it can be safely used across concurrency domains.
-public protocol DashboardUseCaseProtocol: Sendable {
+public protocol MatchesUseCaseProtocol: Sendable {
     func getMatches() async throws -> MatchResponse
 
 }
