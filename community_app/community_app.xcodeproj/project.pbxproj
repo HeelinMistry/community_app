@@ -99,6 +99,9 @@
 		F378449C2FA5346200CE581F /* CommunityUI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CommunityUI.xcodeproj; sourceTree = "<group>"; };
 		F37D60022F9D329C00E80151 /* UI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = UI.xcodeproj; sourceTree = "<group>"; };
 		F37D60A82F9DF72A00E80151 /* UI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = UI.xcodeproj; sourceTree = "<group>"; };
+		F39222F22FADCC8000327CC7 /* CommunityCore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CommunityCore.xcodeproj; sourceTree = "<group>"; };
+		F39223112FADCC8000327CC7 /* CommunityData.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CommunityData.xcodeproj; sourceTree = "<group>"; };
+		F39223412FADCC8000327CC7 /* CommunityUI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CommunityUI.xcodeproj; sourceTree = "<group>"; };
 		F396893C2FA3EA58005BE3CD /* CommunityCore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CommunityCore.xcodeproj; sourceTree = "<group>"; };
 		F39689572FA3EA58005BE3CD /* CommunityData.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CommunityData.xcodeproj; sourceTree = "<group>"; };
 		F396897E2FA3EA58005BE3CD /* CommunityUI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CommunityUI.xcodeproj; sourceTree = "<group>"; };
@@ -142,7 +145,7 @@
 				Frameworks/CommunityData/CommunityDataTests/Mocks/URLProtocolMock.swift,
 				Frameworks/CommunityData/CommunityDataTests/Networking/CommunityNetworkClientTests.swift,
 				Frameworks/CommunityData/CommunityDataTests/Repositories/AuthRepositoryTests.swift,
-				Frameworks/CommunityData/CommunityDataTests/Repositories/DashboardRepositoryTests.swift,
+				Frameworks/CommunityData/CommunityDataTests/Repositories/MatchRepositoryTests.swift,
 				Frameworks/CommunityUI/CommunityUITests/Mocks/AuthUseCasesProviderMock.swift,
 				Frameworks/CommunityUI/CommunityUITests/Mocks/MapSearchServiceMock.swift,
 				Frameworks/CommunityUI/CommunityUITests/Mocks/MatchUseCasesProviderMock.swift,
@@ -164,7 +167,7 @@
 				Frameworks/CommunityData/CommunityDataTests/Mocks/URLProtocolMock.swift,
 				Frameworks/CommunityData/CommunityDataTests/Networking/CommunityNetworkClientTests.swift,
 				Frameworks/CommunityData/CommunityDataTests/Repositories/AuthRepositoryTests.swift,
-				Frameworks/CommunityData/CommunityDataTests/Repositories/DashboardRepositoryTests.swift,
+				Frameworks/CommunityData/CommunityDataTests/Repositories/MatchRepositoryTests.swift,
 				Frameworks/CommunityData/Source/CommunityData.docc,
 				Frameworks/CommunityUI/CommunityUITests/Mocks/AuthUseCasesProviderMock.swift,
 				Frameworks/CommunityUI/CommunityUITests/Mocks/MapSearchServiceMock.swift,
@@ -372,6 +375,27 @@
 			sourceTree = "<group>";
 		};
 		F37D60AD2F9DF72A00E80151 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F39223442FADCC8000327CC7 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F39223462FADCC8000327CC7 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F39223482FADCC8000327CC7 /* Products */ = {
 			isa = PBXGroup;
 			children = (
 			);
@@ -687,6 +711,10 @@
 					ProjectRef = F3DDF9E52FACD197000DE75A /* CommunityCore.xcodeproj */;
 				},
 				{
+					ProductGroup = F39223482FADCC8000327CC7 /* Products */;
+					ProjectRef = F39222F22FADCC8000327CC7 /* CommunityCore.xcodeproj */;
+				},
+				{
 					ProductGroup = F32766492F9F78CF003BC9A8 /* Products */;
 					ProjectRef = F32766472F9F78CF003BC9A8 /* CommunityCore.xcodeproj */;
 				},
@@ -735,10 +763,6 @@
 					ProjectRef = F30579FA2FA00D0A007297CC /* CommunityCore.xcodeproj */;
 				},
 				{
-					ProductGroup = F3DDFA3B2FACD197000DE75A /* Products */;
-					ProjectRef = F3DDFA042FACD197000DE75A /* CommunityData.xcodeproj */;
-				},
-				{
 					ProductGroup = F37844A32FA5346200CE581F /* Products */;
 					ProjectRef = F37844712FA5346200CE581F /* CommunityData.xcodeproj */;
 				},
@@ -753,6 +777,10 @@
 				{
 					ProductGroup = F34428842F9F5F2A007CD99D /* Products */;
 					ProjectRef = F34428832F9F5F2A007CD99D /* CommunityData.xcodeproj */;
+				},
+				{
+					ProductGroup = F39223442FADCC8000327CC7 /* Products */;
+					ProjectRef = F39223112FADCC8000327CC7 /* CommunityData.xcodeproj */;
 				},
 				{
 					ProductGroup = F3057A2A2FA00D0A007297CC /* Products */;
@@ -795,12 +823,24 @@
 					ProjectRef = F31E90A42FA23BA0007DBF65 /* CommunityData.xcodeproj */;
 				},
 				{
+					ProductGroup = F3DDFA3B2FACD197000DE75A /* Products */;
+					ProjectRef = F3DDFA042FACD197000DE75A /* CommunityData.xcodeproj */;
+				},
+				{
+					ProductGroup = F3DF4AFB2FA5414800FEC2A8 /* Products */;
+					ProjectRef = F3DF4AF82FA5414800FEC2A8 /* CommunityUI.xcodeproj */;
+				},
+				{
 					ProductGroup = F3FAEE662FA3360B00869628 /* Products */;
 					ProjectRef = F3FAEE5F2FA3360B00869628 /* CommunityUI.xcodeproj */;
 				},
 				{
 					ProductGroup = F3057A282FA00D0A007297CC /* Products */;
 					ProjectRef = F3057A252FA00D0A007297CC /* CommunityUI.xcodeproj */;
+				},
+				{
+					ProductGroup = F39223462FADCC8000327CC7 /* Products */;
+					ProjectRef = F39223412FADCC8000327CC7 /* CommunityUI.xcodeproj */;
 				},
 				{
 					ProductGroup = F3EB99FE2FA0DA6000C04747 /* Products */;
@@ -845,10 +885,6 @@
 				{
 					ProductGroup = F32765E92F9F7700003BC9A8 /* Products */;
 					ProjectRef = F32765E72F9F7700003BC9A8 /* CommunityUI.xcodeproj */;
-				},
-				{
-					ProductGroup = F3DF4AFB2FA5414800FEC2A8 /* Products */;
-					ProjectRef = F3DF4AF82FA5414800FEC2A8 /* CommunityUI.xcodeproj */;
 				},
 				{
 					ProductGroup = F344281E2F9F54AD007CD99D /* Products */;

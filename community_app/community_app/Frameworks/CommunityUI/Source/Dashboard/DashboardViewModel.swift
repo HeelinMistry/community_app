@@ -10,7 +10,7 @@ import Foundation
 import CommunityCore
 
 @MainActor
-public protocol DashboardViewModelProtocol: StateDrivenViewModel {
+public protocol DashboardViewModelProtocol: StateDrivenViewModel where DataType == Matches, DataType: Collection, DataType.Element == MatchResponse {
     
     func matchFeed()
     func createMatchTapped()
@@ -24,12 +24,24 @@ public final class DashboardViewModel: DashboardViewModelProtocol {
     private let useCases: any MatchUseCasesProvider
     private var fetchTask: Task<Void, Never>?
     
+    private var cancellables = Set<AnyCancellable>()
+    
     public init(
         useCases: any MatchUseCasesProvider,
         router: NavigationRouter
     ) {
         self.useCases = useCases
         self.router = router
+        setupObservers()
+    }
+    
+    private func setupObservers() {
+        NotificationCenter.default.publisher(for: .matchCreated)
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in
+                self?.matchFeed()
+            }
+            .store(in: &cancellables)
     }
     
     public func matchFeed() {

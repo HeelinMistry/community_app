@@ -138,6 +138,7 @@ public final class CreateMatchViewModel: CreateMatchViewModelProtocol {
                 let response: CreateMatchResponse = try await useCases.matches.userCreateMatch(request)
                 if !Task.isCancelled {
                     self.state = .success(response)
+                    NotificationCenter.default.post(name: .matchCreated, object: nil)
                     router.sheet = nil
                 }
             } catch {
