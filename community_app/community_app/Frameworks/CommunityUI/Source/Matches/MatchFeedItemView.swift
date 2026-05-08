@@ -30,26 +30,22 @@ struct MatchFeedItemView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             // Match Title
-            Text(match.title)
+            PrimaryText(label: match.title)
                 .font(.headline)
                 .fontWeight(.bold)
-                .foregroundColor(Assets.theme.primaryText)
                 .padding(.bottom, 4)
             
             // Date and Time
             HStack {
                 Image(systemName: "calendar")
-                Text(formatDate(match.start_datetime))
-                    .foregroundStyle(Assets.theme.primaryText)
+                PrimaryText(label: formatDate(match.start_datetime))
             }
             .font(.subheadline)
-            .foregroundColor(Assets.theme.secondaryText)
             
             // Location
             HStack {
                 Image(systemName: "location.fill")
-                Text(match.location)
-                    .foregroundStyle(Assets.theme.primaryText)
+                PrimaryText(label: match.location)
             }
             .font(.subheadline)
             .foregroundColor(Assets.theme.secondaryText)
@@ -57,12 +53,10 @@ struct MatchFeedItemView: View {
             // Cost and Roster Size
             HStack {
                 Image(systemName: "tag.fill")
-                Text("Cost: \(match.cost)")
-                    .foregroundStyle(Assets.theme.primaryText)
+                PrimaryText(label: "Cost: \(match.cost)")
                 Spacer()
                 Image(systemName: "person.3.fill")
-                Text("Players: \(match.joined)/\(match.roster_size)")
-                    .foregroundStyle(Assets.theme.primaryText)
+                PrimaryText(label: "Players: \(match.joined)/\(match.roster_size)")
             }
             .font(.subheadline)
             .foregroundColor(Assets.theme.secondaryText)
@@ -89,21 +83,27 @@ struct MatchFeedItemView: View {
                     // Action for joining/leaving
                 } label: {
                     Label(match.is_joined ? "Leave" : "Join", systemImage: match.is_joined ? "person.crop.circle.badge.minus" : "person.crop.circle.badge.plus")
-                        .foregroundColor(Assets.theme.primaryText)
                 }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.large)
+                .tint(match.is_joined ? .red : Assets.theme.primaryAccent)
+                
                 Spacer()
+                
                 Button {
                     // Action for sharing
                 } label: {
                     Label("Share", systemImage: "square.and.arrow.up")
-                        .foregroundColor(Assets.theme.primaryText)
                 }
+                .buttonStyle(.bordered)
+                .controlSize(.large)
+                .tint(Assets.theme.secondaryText)
             }
-            .font(.subheadline)
+            .padding(.top, 8)
             .padding(.horizontal)
         }
         .padding()
-        .background(Assets.theme.neutral)
+        .background(Assets.theme.inputBackground)
         .cornerRadius(15)
         .shadow(color: Assets.theme.primaryText.opacity(0.1), radius: 5, x: 0, y: 2)
     }
