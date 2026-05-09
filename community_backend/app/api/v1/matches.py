@@ -16,6 +16,8 @@ class MatchCreate(BaseModel):
     duration: float
     start_datetime: datetime
     location: str
+    latitude: float
+    longitude: float
     roster_size: int
     cost: float
 
@@ -61,6 +63,8 @@ async def create_match(match: MatchCreate, user: dict = Depends(decode_access_to
         duration=match.duration,
         start_datetime=match.start_datetime,
         location=match.location,
+        latitude=match.latitude,
+        longitude=match.longitude,
         roster_size=match.roster_size,
         cost=match.cost,
         host_id=user_id

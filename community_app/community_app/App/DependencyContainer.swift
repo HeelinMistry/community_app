@@ -21,6 +21,8 @@ final class DependencyContainer {
     private var authRepository: AuthRepositoryProtocol!
     private var matchRepository: MatchRepositoryProtocol!
     
+    private var dashboardViewModel: DashboardViewModel?
+    
     /// Initializes the dependency container with a navigation router and sets up networking components based on the current environment.
     /// - Parameter router: The navigation router used for view transitions.
     public init(router: NavigationRouter) {
@@ -54,7 +56,12 @@ final class DependencyContainer {
     
     /// Creates and returns a `DashboardViewModel`.
     public func makeDashboardViewModel() -> DashboardViewModel {
-        return DashboardViewModel(useCases: self, router: router)
+        if let existing = dashboardViewModel {
+            return existing
+        }
+        let newVM = DashboardViewModel(useCases: self, router: router)
+        self.dashboardViewModel = newVM
+        return newVM
     }
     
     /// Creates and returns a `CreateMatchViewModel`.
