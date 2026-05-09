@@ -5,7 +5,7 @@ This module contains the SQLAlchemy model definitions for the application's
 database tables, including users, passkeys, matches, and match players.
 """
 
-from sqlalchemy import Column, String, Integer, ForeignKey, Boolean, DateTime
+from sqlalchemy import Column, String, Integer, ForeignKey, Boolean, DateTime, Double
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.db.database import Base
@@ -63,6 +63,8 @@ class Match(Base):
         start_datetime (datetime): The datetime of the match.
         date_modified (datetime): The last time the match was modified.
         location (str): The location of the match.
+        latitude (double): The latitude of the match.
+        longitude (double): The longitude of the match.
         roster_size (int): The maximum number of players for the match.
         cost (str): The cost to participate in the match.
         host_id (str): Foreign key to the user who is hosting the match.
@@ -79,6 +81,8 @@ class Match(Base):
     start_datetime = Column(DateTime)
     date_modified = Column(DateTime, server_default=func.now(), onupdate=func.now())
     location = Column(String)
+    latitude = Column(Double)
+    longitude = Column(Double)
     roster_size = Column(Integer, default=0)
     cost = Column(String)
     host_id = Column(Integer, ForeignKey("users.id"))

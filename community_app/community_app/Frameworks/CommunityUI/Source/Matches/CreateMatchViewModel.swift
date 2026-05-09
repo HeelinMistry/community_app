@@ -132,6 +132,8 @@ public final class CreateMatchViewModel: CreateMatchViewModelProtocol {
                     duration: duration,
                     start_datetime: isoString,
                     location: validatedLocationName.isEmpty ? location : validatedLocationName,
+                    latitude: selectedLocationCoordinate?.latitude ?? 0,
+                    longitude: selectedLocationCoordinate?.longitude ?? 0,
                     roster_size: roster_size,
                     cost: cost
                 )
