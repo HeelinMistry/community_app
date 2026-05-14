@@ -8,7 +8,7 @@
 import XCTest
 @testable import CommunityCore
 
-final class DashboardUseCasesTests: XCTestCase {
+final class MatchUseCasesTests: XCTestCase {
     
     private var sut: MatchUseCases!
     private var mockRepository: MatchRepositoryMock!
@@ -77,6 +77,39 @@ final class DashboardUseCasesTests: XCTestCase {
         let sut = MatchUseCases(match: mockRepository)
         do {
             _ = try await sut.userCreateMatch(.init())
+            XCTFail("Expected error to be thrown, but it succeeded.")
+        } catch {
+            let nsError = error as NSError
+            XCTAssertEqual(nsError.domain, "NetworkError")
+            XCTAssertEqual(nsError.code, 401)
+        }
+    }
+    
+    func testMatchDetail_WhenSuccessful_ReturnsSuccessResponse() async throws {
+        mockRepository = MatchRepositoryMock()
+        
+        let expectedResponse: MatchDetailResponse = .init()
+        await mockRepository.setMatchDetailResult(
+            .success(expectedResponse)
+        )
+        
+        let sut = MatchUseCases(match: mockRepository)
+        let response = try await sut.matchDetail(.init(""))
+        
+        XCTAssertTrue(response == expectedResponse)
+    }
+    
+    func testMatchDetail_WhenRepositoryThrowsError_ThrowsSameError() async {
+        mockRepository = MatchRepositoryMock()
+        
+        let expectedError = NSError(domain: "NetworkError", code: 401, userInfo: nil)
+        await mockRepository.setMatchDetailResult(
+            .failure(expectedError)
+        )
+        
+        let sut = MatchUseCases(match: mockRepository)
+        do {
+            _ = try await sut.matchDetail(.init(""))
             XCTFail("Expected error to be thrown, but it succeeded.")
         } catch {
             let nsError = error as NSError

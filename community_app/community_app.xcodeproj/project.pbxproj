@@ -147,7 +147,7 @@
 				Frameworks/CommunityCore/CommunityCoreTests/MockRepositories/AuthRepositoryMock.swift,
 				Frameworks/CommunityCore/CommunityCoreTests/MockRepositories/MatchRepositoryMock.swift,
 				Frameworks/CommunityCore/CommunityCoreTests/UseCases/AuthUseCasesTests.swift,
-				Frameworks/CommunityCore/CommunityCoreTests/UseCases/DashboardUseCasesTests.swift,
+				Frameworks/CommunityCore/CommunityCoreTests/UseCases/MatchUseCasesTests.swift,
 				Frameworks/CommunityData/CommunityDataTests/Mocks/URLProtocolMock.swift,
 				Frameworks/CommunityData/CommunityDataTests/Networking/CommunityNetworkClientTests.swift,
 				Frameworks/CommunityData/CommunityDataTests/Repositories/AuthRepositoryTests.swift,
@@ -159,6 +159,7 @@
 				Frameworks/CommunityUI/CommunityUITests/ViewModels/CreateMatchViewModelTests.swift,
 				Frameworks/CommunityUI/CommunityUITests/ViewModels/DashboardViewModelTests.swift,
 				Frameworks/CommunityUI/CommunityUITests/ViewModels/LoginViewModelTests.swift,
+				Frameworks/CommunityUI/CommunityUITests/ViewModels/MatchDetailsViewModelTests.swift,
 				Frameworks/CommunityUI/CommunityUITests/ViewModels/RegistrationViewModelTests.swift,
 			);
 			target = F3A0CD472F90EA2700B052F7 /* community_appTests */;
@@ -169,7 +170,7 @@
 				Frameworks/CommunityCore/CommunityCoreTests/MockRepositories/AuthRepositoryMock.swift,
 				Frameworks/CommunityCore/CommunityCoreTests/MockRepositories/MatchRepositoryMock.swift,
 				Frameworks/CommunityCore/CommunityCoreTests/UseCases/AuthUseCasesTests.swift,
-				Frameworks/CommunityCore/CommunityCoreTests/UseCases/DashboardUseCasesTests.swift,
+				Frameworks/CommunityCore/CommunityCoreTests/UseCases/MatchUseCasesTests.swift,
 				Frameworks/CommunityData/CommunityDataTests/Mocks/URLProtocolMock.swift,
 				Frameworks/CommunityData/CommunityDataTests/Networking/CommunityNetworkClientTests.swift,
 				Frameworks/CommunityData/CommunityDataTests/Repositories/AuthRepositoryTests.swift,
@@ -182,6 +183,7 @@
 				Frameworks/CommunityUI/CommunityUITests/ViewModels/CreateMatchViewModelTests.swift,
 				Frameworks/CommunityUI/CommunityUITests/ViewModels/DashboardViewModelTests.swift,
 				Frameworks/CommunityUI/CommunityUITests/ViewModels/LoginViewModelTests.swift,
+				Frameworks/CommunityUI/CommunityUITests/ViewModels/MatchDetailsViewModelTests.swift,
 				Frameworks/CommunityUI/CommunityUITests/ViewModels/RegistrationViewModelTests.swift,
 				Frameworks/CommunityUI/Source/CommunityUI.docc,
 			);

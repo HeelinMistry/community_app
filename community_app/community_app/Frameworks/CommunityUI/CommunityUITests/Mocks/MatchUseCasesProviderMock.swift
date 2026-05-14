@@ -33,6 +33,16 @@ final class MatchUseCasesMock: MatchUseCaseProtocol, @unchecked Sendable {
         fatalError("Result not set in MatchUseCaseProtocol")
     }
     
+    var matchDetailsResult: Result<MatchDetailResponse, Error>?
+    func matchDetail(_ request: MatchDetailRequest) async throws -> MatchDetailResponse {
+        if let result = matchDetailsResult {
+            switch result {
+            case .success(let response): return response
+            case .failure(let error): throw error
+            }
+        }
+        fatalError("Result not set in MatchUseCaseProtocol")
+    }
 }
 
 // Mock for the provider that holds the use case
