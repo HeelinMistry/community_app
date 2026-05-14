@@ -69,6 +69,11 @@ final class DependencyContainer {
         // Inject the concrete MKLocalSearchService
         return CreateMatchViewModel(useCases: self, router: router, mapSearchService: MKLocalSearchService())
     }
+    
+    /// Creates and returns a `makeDetailMatchViewModel`.
+    public func makeDetailMatchViewModel(_ match_id: String) -> MatchDetailsViewModel {
+        return MatchDetailsViewModel(useCases: self, router: router, match_id: match_id)
+    }
 }
 
 extension DependencyContainer: AuthUseCasesProvider {
@@ -111,5 +116,11 @@ extension DependencyContainer: ViewFactory {
     public func makeCreateMatchView() -> AnyView {
         let viewModel = makeCreateMatchViewModel()
         return AnyView(CreateMatchView(viewModel: viewModel))
+    }
+    
+    @MainActor
+    public func makeDetailMatchView(_ match_id: String) -> AnyView {
+        let viewModel = makeDetailMatchViewModel(match_id)
+        return AnyView(MatchDetailsView(viewModel: viewModel))
     }
 }

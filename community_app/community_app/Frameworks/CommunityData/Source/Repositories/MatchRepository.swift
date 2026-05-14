@@ -33,4 +33,13 @@ public final class MatchRepository: MatchRepositoryProtocol {
             throw error
         }
     }
+    
+    public func getMatch(_ matchRequest: MatchDetailRequest) async throws -> MatchDetailResponse {
+        do {
+            let dto: MatchDetailResponse = try await networkClient.fetch(from: CommunityEndpoint.matchDetail(matchRequest))
+            return dto
+        } catch {
+            throw error
+        }
+    }
 }

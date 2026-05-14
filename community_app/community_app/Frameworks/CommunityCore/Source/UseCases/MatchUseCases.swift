@@ -37,4 +37,13 @@ public final class MatchUseCases: MatchUseCaseProtocol {
         }
     }
     
+    public func matchDetail(_ request: MatchDetailRequest) async throws -> MatchDetailResponse {
+        do {
+            let matchDetailResponse = try await match.getMatch(request)
+            return (matchDetailResponse)
+        } catch {
+            throw error
+        }
+    }
+    
 }

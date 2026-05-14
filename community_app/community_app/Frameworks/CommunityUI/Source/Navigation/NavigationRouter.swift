@@ -11,6 +11,7 @@ import Combine
 public enum Destination: Hashable {
     case login
     case dashboard
+    case detail(match_id: String)
 }
 
 public enum SheetDestination: Identifiable {

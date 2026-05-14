@@ -94,6 +94,9 @@
 		F344281C2F9F54AD007CD99D /* Core.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = Core.xcodeproj; sourceTree = "<group>"; };
 		F34428832F9F5F2A007CD99D /* CommunityData.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = CommunityData.xcodeproj; path = community_app/Frameworks/CommunityData/CommunityData.xcodeproj; sourceTree = "<group>"; };
 		F34428892F9F5F2A007CD99D /* CommunityData.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CommunityData.xcodeproj; sourceTree = "<group>"; };
+		F3637B282FB491C700158B05 /* CommunityCore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CommunityCore.xcodeproj; sourceTree = "<group>"; };
+		F3637B472FB491C700158B05 /* CommunityData.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CommunityData.xcodeproj; sourceTree = "<group>"; };
+		F3637B7A2FB491C700158B05 /* CommunityUI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CommunityUI.xcodeproj; sourceTree = "<group>"; };
 		F37844542FA5346200CE581F /* CommunityCore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CommunityCore.xcodeproj; sourceTree = "<group>"; };
 		F37844712FA5346200CE581F /* CommunityData.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CommunityData.xcodeproj; sourceTree = "<group>"; };
 		F378449C2FA5346200CE581F /* CommunityUI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CommunityUI.xcodeproj; sourceTree = "<group>"; };
@@ -343,6 +346,27 @@
 			sourceTree = "<group>";
 		};
 		F344288B2F9F5F2A007CD99D /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F3637B7D2FB491C700158B05 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F3637B7F2FB491C700158B05 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F3637B812FB491C700158B05 /* Products */ = {
 			isa = PBXGroup;
 			children = (
 			);
@@ -783,16 +807,16 @@
 					ProjectRef = F3EB99C62FA0DA6000C04747 /* CommunityCore.xcodeproj */;
 				},
 				{
+					ProductGroup = F3637B812FB491C700158B05 /* Products */;
+					ProjectRef = F3637B282FB491C700158B05 /* CommunityCore.xcodeproj */;
+				},
+				{
 					ProductGroup = F3DF4CC62FA85B7500FEC2A8 /* Products */;
 					ProjectRef = F3DF4C782FA85B7500FEC2A8 /* CommunityCore.xcodeproj */;
 				},
 				{
 					ProductGroup = F3057A2C2FA00D0A007297CC /* Products */;
 					ProjectRef = F30579FA2FA00D0A007297CC /* CommunityCore.xcodeproj */;
-				},
-				{
-					ProductGroup = F3DDFA3B2FACD197000DE75A /* Products */;
-					ProjectRef = F3DDFA042FACD197000DE75A /* CommunityData.xcodeproj */;
 				},
 				{
 					ProductGroup = F37844A32FA5346200CE581F /* Products */;
@@ -831,6 +855,10 @@
 					ProjectRef = F3FAEF8D2FA3897600869628 /* CommunityData.xcodeproj */;
 				},
 				{
+					ProductGroup = F3637B7F2FB491C700158B05 /* Products */;
+					ProjectRef = F3637B472FB491C700158B05 /* CommunityData.xcodeproj */;
+				},
+				{
 					ProductGroup = F3057C292FA011E6007297CC /* Products */;
 					ProjectRef = F3057C0B2FA011E6007297CC /* CommunityData.xcodeproj */;
 				},
@@ -859,8 +887,20 @@
 					ProjectRef = F31E90A42FA23BA0007DBF65 /* CommunityData.xcodeproj */;
 				},
 				{
+					ProductGroup = F3DDFA3B2FACD197000DE75A /* Products */;
+					ProjectRef = F3DDFA042FACD197000DE75A /* CommunityData.xcodeproj */;
+				},
+				{
+					ProductGroup = F3DF4AFB2FA5414800FEC2A8 /* Products */;
+					ProjectRef = F3DF4AF82FA5414800FEC2A8 /* CommunityUI.xcodeproj */;
+				},
+				{
 					ProductGroup = F3FAEE662FA3360B00869628 /* Products */;
 					ProjectRef = F3FAEE5F2FA3360B00869628 /* CommunityUI.xcodeproj */;
+				},
+				{
+					ProductGroup = F3637B7D2FB491C700158B05 /* Products */;
+					ProjectRef = F3637B7A2FB491C700158B05 /* CommunityUI.xcodeproj */;
 				},
 				{
 					ProductGroup = F3057A282FA00D0A007297CC /* Products */;
@@ -917,10 +957,6 @@
 				{
 					ProductGroup = F32765E92F9F7700003BC9A8 /* Products */;
 					ProjectRef = F32765E72F9F7700003BC9A8 /* CommunityUI.xcodeproj */;
-				},
-				{
-					ProductGroup = F3DF4AFB2FA5414800FEC2A8 /* Products */;
-					ProjectRef = F3DF4AF82FA5414800FEC2A8 /* CommunityUI.xcodeproj */;
 				},
 				{
 					ProductGroup = F344281E2F9F54AD007CD99D /* Products */;

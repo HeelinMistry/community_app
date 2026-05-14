@@ -76,10 +76,11 @@ async def create_match(match: MatchCreate, user: dict = Depends(decode_access_to
 @router.get("/{match_id}")
 async def get_match_details(
         match_id: str,
-        current_user: dict = Depends(decode_access_token),
+        user: dict = Depends(decode_access_token),
         db: Session = Depends(get_db)
 ):
     match = db.query(tables.Match).filter(tables.Match.id == match_id).first()
+    user_id = int(user["sub"])
     if not match:
         raise HTTPException(status_code=404, detail="Match not found")
 
@@ -95,18 +96,23 @@ async def get_match_details(
             active_players.append(username)
 
             # Check if this confirmed player is the person currently logged in
-            if p.user_id == current_user["id"]:
+            if p.user_id == user_id:
                 is_joined = True
+
+    is_host = (match.host_id == user_id)
 
     return {
         "id": match.id,
         "title": match.title,
+        "sport": match.sport,
         "start_datetime": match.start_datetime.replace(tzinfo=timezone.utc),
         "location": match.location,
+        "latitude": match.latitude,
+        "longitude": match.longitude,
         "cost": match.cost,
         "roster_size": match.roster_size,
         "duration": match.duration,
-        "is_host": (match.host_id == current_user["id"]),
+        "is_host": is_host,
         "current_roster": len(active_players),
         "player_list": active_players,
         "is_cancelled": match.is_cancelled,
@@ -115,7 +121,7 @@ async def get_match_details(
 
 @router.post("/{match_id}/toggle-join")
 async def toggle_join(match_id: str, user: dict = Depends(decode_access_token), db: Session = Depends(get_db)):
-    user_id = user["id"]
+    user_id = user["sub"]
 
     # Check if user is already in the match
     existing_entry = db.query(tables.MatchPlayer).filter(
