@@ -68,9 +68,73 @@ final class MatchDetailsViewModelTests: XCTestCase {
         }
     }
     
-//    func testMatchParticipation_WhenTapped() async {
-//        sut.toggle_match_participation()
-//        
-//        XCTAssertEqual(mockRouter.sheet, .createMatch)
-//    }
+    func testMatchParticipation_WhenTapped_SetsSuccessState() async {
+        // Arrange
+        // 1. Set up initial match details, explicitly showing not joined
+        let initialDetail: MatchDetailResponse = .init(is_joined: false)
+        mockProvider.mockUseCases.matchDetailsResult = .success(initialDetail)
+        
+        // Act - Fetch initial match details
+        sut.matchDetail()
+        // Wait for the matchDetail() Task to complete and update the state
+        try? await Task.sleep(nanoseconds: 200_000_000) // Increased sleep duration for robustness
+        
+        // Optional: Assert initial state if desired for stronger test (precondition check)
+        if case .success(let response) = sut.state {
+            XCTAssertFalse(response.is_joined, "Precondition: Match should initially be not joined.")
+        } else {
+            XCTFail("Expected .success state after initial matchDetail() call, got \(sut.state)")
+            return // Stop the test early if precondition fails
+        }
+        
+        // Arrange - Set up the mock response for toggling participation
+        let expectedParticipationResponse: ParticipationResponse = .init(is_joined: true)
+        mockProvider.mockUseCases.participationResult = .success(expectedParticipationResponse)
+        
+        // Act - Toggle match participation
+        sut.toggle_match_participation()
+        // Wait for the toggle_match_participation() Task to complete and update the state
+        try? await Task.sleep(nanoseconds: 200_000_000) // Increased sleep duration for robustness
+        
+        // Assert - Verify the final state after toggling
+        if case .success(let finalResponse) = sut.state {
+            XCTAssertTrue(finalResponse.is_joined == expectedParticipationResponse.is_joined, "Expected is_joined to be true after toggling participation.")
+        } else {
+            XCTFail("Expected .success state after toggle_match_participation() call, got \(sut.state)")
+        }
+    }
+    
+    func testMatchParticipation_WhenFails_SetsErrorState() async {
+        // Arrange - Set up initial match details successfully
+        let initialDetail: MatchDetailResponse = .init(is_joined: false)
+        mockProvider.mockUseCases.matchDetailsResult = .success(initialDetail)
+
+        // Act - Fetch initial match details
+        sut.matchDetail()
+        // Wait for the matchDetail() Task to complete and update the state
+        try? await Task.sleep(nanoseconds: 200_000_000) // Increased sleep duration for robustness
+
+        // Precondition check: Ensure the ViewModel is in a success state before attempting participation
+        guard case .success(let response) = sut.state else {
+            XCTFail("Expected .success state after initial matchDetail() call, got \(sut.state)")
+            return
+        }
+        XCTAssertFalse(response.is_joined, "Precondition: Match should initially be not joined.")
+
+        // Arrange - Set up the mock response for toggling participation to fail
+        let errorMessage = "Participation Failed" 
+        let error = NSError(domain: "MatchParticipation", code: 500, userInfo: [NSLocalizedDescriptionKey: errorMessage])
+        mockProvider.mockUseCases.participationResult = .failure(error)
+    
+        // Act - Toggle match participation, expecting it to fail
+        sut.toggle_match_participation()
+        try? await Task.sleep(nanoseconds: 200_000_000)
+        
+        // Assert - Verify the final state is an error
+        if case .error(let message) = sut.state {
+            XCTAssertEqual(message, errorMessage, "Expected the error message to match.")
+        } else {
+            XCTFail("Expected .error state after toggle_match_participation() failed, but got \(sut.state)")
+        }
+    }
 }

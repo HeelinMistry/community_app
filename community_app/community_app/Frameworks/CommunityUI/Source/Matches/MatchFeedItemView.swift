@@ -111,9 +111,9 @@ struct MatchFeedItemView: View {
             .background(Assets.theme.inputBackground)
             .cornerRadius(15)
             .shadow(color: Assets.theme.primaryText.opacity(0.1), radius: 5, x: 0, y: 2)
-            .contentShape(Rectangle()) // Makes the entire card area tappable for the NavigationLink
+            .contentShape(Rectangle())
         }
-        .buttonStyle(PlainButtonStyle()) // Removes the default blue text/arrow styling of NavigationLink
+        .buttonStyle(PlainButtonStyle())
     }
     
     private func formatDate(_ isoString: String) -> String {

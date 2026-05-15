@@ -42,4 +42,13 @@ public final class MatchRepository: MatchRepositoryProtocol {
             throw error
         }
     }
+    
+    public func toggleParticipation(_ matchRequest: MatchDetailRequest) async throws -> ParticipationResponse {
+        do {
+            let dto: ParticipationResponse = try await networkClient.fetch(from: CommunityEndpoint.toggleParticipation(matchRequest))
+            return dto
+        } catch {
+            throw error
+        }
+    }
 }

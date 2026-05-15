@@ -55,8 +55,26 @@ public actor MatchRepositoryMock: MatchRepositoryProtocol {
         self.matchDetailResult = result
     }
     
-    public func getMatch(_ matchRequest: MatchDetailRequest) async throws -> CommunityCore.MatchDetailResponse {
+    public func getMatch(_ matchRequest: MatchDetailRequest) async throws -> MatchDetailResponse {
         guard let result = matchDetailResult else {
+            fatalError("Result not set in RepositoryMock")
+        }
+        
+        switch result {
+        case .success(let response):
+            return response
+        case .failure(let error):
+            throw error
+        }
+    }
+    
+    var participationResult: Result<ParticipationResponse, Error>?
+    
+    func setParticipationResult(_ result: Result<ParticipationResponse, Error>) {
+        self.participationResult = result
+    }
+    public func toggleParticipation(_ matchRequest: MatchDetailRequest) async throws -> ParticipationResponse {
+        guard let result = participationResult else {
             fatalError("Result not set in RepositoryMock")
         }
         

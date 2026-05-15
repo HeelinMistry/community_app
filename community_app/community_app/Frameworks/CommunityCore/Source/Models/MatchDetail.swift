@@ -31,9 +31,9 @@ public nonisolated struct MatchDetailResponse: Sendable, Equatable, Encodable, D
     public let roster_size: Int
     public let cost: String
     public let is_host: Bool
-    public let current_roster: Int
+    public var current_roster: Int
     public let is_cancelled: Bool
-    public let is_joined: Bool
+    public var is_joined: Bool     
     
     public init(
         title: String = "New Match",
