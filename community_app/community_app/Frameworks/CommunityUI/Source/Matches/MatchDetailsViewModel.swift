@@ -12,15 +12,18 @@ import CommunityCore
 @MainActor
 public protocol MatchDetailsViewModelProtocol: StateDrivenViewModel where DataType == MatchDetailResponse {
     var matchDetailResponse: MatchDetailResponse? { get }
-    var isTogglingParticipation: Bool { get } // Add published property to protocol
+    var isTogglingParticipation: Bool { get } 
+    var isTogglingCancellation: Bool { get }
     func matchDetail()
     func toggle_match_participation()
+    func toggle_match_cancellation()
 }
 
 @MainActor
 public final class MatchDetailsViewModel: MatchDetailsViewModelProtocol {
     @Published public private(set) var state: ViewState<MatchDetailResponse> = .idle
-    @Published public private(set) var isTogglingParticipation: Bool = false // New published property
+    @Published public private(set) var isTogglingParticipation: Bool = false 
+    @Published public private(set) var isTogglingCancellation: Bool = false
     @Published public private(set) var matchDetailResponse: MatchDetailResponse?
     
     private let match_id: String
@@ -53,7 +56,6 @@ public final class MatchDetailsViewModel: MatchDetailsViewModelProtocol {
                 let response: MatchDetailResponse = try await useCases.matches.matchDetail(.init(match_id))
                 matchDetailResponse = response
                 if !Task.isCancelled {
-                    // Wrap the MatchDetailResponse in the enum case
                     if let matchDetailResponse {
                         self.state = .success(matchDetailResponse)
                     }
@@ -69,12 +71,9 @@ public final class MatchDetailsViewModel: MatchDetailsViewModelProtocol {
     public func toggle_match_participation() {
         guard !isTogglingParticipation else { return }
         
-        // Use 'if var' to get a mutable copy of matchDetailResponse
         if var currentMatchDetail = self.matchDetailResponse {
             isTogglingParticipation = true
-            fetchTask?.cancel() // Cancel any pending full refresh tasks
-            
-            // This task will specifically handle the participation toggle and in-place update
+            fetchTask?.cancel()
             fetchTask = Task {
                 defer { isTogglingParticipation = false } 
                 
@@ -83,6 +82,32 @@ public final class MatchDetailsViewModel: MatchDetailsViewModelProtocol {
                     if !Task.isCancelled {
                         currentMatchDetail.is_joined = participationResponse.is_joined
                         currentMatchDetail.current_roster = participationResponse.current_roster
+                        currentMatchDetail.player_list = participationResponse.player_list
+                        self.matchDetailResponse = currentMatchDetail
+                        self.state = .success(currentMatchDetail)
+                    }
+                } catch {
+                    if !Task.isCancelled {
+                        self.state = .error(error.localizedDescription)
+                    }
+                }
+            }
+        }
+    }
+    
+    public func toggle_match_cancellation() {
+        guard !isTogglingCancellation else { return }
+        
+        if var currentMatchDetail = self.matchDetailResponse {
+            isTogglingCancellation = true
+            fetchTask?.cancel()
+            fetchTask = Task {
+                defer { isTogglingCancellation = false }
+                
+                do {
+                    let cancellationResponse: CancellationResponse = try await useCases.matches.toggleCancellation(.init(match_id))
+                    if !Task.isCancelled {
+                        currentMatchDetail.is_cancelled = cancellationResponse.is_cancelled
                         self.matchDetailResponse = currentMatchDetail
                         self.state = .success(currentMatchDetail)
                     }

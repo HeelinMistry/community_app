@@ -85,4 +85,23 @@ public actor MatchRepositoryMock: MatchRepositoryProtocol {
             throw error
         }
     }
+    
+    var cancellationesult: Result<CancellationResponse, Error>?
+    
+    func setCancellationResult(_ result: Result<CancellationResponse, Error>) {
+        self.cancellationesult = result
+    }
+    public func toggleMatch(_ matchRequest: MatchDetailRequest) async throws -> CancellationResponse {
+        guard let result = cancellationesult else {
+            fatalError("Result not set in RepositoryMock")
+        }
+        
+        switch result {
+        case .success(let response):
+            return response
+        case .failure(let error):
+            throw error
+        }
+    }
+    
 }

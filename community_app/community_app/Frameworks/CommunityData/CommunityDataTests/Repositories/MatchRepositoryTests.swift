@@ -176,4 +176,98 @@ final class MatchRepositoryTests: XCTestCase {
             XCTFail("Unexpected error type: \(error)")
         }
     }
+    
+    func testMatchParticipation_WhenServerReturnsSuccess_ReturnsResponse() async throws {
+        let expectedResponse: ParticipationResponse = .init()
+        let responseData = try JSONEncoder().encode(expectedResponse)
+        
+        URLProtocolMock.requestHandler = { request in
+            let response = HTTPURLResponse(
+                url: request.url!,
+                statusCode: 200,
+                httpVersion: nil,
+                headerFields: ["Content-Type": "application/json"]
+            )!
+            return (response, responseData)
+        }
+
+        // Act
+        let result = try await sut.toggleParticipation(.init(""))
+
+        // Assert
+        XCTAssertTrue(result == expectedResponse)
+    }
+    
+    func testMatchParticipation_WhenServerReturns401_ThrowsServerError() async {
+        URLProtocolMock.requestHandler = { request in
+            let response = HTTPURLResponse(
+                url: request.url!,
+                statusCode: 401,
+                httpVersion: nil,
+                headerFields: nil
+            )!
+            return (response, Data())
+        }
+
+        // Act & Assert
+        do {
+            _ = try await sut.toggleParticipation(.init(""))
+            XCTFail("Should throw serverError(401)")
+        } catch let error as NetworkError {
+            if case .serverError(let code) = error {
+                XCTAssertEqual(code, 401)
+            } else {
+                XCTFail("Expected serverError, got \(error)")
+            }
+        } catch {
+            XCTFail("Unexpected error type: \(error)")
+        }
+    }
+    
+    func testMatchCancellation_WhenServerReturnsSuccess_ReturnsResponse() async throws {
+        let expectedResponse: CancellationResponse = .init()
+        let responseData = try JSONEncoder().encode(expectedResponse)
+        
+        URLProtocolMock.requestHandler = { request in
+            let response = HTTPURLResponse(
+                url: request.url!,
+                statusCode: 200,
+                httpVersion: nil,
+                headerFields: ["Content-Type": "application/json"]
+            )!
+            return (response, responseData)
+        }
+
+        // Act
+        let result = try await sut.toggleMatch(.init(""))
+
+        // Assert
+        XCTAssertTrue(result == expectedResponse)
+    }
+    
+    func testMatchCancellation_WhenServerReturns401_ThrowsServerError() async {
+        URLProtocolMock.requestHandler = { request in
+            let response = HTTPURLResponse(
+                url: request.url!,
+                statusCode: 401,
+                httpVersion: nil,
+                headerFields: nil
+            )!
+            return (response, Data())
+        }
+
+        // Act & Assert
+        do {
+            _ = try await sut.toggleMatch(.init(""))
+            XCTFail("Should throw serverError(401)")
+        } catch let error as NetworkError {
+            if case .serverError(let code) = error {
+                XCTAssertEqual(code, 401)
+            } else {
+                XCTFail("Expected serverError, got \(error)")
+            }
+        } catch {
+            XCTFail("Unexpected error type: \(error)")
+        }
+    }
 }

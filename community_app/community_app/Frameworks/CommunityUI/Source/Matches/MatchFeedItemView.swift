@@ -67,12 +67,17 @@ struct MatchFeedItemView: View {
                 .foregroundColor(Assets.theme.secondaryText)
                 .padding(.vertical, 4)
                 
-                // Host and Cancelled Status
+                // Host, Joined, and Cancelled Status Indicators
                 HStack {
                     if match.is_host {
                         Label("You are Host", systemImage: "star.fill")
                             .font(.caption)
                             .foregroundColor(Assets.theme.primaryAccent)
+                    }
+                    if match.is_joined {
+                        Label("Joined", systemImage: "person.badge.checkmark.fill") // A clear icon for joined status
+                            .font(.caption)
+                            .foregroundColor(Assets.theme.primaryAccent) // Use accent color for positive status
                     }
                     Spacer()
                     if match.is_cancelled {
@@ -84,17 +89,6 @@ struct MatchFeedItemView: View {
                 .padding(.top, 4)
                 
                 HStack {
-                    Button {
-                        // Action for joining/leaving
-                    } label: {
-                        Label(match.is_joined ? "Leave" : "Join", systemImage: match.is_joined ? "person.crop.circle.badge.minus" : "person.crop.circle.badge.plus")
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .controlSize(.large)
-                    .tint(match.is_joined ? .red : Assets.theme.primaryAccent)
-                    
-                    Spacer()
-                    
                     Button {
                         // Action for sharing
                     } label: {

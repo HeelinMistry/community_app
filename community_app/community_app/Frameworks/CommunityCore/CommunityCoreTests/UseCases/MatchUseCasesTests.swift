@@ -117,4 +117,70 @@ final class MatchUseCasesTests: XCTestCase {
             XCTAssertEqual(nsError.code, 401)
         }
     }
+    
+    func testMatchParticipation_WhenSuccessful_ReturnsSuccessResponse() async throws {
+        mockRepository = MatchRepositoryMock()
+        
+        let expectedResponse: ParticipationResponse = .init()
+        await mockRepository.setParticipationResult(
+            .success(expectedResponse)
+        )
+        
+        let sut = MatchUseCases(match: mockRepository)
+        let response = try await sut.toggleParticipation(.init(""))
+        
+        XCTAssertTrue(response == expectedResponse)
+    }
+    
+    func testMatchParticipation_WhenRepositoryThrowsError_ThrowsSameError() async {
+        mockRepository = MatchRepositoryMock()
+        
+        let expectedError = NSError(domain: "NetworkError", code: 401, userInfo: nil)
+        await mockRepository.setParticipationResult(
+            .failure(expectedError)
+        )
+        
+        let sut = MatchUseCases(match: mockRepository)
+        do {
+            _ = try await sut.toggleParticipation(.init(""))
+            XCTFail("Expected error to be thrown, but it succeeded.")
+        } catch {
+            let nsError = error as NSError
+            XCTAssertEqual(nsError.domain, "NetworkError")
+            XCTAssertEqual(nsError.code, 401)
+        }
+    }
+    
+    func testMatchCancellation_WhenSuccessful_ReturnsSuccessResponse() async throws {
+        mockRepository = MatchRepositoryMock()
+        
+        let expectedResponse: CancellationResponse = .init()
+        await mockRepository.setCancellationResult(
+            .success(expectedResponse)
+        )
+        
+        let sut = MatchUseCases(match: mockRepository)
+        let response = try await sut.toggleCancellation(.init(""))
+        
+        XCTAssertTrue(response == expectedResponse)
+    }
+    
+    func testMatchCancellation_WhenRepositoryThrowsError_ThrowsSameError() async {
+        mockRepository = MatchRepositoryMock()
+        
+        let expectedError = NSError(domain: "NetworkError", code: 401, userInfo: nil)
+        await mockRepository.setCancellationResult(
+            .failure(expectedError)
+        )
+        
+        let sut = MatchUseCases(match: mockRepository)
+        do {
+            _ = try await sut.toggleCancellation(.init(""))
+            XCTFail("Expected error to be thrown, but it succeeded.")
+        } catch {
+            let nsError = error as NSError
+            XCTAssertEqual(nsError.domain, "NetworkError")
+            XCTAssertEqual(nsError.code, 401)
+        }
+    }
 }

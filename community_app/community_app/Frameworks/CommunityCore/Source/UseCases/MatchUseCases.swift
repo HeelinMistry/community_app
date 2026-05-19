@@ -55,4 +55,13 @@ public final class MatchUseCases: MatchUseCaseProtocol {
         }
     }
     
+    public func toggleCancellation(_ request: MatchDetailRequest) async throws -> CancellationResponse {
+        do {
+            let participationResponse = try await match.toggleMatch(request)
+            return (participationResponse)
+        } catch {
+            throw error
+        }
+    }
+    
 }

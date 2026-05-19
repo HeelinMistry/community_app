@@ -32,8 +32,9 @@ public nonisolated struct MatchDetailResponse: Sendable, Equatable, Encodable, D
     public let cost: String
     public let is_host: Bool
     public var current_roster: Int
-    public let is_cancelled: Bool
-    public var is_joined: Bool     
+    public var player_list: [String]
+    public var is_cancelled: Bool
+    public var is_joined: Bool
     
     public init(
         title: String = "New Match",
@@ -47,6 +48,7 @@ public nonisolated struct MatchDetailResponse: Sendable, Equatable, Encodable, D
         cost: String = "50",
         is_host: Bool = false,
         current_roster: Int = 0,
+        player_list: [String] = ["test_user"],
         is_cancelled: Bool = false,
         is_joined: Bool = false
     ) {
@@ -61,6 +63,7 @@ public nonisolated struct MatchDetailResponse: Sendable, Equatable, Encodable, D
         self.cost = cost
         self.is_host = is_host
         self.current_roster = current_roster
+        self.player_list = player_list
         self.is_cancelled = is_cancelled
         self.is_joined = is_joined
     }
@@ -78,6 +81,7 @@ public nonisolated struct MatchDetailResponse: Sendable, Equatable, Encodable, D
         cost = try values.decode(String.self, forKey: .cost)
         is_host = try values.decode(Bool.self, forKey: .is_host)
         current_roster = try values.decode(Int.self, forKey: .current_roster)
+        player_list = try values.decode([String].self, forKey: .player_list)
         is_cancelled = try values.decode(Bool.self, forKey: .is_cancelled)
         is_joined = try values.decode(Bool.self, forKey: .is_joined)
     }

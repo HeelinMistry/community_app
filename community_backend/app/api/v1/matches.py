@@ -173,15 +173,14 @@ async def toggle_join(match_id: str, user: dict = Depends(decode_access_token), 
 @router.post("/{match_id}/toggle-cancel")
 async def toggle_cancel(match_id: str, user: dict = Depends(decode_access_token), db: Session = Depends(get_db)):
     match = db.query(tables.Match).filter(tables.Match.id == match_id).first()
-
+    user_id = int(user["sub"])
     if not match:
         raise HTTPException(status_code=404, detail="Match not found")
 
-    if match.host_id != user["sub"]: # Changed user["id"] to user["sub"] for consistency
+    if match.host_id != user_id: # Changed user["id"] to user["sub"] for consistency
         raise HTTPException(status_code=403, detail="Only the host can cancel this match")
 
     # The Python way to invert a boolean
     match.is_cancelled = not match.is_cancelled
     db.commit()
-    status_text = "cancelled" if match.is_cancelled else "restored"
-    return {"status": "success", "message": f"Match {status_text}"}
+    return {"status": "success", "is_cancelled": match.is_cancelled}

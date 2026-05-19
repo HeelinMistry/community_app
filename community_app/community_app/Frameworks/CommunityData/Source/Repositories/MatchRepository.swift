@@ -51,4 +51,13 @@ public final class MatchRepository: MatchRepositoryProtocol {
             throw error
         }
     }
+    
+    public func toggleMatch(_ matchRequest: MatchDetailRequest) async throws -> CancellationResponse {
+        do {
+            let dto: CancellationResponse = try await networkClient.fetch(from: CommunityEndpoint.toggleCancel(matchRequest))
+            return dto
+        } catch {
+            throw error
+        }
+    }
 }

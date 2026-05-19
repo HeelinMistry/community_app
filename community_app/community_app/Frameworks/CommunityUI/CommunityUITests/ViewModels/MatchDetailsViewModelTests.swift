@@ -137,4 +137,74 @@ final class MatchDetailsViewModelTests: XCTestCase {
             XCTFail("Expected .error state after toggle_match_participation() failed, but got \(sut.state)")
         }
     }
+    
+    func testMatchCancellation_WhenTapped_SetsSuccessState() async {
+        // Arrange
+        // 1. Set up initial match details, explicitly showing not joined
+        let initialDetail: MatchDetailResponse = .init(is_joined: false)
+        mockProvider.mockUseCases.matchDetailsResult = .success(initialDetail)
+        
+        // Act - Fetch initial match details
+        sut.matchDetail()
+        // Wait for the matchDetail() Task to complete and update the state
+        try? await Task.sleep(nanoseconds: 200_000_000) // Increased sleep duration for robustness
+        
+        // Optional: Assert initial state if desired for stronger test (precondition check)
+        if case .success(let response) = sut.state {
+            XCTAssertFalse(response.is_joined, "Precondition: Match should initially be not joined.")
+        } else {
+            XCTFail("Expected .success state after initial matchDetail() call, got \(sut.state)")
+            return // Stop the test early if precondition fails
+        }
+        
+        // Arrange - Set up the mock response for toggling participation
+        let expectedCancellationResponse: CancellationResponse = .init(is_cancelled: true)
+        mockProvider.mockUseCases.cancellationResult = .success(expectedCancellationResponse)
+        
+        // Act - Toggle match participation
+        sut.toggle_match_cancellation()
+        // Wait for the toggle_match_participation() Task to complete and update the state
+        try? await Task.sleep(nanoseconds: 200_000_000) // Increased sleep duration for robustness
+        
+        // Assert - Verify the final state after toggling
+        if case .success(let finalResponse) = sut.state {
+            XCTAssertTrue(finalResponse.is_cancelled == expectedCancellationResponse.is_cancelled, "Expected is_cancelled to be true after toggling cancellation.")
+        } else {
+            XCTFail("Expected .success state after toggle_match_cancellation() call, got \(sut.state)")
+        }
+    }
+    
+    func testMatchCancellationWhenFails_SetsErrorState() async {
+        // Arrange - Set up initial match details successfully
+        let initialDetail: MatchDetailResponse = .init()
+        mockProvider.mockUseCases.matchDetailsResult = .success(initialDetail)
+
+        // Act - Fetch initial match details
+        sut.matchDetail()
+        // Wait for the matchDetail() Task to complete and update the state
+        try? await Task.sleep(nanoseconds: 200_000_000) // Increased sleep duration for robustness
+
+        // Precondition check: Ensure the ViewModel is in a success state before attempting participation
+        guard case .success(let response) = sut.state else {
+            XCTFail("Expected .success state after initial matchDetail() call, got \(sut.state)")
+            return
+        }
+        XCTAssertFalse(response.is_cancelled, "Precondition: Match should initially be not joined.")
+
+        // Arrange - Set up the mock response for toggling participation to fail
+        let errorMessage = "Cancellation Failed"
+        let error = NSError(domain: "MatchCancellation", code: 500, userInfo: [NSLocalizedDescriptionKey: errorMessage])
+        mockProvider.mockUseCases.cancellationResult = .failure(error)
+    
+        // Act - Toggle match participation, expecting it to fail
+        sut.toggle_match_cancellation()
+        try? await Task.sleep(nanoseconds: 200_000_000)
+        
+        // Assert - Verify the final state is an error
+        if case .error(let message) = sut.state {
+            XCTAssertEqual(message, errorMessage, "Expected the error message to match.")
+        } else {
+            XCTFail("Expected .error state after toggle_match_cancellation() failed, but got \(sut.state)")
+        }
+    }
 }
