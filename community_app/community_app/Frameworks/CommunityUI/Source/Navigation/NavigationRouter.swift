@@ -53,6 +53,16 @@ public class NavigationRouter: ObservableObject {
         self.isAuthenticated = true
         self.path = NavigationPath() // Clear stack for a fresh start
     }
+    
+    public func handleDeepLink(matchID: String) {
+        print("handleDeepLink called with matchID: \(matchID)") // Add this line
+        if !isAuthenticated {
+            print("User is not authenticated, deep link navigation skipped.") // Add this line
+        }
+        guard isAuthenticated else { return }
+        print("User is authenticated, navigating to detail for matchID: \(matchID)") // Add this line
+        navigate(to: .detail(match_id: matchID))
+    }
 }
 
 /// A structure to manage alerts across the app.
