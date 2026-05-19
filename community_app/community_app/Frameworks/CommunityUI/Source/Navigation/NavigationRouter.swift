@@ -33,6 +33,7 @@ public class NavigationRouter: ObservableObject {
     @Published public var alertItem: AlertItem?
     
     @Published public var isAuthenticated: Bool = false
+    @Published public var pendingMatchID: String?
     
     public init() {}
     
@@ -49,18 +50,27 @@ public class NavigationRouter: ObservableObject {
     }
     
     public func loginSuccess() {
-        self.sheet = nil // Close the registration/login sheet
+        self.sheet = nil 
         self.isAuthenticated = true
-        self.path = NavigationPath() // Clear stack for a fresh start
+        self.path = NavigationPath()
+        
+        if let matchID = pendingMatchID {
+            self.pendingMatchID = nil
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                self.navigate(to: .detail(match_id: matchID))
+            }
+        }
     }
     
     public func handleDeepLink(matchID: String) {
-        print("handleDeepLink called with matchID: \(matchID)") // Add this line
+        print("handleDeepLink called with matchID: \(matchID)")
         if !isAuthenticated {
-            print("User is not authenticated, deep link navigation skipped.") // Add this line
+            pendingMatchID = matchID
+            alert(title: "Log in required", message: "Please log in to view this match.")
+            print("User is not authenticated, deep link navigation skipped.")
         }
         guard isAuthenticated else { return }
-        print("User is authenticated, navigating to detail for matchID: \(matchID)") // Add this line
+        print("User is authenticated, navigating to detail for matchID: \(matchID)")
         navigate(to: .detail(match_id: matchID))
     }
 }

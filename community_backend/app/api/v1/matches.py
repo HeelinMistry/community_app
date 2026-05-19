@@ -21,6 +21,29 @@ class MatchCreate(BaseModel):
     roster_size: int
     cost: float
 
+def _format_match_response(match: tables.Match, user_id: int):
+    """Helper function to format a single match object for response."""
+    is_host = (match.host_id == user_id)
+    
+    # Check if the user is a confirmed participant
+    is_joined = any(p.user_id == user_id and p.status == "confirmed" for p in match.players)
+
+    # Count confirmed players
+    confirmed_players_count = sum(1 for p in match.players if p.status == "confirmed")
+
+    return {
+        "match_id": match.id,
+        "title": match.title,
+        "start_datetime": match.start_datetime.replace(tzinfo=timezone.utc),
+        "location": match.location,
+        "cost": match.cost,
+        "is_host": is_host,
+        "is_cancelled": match.is_cancelled,
+        "is_joined": is_joined,
+        "joined": confirmed_players_count,
+        "roster_size": match.roster_size
+    }
+
 @router.get("")
 async def get_matches(
         current_user: dict = Depends(decode_access_token),
@@ -32,30 +55,17 @@ async def get_matches(
 
     for m in all_matches:
         is_host = (m.host_id == user_id)
-        is_joined = any(
-            p.user_id == user_id and p.status == "confirmed"
-            for p in m.players
-        )
         is_participant = any(p.user_id == user_id for p in m.players)
+        
         if is_host or is_participant:
-            user_matches.append({
-                "match_id": m.id,
-                "title": m.title,
-                "start_datetime": m.start_datetime.replace(tzinfo=timezone.utc),
-                "location": m.location,
-                "cost": m.cost,
-                "is_host": is_host,
-                "is_cancelled": m.is_cancelled,
-                "is_joined": is_joined,
-                "joined": len(m.players),
-                "roster_size": m.roster_size
-            })
+            user_matches.append(_format_match_response(m, user_id))
+            
     return user_matches[::-1]
 
 @router.post("/create")
 async def create_match(match: MatchCreate, user: dict = Depends(decode_access_token), db: Session = Depends(get_db)):
     match_id = f"m_{uuid.uuid4().hex[:8]}"
-    user_id = user["sub"]
+    user_id = int(user["sub"])
     new_match = tables.Match(
         id=match_id,
         title=match.title,
@@ -71,7 +81,23 @@ async def create_match(match: MatchCreate, user: dict = Depends(decode_access_to
     )
     db.add(new_match)
     db.commit()
+    db.refresh(new_match) # Refresh to get any default values or relationships loaded
     return {"match_id": new_match.id}
+
+def _get_match_players_info(db: Session, match: tables.Match, current_user_id: int):
+    """Helper to get active players and check if current user is joined."""
+    active_players = []
+    is_joined = False
+
+    for p in match.players:
+        if p.status == "confirmed":
+            user_record = db.query(tables.User).filter(tables.User.id == p.user_id).first()
+            username = user_record.display_name if user_record else "Unknown"
+            active_players.append(username)
+
+            if p.user_id == current_user_id:
+                is_joined = True
+    return active_players, is_joined
 
 @router.get("/{match_id}")
 async def get_match_details(
@@ -84,21 +110,7 @@ async def get_match_details(
     if not match:
         raise HTTPException(status_code=404, detail="Match not found")
 
-    # 1. Filter the list for the UI (only show confirmed players)
-    # 2. Determine if the current viewer is one of those confirmed players
-    active_players = []
-    is_joined = False
-
-    for p in match.players:
-        if p.status == "confirmed":
-            user_record = db.query(tables.User).filter(tables.User.id == p.user_id).first()
-            username = user_record.display_name if user_record else "Unknown"
-            active_players.append(username)
-
-            # Check if this confirmed player is the person currently logged in
-            if p.user_id == user_id:
-                is_joined = True
-
+    active_players, is_joined = _get_match_players_info(db, match, user_id)
     is_host = (match.host_id == user_id)
 
     return {
@@ -121,53 +133,39 @@ async def get_match_details(
 
 @router.post("/{match_id}/toggle-join")
 async def toggle_join(match_id: str, user: dict = Depends(decode_access_token), db: Session = Depends(get_db)):
-    user_id = int(user["sub"]) # Ensure user_id is an int
+    user_id = int(user["sub"])
 
     match = db.query(tables.Match).filter(tables.Match.id == match_id).first()
     if not match:
         raise HTTPException(status_code=404, detail="Match not found")
 
-    # Check if user is already in the match
     existing_entry = db.query(tables.MatchPlayer).filter(
         tables.MatchPlayer.match_id == match_id,
         tables.MatchPlayer.user_id == user_id
     ).first()
 
     if existing_entry:
-        if existing_entry.status == "confirmed":
-            # Soft leave: keep the record, change the status
-            existing_entry.status = "left"
-        else:
-            # Re-joining
-            existing_entry.status = "confirmed"
+        # Toggle status: confirmed -> left, left -> confirmed
+        existing_entry.status = "left" if existing_entry.status == "confirmed" else "confirmed"
     else:
-        # Check roster limit
-        if len([p for p in match.players if p.status == "confirmed"]) >= match.roster_size:
+        # Check roster limit before adding new player
+        confirmed_players_count = sum(1 for p in match.players if p.status == "confirmed")
+        if confirmed_players_count >= match.roster_size:
             raise HTTPException(status_code=400, detail="Match is full")
 
-        new_player = tables.MatchPlayer(match_id=match_id, user_id=user_id, status="confirmed") # Set status to confirmed
+        new_player = tables.MatchPlayer(match_id=match_id, user_id=user_id, status="confirmed")
         db.add(new_player)
 
     db.commit()
-    db.refresh(match) # Refresh the match object to get the latest player data
+    db.refresh(match)
 
-    active_players = []
-    is_joined = False
-
-    for p in match.players:
-        if p.status == "confirmed":
-            user_record = db.query(tables.User).filter(tables.User.id == p.user_id).first()
-            username = user_record.display_name if user_record else "Unknown"
-            active_players.append(username)
-
-            if p.user_id == user_id:
-                is_joined = True
+    active_players, is_joined = _get_match_players_info(db, match, user_id)
 
     return {
         "status": "success",
         "current_roster": len(active_players),
         "player_list": active_players,
-        "is_joined": is_joined # Add is_joined to the response
+        "is_joined": is_joined
     }
 
 @router.post("/{match_id}/toggle-cancel")
@@ -177,10 +175,10 @@ async def toggle_cancel(match_id: str, user: dict = Depends(decode_access_token)
     if not match:
         raise HTTPException(status_code=404, detail="Match not found")
 
-    if match.host_id != user_id: # Changed user["id"] to user["sub"] for consistency
+    if match.host_id != user_id:
         raise HTTPException(status_code=403, detail="Only the host can cancel this match")
 
-    # The Python way to invert a boolean
     match.is_cancelled = not match.is_cancelled
     db.commit()
+    db.refresh(match) # Refresh to ensure the latest state is reflected
     return {"status": "success", "is_cancelled": match.is_cancelled}
