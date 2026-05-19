@@ -124,7 +124,7 @@ public struct MatchDetailsView<T: MatchDetailsViewModelProtocol>: View {
                                             .progressViewStyle(.circular)
                                             .tint(match.is_cancelled ? Assets.theme.primaryAccent : .red)
                                     } else {
-                                        Label(match.is_cancelled ? "Uncancel" : "Cancel", systemImage: match.is_cancelled ? "checkmark.octagon.fill" : "xmark.octagon.fill")
+                                        Label(match.is_cancelled ? "Uncancel" : "Cancel", systemImage: match.is_cancelled ? "arrow.uturn.backward.circle.fill" : "xmark.octagon.fill")
                                             .frame(maxWidth: .infinity)
                                     }
                                 }
@@ -202,3 +202,4 @@ private extension MatchDetailsView {
         return formatter
     }
 }
+

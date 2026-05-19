@@ -50,7 +50,7 @@ public class NavigationRouter: ObservableObject {
     }
     
     public func loginSuccess() {
-        self.sheet = nil // Close the registration/login sheet
+        self.sheet = nil 
         self.isAuthenticated = true
         self.path = NavigationPath()
         

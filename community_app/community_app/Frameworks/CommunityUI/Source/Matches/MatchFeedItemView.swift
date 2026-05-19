@@ -27,11 +27,18 @@ struct MatchFeedItemView: View {
         formatter.formatOptions = [.withInternetDateTime, .withDashSeparatorInDate, .withColonSeparatorInTime]
         return formatter
     }()
+
+    private var shadowColor: Color {
+        if match.is_cancelled {
+            return .red.opacity(0.3)
+        } else if match.is_joined {
+            return .green.opacity(0.3)
+        } else {
+            return Assets.theme.primaryText.opacity(0.1)
+        }
+    }
     
     var body: some View {
-        // Wrap the entire content of the match item in a NavigationLink
-        // The destination is the new MatchDetailsView, passing the current match
-        // Use the 'value' initializer for NavigationLink to leverage NavigationStack's navigationDestination
         NavigationLink(value: Destination.detail(match_id: match.match_id)) {
             VStack(alignment: .leading, spacing: 8) {
                 // Match Title
@@ -75,15 +82,15 @@ struct MatchFeedItemView: View {
                             .foregroundColor(Assets.theme.primaryAccent)
                     }
                     if match.is_joined {
-                        Label("Joined", systemImage: "person.badge.checkmark.fill") // A clear icon for joined status
+                        Label("Joined", systemImage: "checkmark.circle.fill")
                             .font(.caption)
-                            .foregroundColor(Assets.theme.primaryAccent) // Use accent color for positive status
+                            .foregroundColor(Assets.theme.primaryAccent) 
                     }
                     Spacer()
                     if match.is_cancelled {
                         Label("Cancelled", systemImage: "xmark.circle.fill")
                             .font(.caption)
-                            .foregroundColor(.red) // Standard red for cancelled
+                            .foregroundColor(.red)
                     }
                 }
                 .padding(.top, 4)
@@ -107,7 +114,7 @@ struct MatchFeedItemView: View {
             .padding()
             .background(Assets.theme.inputBackground)
             .cornerRadius(15)
-            .shadow(color: Assets.theme.primaryText.opacity(0.1), radius: 5, x: 0, y: 2)
+            .shadow(color: shadowColor, radius: 5, x: 0, y: 2) // Dynamically set shadow color
             .contentShape(Rectangle())
         }
         .buttonStyle(PlainButtonStyle())
@@ -120,3 +127,4 @@ struct MatchFeedItemView: View {
         return "Unknown Date"
     }
 }
+
