@@ -45,6 +45,10 @@ public final class DashboardViewModel: DashboardViewModelProtocol {
     }
     
     public func matchFeed() {
+        if state == .loading {
+            return
+        }
+        
         fetchTask?.cancel()
         state = .loading
         fetchTask = Task {

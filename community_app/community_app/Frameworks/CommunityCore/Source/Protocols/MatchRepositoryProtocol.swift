@@ -13,9 +13,16 @@ public protocol MatchRepositoryProtocol: Sendable {
 
     func getMatches() async throws -> Matches
     func createMatch(_ createMatchRequest: CreateMatchRequest) async throws -> CreateMatchResponse
+    func getMatch(_ matchRequest: MatchDetailRequest) async throws -> MatchDetailResponse
+    func toggleParticipation(_ matchRequest: MatchDetailRequest) async throws -> ParticipationResponse
+    func toggleMatch(_ matchRequest: MatchDetailRequest) async throws -> CancellationResponse
 }
 
 public protocol MatchUseCaseProtocol: Sendable {
     func userRelatedMatches() async throws -> Matches
     func userCreateMatch(_ request: CreateMatchRequest) async throws -> CreateMatchResponse
+    func matchDetail(_ request: MatchDetailRequest) async throws -> MatchDetailResponse
+    func toggleParticipation(_ matchRequest: MatchDetailRequest) async throws -> ParticipationResponse
+    func toggleCancellation(_ matchRequest: MatchDetailRequest) async throws -> CancellationResponse
+
 }

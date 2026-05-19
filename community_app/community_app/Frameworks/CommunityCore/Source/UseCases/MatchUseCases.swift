@@ -37,4 +37,31 @@ public final class MatchUseCases: MatchUseCaseProtocol {
         }
     }
     
+    public func matchDetail(_ request: MatchDetailRequest) async throws -> MatchDetailResponse {
+        do {
+            let matchDetailResponse = try await match.getMatch(request)
+            return (matchDetailResponse)
+        } catch {
+            throw error
+        }
+    }
+    
+    public func toggleParticipation(_ request: MatchDetailRequest) async throws -> ParticipationResponse {
+        do {
+            let participationResponse = try await match.toggleParticipation(request)
+            return (participationResponse)
+        } catch {
+            throw error
+        }
+    }
+    
+    public func toggleCancellation(_ request: MatchDetailRequest) async throws -> CancellationResponse {
+        do {
+            let participationResponse = try await match.toggleMatch(request)
+            return (participationResponse)
+        } catch {
+            throw error
+        }
+    }
+    
 }

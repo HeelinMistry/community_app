@@ -37,12 +37,15 @@ enum CommunityEndpoint: APIEndpoint {
     
     case matches
     case createMatch(_ createMatchRequest: CreateMatchRequest)
+    case matchDetail(_ matchDetailRequest: MatchDetailRequest)
+    case toggleParticipation(_ matchDetailRequest: MatchDetailRequest)
+    case toggleCancel(_ matchDetailRequest: MatchDetailRequest)
     
     /// The HTTP method for all OpenWeatherMap endpoints, which is GET.
     var method: HTTPMethod {
         switch self {
-        case .matches: return .get
-        case .login, .register, .createMatch
+        case .matches, .matchDetail: return .get
+        case .login, .register, .createMatch, .toggleParticipation, .toggleCancel
             : return .post
         }
     }
@@ -54,6 +57,9 @@ enum CommunityEndpoint: APIEndpoint {
         case .register: return "api/v1/auth/register"
         case .matches: return "api/v1/matches"
         case .createMatch: return "api/v1/matches/create"
+        case .matchDetail(let request): return "api/v1/matches/\(request.match_id)"
+        case .toggleParticipation(let request): return "api/v1/matches/\(request.match_id)/toggle-join"
+        case .toggleCancel(let request): return "api/v1/matches/\(request.match_id)/toggle-cancel"
         }
     }
     
@@ -63,7 +69,10 @@ enum CommunityEndpoint: APIEndpoint {
         case .login,
                 .register,
                 .matches,
-                .createMatch:
+                .createMatch,
+                .matchDetail,
+                .toggleParticipation,
+                .toggleCancel:
             return []
         }
     }
