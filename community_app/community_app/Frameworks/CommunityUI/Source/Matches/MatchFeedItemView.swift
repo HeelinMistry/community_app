@@ -89,14 +89,17 @@ struct MatchFeedItemView: View {
                 .padding(.top, 4)
                 
                 HStack {
-                    Button {
-                        // Action for sharing
-                    } label: {
-                        Label("Share", systemImage: "square.and.arrow.up")
+                    ShareLink(
+                        item: URL(string: "community-app://com.mistcreation.community-app/match/\(match.match_id)")!,
+                        subject: Text("Match Invitation")
+                    ) {
+                        Label("Share Match", systemImage: "square.and.arrow.up")
+                            .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.bordered)
                     .controlSize(.large)
                     .tint(Assets.theme.secondaryText)
+                    .padding(.top, 8)
                 }
                 .padding(.top, 8)
                 .padding(.horizontal)
