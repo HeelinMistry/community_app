@@ -11,12 +11,13 @@ import CommunityCore
 
 @MainActor
 public protocol MatchDetailsViewModelProtocol: StateDrivenViewModel where DataType == MatchDetailResponse {
+    var matchURL: URL { get }
     var matchDetailResponse: MatchDetailResponse? { get }
     var isTogglingParticipation: Bool { get }
     var isTogglingCancellation: Bool { get }
     func matchDetail()
-    func toggle_match_participation()
-    func toggle_match_cancellation()
+    func toggleMatchParticipation()
+    func toggleMatchCancellation()
 }
 
 @MainActor
@@ -25,15 +26,17 @@ public final class MatchDetailsViewModel: MatchDetailsViewModelProtocol {
     @Published public private(set) var isTogglingParticipation: Bool = false
     @Published public private(set) var isTogglingCancellation: Bool = false
     @Published public private(set) var matchDetailResponse: MatchDetailResponse?
-
+    
+    public var matchURL: URL
+    
     private let match_id: String
-
+    
     private let router: NavigationRouter
     private let useCases: any MatchUseCasesProvider
     private var fetchTask: Task<Void, Never>?
-
+    
     private var cancellables = Set<AnyCancellable>()
-
+    
     public init(
         useCases: any MatchUseCasesProvider,
         router: NavigationRouter,
@@ -42,15 +45,15 @@ public final class MatchDetailsViewModel: MatchDetailsViewModelProtocol {
         self.useCases = useCases
         self.router = router
         self.match_id = match_id
-        // Automatically fetch match details when the ViewModel is initialized
-        matchDetail()
+        
+        self.matchURL = URL(string: "community-app://com.mistcreation.community-app/match/\(match_id)")!
     }
-
+    
     public func matchDetail() {
         if state == .loading {
             return
         }
-
+        
         fetchTask?.cancel()
         state = .loading
         fetchTask = Task {
@@ -69,16 +72,16 @@ public final class MatchDetailsViewModel: MatchDetailsViewModelProtocol {
             }
         }
     }
-
-    public func toggle_match_participation() {
+    
+    public func toggleMatchParticipation() {
         guard !isTogglingParticipation else { return }
-
+        
         if var currentMatchDetail = self.matchDetailResponse {
             isTogglingParticipation = true
             fetchTask?.cancel()
             fetchTask = Task {
                 defer { isTogglingParticipation = false }
-
+                
                 do {
                     let participationResponse: ParticipationResponse = try await useCases.matches.toggleParticipation(.init(match_id))
                     if !Task.isCancelled {
@@ -96,16 +99,16 @@ public final class MatchDetailsViewModel: MatchDetailsViewModelProtocol {
             }
         }
     }
-
-    public func toggle_match_cancellation() {
+    
+    public func toggleMatchCancellation() {
         guard !isTogglingCancellation else { return }
-
+        
         if var currentMatchDetail = self.matchDetailResponse {
             isTogglingCancellation = true
             fetchTask?.cancel()
             fetchTask = Task {
                 defer { isTogglingCancellation = false }
-
+                
                 do {
                     let cancellationResponse: CancellationResponse = try await useCases.matches.toggleCancellation(.init(match_id))
                     if !Task.isCancelled {

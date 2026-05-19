@@ -98,7 +98,7 @@ public struct MatchDetailsView<T: MatchDetailsViewModelProtocol>: View {
                         // MARK: - Action Buttons
                         HStack {
                             Button {
-                                viewModel.toggle_match_participation()
+                                viewModel.toggleMatchParticipation()
                             } label: {
                                 if viewModel.isTogglingParticipation {
                                     ProgressView()
@@ -117,7 +117,7 @@ public struct MatchDetailsView<T: MatchDetailsViewModelProtocol>: View {
                             // Host-specific button for cancelling/uncancelling
                             if match.is_host {
                                 Button {
-                                    viewModel.toggle_match_cancellation()
+                                    viewModel.toggleMatchCancellation()
                                 } label: {
                                     if viewModel.isTogglingCancellation {
                                         ProgressView()
@@ -135,32 +135,15 @@ public struct MatchDetailsView<T: MatchDetailsViewModelProtocol>: View {
                             }
                         }
                         .padding(.top, 16)
-                        
-                        // Share button - using ShareLink for iOS 16+ for a standard approach
-                        if #available(iOS 16.0, *) {
-                            ShareLink(item: "Check out this match: \(match.title) at \(match.location) on \(formatDate(match.start_datetime))!", subject: Text("Match Invitation"), message: Text("Join me for \(match.sport) at \(match.location)!")) {
-                                Label("Share Match", systemImage: "square.and.arrow.up")
-                                    .frame(maxWidth: .infinity)
-                            }
-                            .buttonStyle(.bordered)
-                            .controlSize(.large)
-                            .tint(Assets.theme.secondaryText)
-                            .padding(.top, 8)
-                        } else {
-                            // Fallback for older iOS versions
-                            Button {
-                                // Action for sharing (e.g., UIActivityViewController)
-                            } label: {
-                                Label("Share Match", systemImage: "square.and.arrow.up")
-                                    .frame(maxWidth: .infinity)
-                            }
-                            .buttonStyle(.bordered)
-                            .controlSize(.large)
-                            .tint(Assets.theme.secondaryText)
-                            .padding(.top, 8)
+                        ShareLink(item: viewModel.matchURL, subject: Text("Match Invitation")) {
+                            Label("Share Match", systemImage: "square.and.arrow.up")
+                                .frame(maxWidth: .infinity)
                         }
-
-                    } // End of main content stack
+                        .buttonStyle(.bordered)
+                        .controlSize(.large)
+                        .tint(Assets.theme.secondaryText)
+                        .padding(.top, 8)
+                    }
                 case .error(let message):
                     Text("Error: \(message)")
                         .foregroundColor(.red)
