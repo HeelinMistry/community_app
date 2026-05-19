@@ -47,7 +47,7 @@ async def get_matches(
                 "is_host": is_host,
                 "is_cancelled": m.is_cancelled,
                 "is_joined": is_joined,
-                "joined": len(m.players),
+                "joined": len([p for p in m.players if p.status == "confirmed"]),
                 "roster_size": m.roster_size
             })
     return user_matches[::-1]
