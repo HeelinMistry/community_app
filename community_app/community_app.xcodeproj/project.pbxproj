@@ -96,6 +96,9 @@
 		F33CDD7D2FBC271700728789 /* CommunityCore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CommunityCore.xcodeproj; sourceTree = "<group>"; };
 		F33CDD9C2FBC271700728789 /* CommunityData.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CommunityData.xcodeproj; sourceTree = "<group>"; };
 		F33CDDD22FBC271700728789 /* CommunityUI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CommunityUI.xcodeproj; sourceTree = "<group>"; };
+		F33CDF842FBC904800728789 /* CommunityCore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CommunityCore.xcodeproj; sourceTree = "<group>"; };
+		F33CDFA32FBC904800728789 /* CommunityData.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CommunityData.xcodeproj; sourceTree = "<group>"; };
+		F33CDFD92FBC904800728789 /* CommunityUI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CommunityUI.xcodeproj; sourceTree = "<group>"; };
 		F344278C2F9F52F0007CD99D /* UI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = UI.xcodeproj; sourceTree = "<group>"; };
 		F344281C2F9F54AD007CD99D /* Core.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = Core.xcodeproj; sourceTree = "<group>"; };
 		F34428832F9F5F2A007CD99D /* CommunityData.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = CommunityData.xcodeproj; path = community_app/Frameworks/CommunityData/CommunityData.xcodeproj; sourceTree = "<group>"; };
@@ -173,7 +176,6 @@
 		F344286C2F9F5E5C007CD99D /* Exceptions for "community_app" folder in "community_app" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				"community-app-Info.plist",
 				Frameworks/CommunityCore/CommunityCoreTests/MockRepositories/AuthRepositoryMock.swift,
 				Frameworks/CommunityCore/CommunityCoreTests/MockRepositories/MatchRepositoryMock.swift,
 				Frameworks/CommunityCore/CommunityCoreTests/UseCases/AuthUseCasesTests.swift,
@@ -374,6 +376,27 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		F33CDFDD2FBC904800728789 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F33CDFDF2FBC904800728789 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F33CDFE12FBC904800728789 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		F344278F2F9F52F0007CD99D /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -530,7 +553,6 @@
 				F34428832F9F5F2A007CD99D /* CommunityData.xcodeproj */,
 				F3ECC8032F9D1B530015F1BB /* community_app.xctestplan */,
 				F3A0CD3D2F90EA2600B052F7 /* community_app */,
-				F3A0CD802F90EB3E00B052F7 /* Frameworks */,
 				F3A0CD3C2F90EA2600B052F7 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -542,13 +564,6 @@
 				F3A0CD482F90EA2700B052F7 /* community_appTests.xctest */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		F3A0CD802F90EB3E00B052F7 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Frameworks;
 			sourceTree = "<group>";
 		};
 		F3DDFA372FACD197000DE75A /* Products */ = {
@@ -862,6 +877,10 @@
 					ProjectRef = F3EB98942FA0C72F00C04747 /* CommunityCore.xcodeproj */;
 				},
 				{
+					ProductGroup = F33CDFE12FBC904800728789 /* Products */;
+					ProjectRef = F33CDF842FBC904800728789 /* CommunityCore.xcodeproj */;
+				},
+				{
 					ProductGroup = F3FAEE622FA3360B00869628 /* Products */;
 					ProjectRef = F3FAEE262FA3360B00869628 /* CommunityCore.xcodeproj */;
 				},
@@ -880,6 +899,10 @@
 				{
 					ProductGroup = F39689812FA3EA58005BE3CD /* Products */;
 					ProjectRef = F39689572FA3EA58005BE3CD /* CommunityData.xcodeproj */;
+				},
+				{
+					ProductGroup = F33CDFDF2FBC904800728789 /* Products */;
+					ProjectRef = F33CDFA32FBC904800728789 /* CommunityData.xcodeproj */;
 				},
 				{
 					ProductGroup = F39223442FADCC8000327CC7 /* Products */;
@@ -1024,6 +1047,10 @@
 				{
 					ProductGroup = F3057C2B2FA011E6007297CC /* Products */;
 					ProjectRef = F3057C242FA011E6007297CC /* CommunityUI.xcodeproj */;
+				},
+				{
+					ProductGroup = F33CDFDD2FBC904800728789 /* Products */;
+					ProjectRef = F33CDFD92FBC904800728789 /* CommunityUI.xcodeproj */;
 				},
 				{
 					ProductGroup = F3EB98C52FA0C72F00C04747 /* Products */;

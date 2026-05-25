@@ -8,10 +8,14 @@
 import SwiftUI
 import Foundation
 import CommunityCore
+import MapKit
 
 public struct MatchDetailsView<T: MatchDetailsViewModelProtocol>: View {
     @EnvironmentObject private var router: NavigationRouter
     @StateObject private var viewModel: T
+    
+    // State to control the map's camera position
+    @State private var mapCameraPosition: MapCameraPosition = .automatic
 
     public init(viewModel: @escaping @autoclosure () -> T) {
         _viewModel = StateObject(wrappedValue: viewModel())
@@ -42,6 +46,41 @@ public struct MatchDetailsView<T: MatchDetailsViewModelProtocol>: View {
                         MatchDetailRow(label: "Players", value: "\(match.current_roster) / \(match.roster_size) players joined", systemImage: "person.3.fill")
 
                         Divider()
+                        
+                        // MARK: - Map View for Location
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text("Match Location")
+                                .font(.headline)
+                                .foregroundColor(Assets.theme.secondaryText)
+                            
+                            // Check if coordinates are valid before showing map
+                            if match.latitude != 0.0 || match.longitude != 0.0 {
+                                Map(position: $mapCameraPosition) {
+                                    Marker(match.location, coordinate: CLLocationCoordinate2D(latitude: match.latitude, longitude: match.longitude))
+                                }
+                                .frame(height: 200)
+                                .cornerRadius(12)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                                )
+                                .onAppear {
+                                    // Set the map camera position when the view appears and match data is available
+                                    mapCameraPosition = .region(MKCoordinateRegion(
+                                        center: CLLocationCoordinate2D(latitude: match.latitude, longitude: match.longitude),
+                                        span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01) // Zoom level
+                                    ))
+                                }
+                            } else {
+                                Text("Location coordinates not available.")
+                                    .font(.subheadline)
+                                    .foregroundColor(Assets.theme.secondaryText.opacity(0.7))
+                                    .padding(.top, 4)
+                            }
+                        }
+                        
+                        Divider()
+
 
                         // MARK: - Status Indicators
                         VStack(alignment: .leading, spacing: 8) {
@@ -202,4 +241,3 @@ private extension MatchDetailsView {
         return formatter
     }
 }
-
