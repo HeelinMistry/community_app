@@ -9,6 +9,7 @@ import SwiftUI
 import Foundation
 import CommunityCore
 import MapKit
+import CoreLocation // Import CoreLocation for user location
 
 public struct MatchDetailsView<T: MatchDetailsViewModelProtocol>: View {
     @EnvironmentObject private var router: NavigationRouter
@@ -16,6 +17,8 @@ public struct MatchDetailsView<T: MatchDetailsViewModelProtocol>: View {
     
     // State to control the map's camera position
     @State private var mapCameraPosition: MapCameraPosition = .automatic
+    // State object to manage user's location
+    @StateObject private var locationManager = LocationManager() // Initialize LocationManager
 
     public init(viewModel: @escaping @autoclosure () -> T) {
         _viewModel = StateObject(wrappedValue: viewModel())
@@ -42,6 +45,32 @@ public struct MatchDetailsView<T: MatchDetailsViewModelProtocol>: View {
 
                         MatchDetailRow(label: "Date & Time", value: formatDate(match.start_datetime), systemImage: "calendar")
                         MatchDetailRow(label: "Location", value: match.location, systemImage: "location.fill")
+                        
+                        // MARK: - Distance from User
+                        if let userLocation = locationManager.lastKnownLocation,
+                           match.latitude != 0.0 || match.longitude != 0.0 { // Check for valid match coordinates
+                            let matchCLLocation = CLLocation(latitude: match.latitude, longitude: match.longitude)
+                            MatchDetailRow(label: "Distance from you", value: formattedDistance(from: userLocation, to: matchCLLocation), systemImage: "figure.walk.circle.fill")
+                        } else {
+                            // Only show if location permission is not determined or denied
+                            if locationManager.authorizationStatus == .denied || locationManager.authorizationStatus == .restricted {
+                                Text("Location access denied. Please enable in Settings to see distance.")
+                                    .font(.subheadline)
+                                    .foregroundColor(.red)
+                                    .padding(.leading)
+                            } else if locationManager.authorizationStatus == .notDetermined {
+                                Text("Waiting for location permission...")
+                                    .font(.subheadline)
+                                    .foregroundColor(Assets.theme.secondaryText.opacity(0.7))
+                                    .padding(.leading)
+                            } else if locationManager.lastKnownLocation == nil {
+                                Text("Getting your location...")
+                                    .font(.subheadline)
+                                    .foregroundColor(Assets.theme.secondaryText.opacity(0.7))
+                                    .padding(.leading)
+                            }
+                        }
+                        
                         MatchDetailRow(label: "Cost", value: match.cost, systemImage: "tag.fill")
                         MatchDetailRow(label: "Players", value: "\(match.current_roster) / \(match.roster_size) players joined", systemImage: "person.3.fill")
 
@@ -80,7 +109,6 @@ public struct MatchDetailsView<T: MatchDetailsViewModelProtocol>: View {
                         }
                         
                         Divider()
-
 
                         // MARK: - Status Indicators
                         VStack(alignment: .leading, spacing: 8) {
@@ -196,6 +224,8 @@ public struct MatchDetailsView<T: MatchDetailsViewModelProtocol>: View {
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             viewModel.matchDetail() // Trigger data fetch when view appears
+            locationManager.requestLocationAuthorization() // Request location permission (if not already determined)
+            // locationManager.requestLocation() // Removed here, will be called by didSet in LocationManager
         }
     }
 
@@ -222,6 +252,19 @@ public struct MatchDetailsView<T: MatchDetailsViewModelProtocol>: View {
             return Self.dateFormatter.string(from: date)
         }
         return "Unknown Date"
+    }
+    
+    // Helper function to calculate and format distance
+    private func formattedDistance(from userLocation: CLLocation, to matchLocation: CLLocation) -> String {
+        let distanceInMeters = userLocation.distance(from: matchLocation)
+        let distanceMeasurement = Measurement(value: distanceInMeters, unit: UnitLength.meters)
+        
+        let formatter = MeasurementFormatter()
+        formatter.unitStyle = .long
+        formatter.unitOptions = .providedUnit
+        formatter.numberFormatter.maximumFractionDigits = 1 // Limit decimal places
+        
+        return formatter.string(from: distanceMeasurement)
     }
 }
 

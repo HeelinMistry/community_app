@@ -106,6 +106,9 @@
 		F3637B282FB491C700158B05 /* CommunityCore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CommunityCore.xcodeproj; sourceTree = "<group>"; };
 		F3637B472FB491C700158B05 /* CommunityData.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CommunityData.xcodeproj; sourceTree = "<group>"; };
 		F3637B7A2FB491C700158B05 /* CommunityUI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CommunityUI.xcodeproj; sourceTree = "<group>"; };
+		F36611602FC4294800C3CEEF /* CommunityCore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CommunityCore.xcodeproj; sourceTree = "<group>"; };
+		F366117F2FC4294800C3CEEF /* CommunityData.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CommunityData.xcodeproj; sourceTree = "<group>"; };
+		F36611B52FC4294800C3CEEF /* CommunityUI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CommunityUI.xcodeproj; sourceTree = "<group>"; };
 		F37844542FA5346200CE581F /* CommunityCore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CommunityCore.xcodeproj; sourceTree = "<group>"; };
 		F37844712FA5346200CE581F /* CommunityData.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CommunityData.xcodeproj; sourceTree = "<group>"; };
 		F378449C2FA5346200CE581F /* CommunityUI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CommunityUI.xcodeproj; sourceTree = "<group>"; };
@@ -441,6 +444,27 @@
 			sourceTree = "<group>";
 		};
 		F3637B812FB491C700158B05 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F36611B92FC4294800C3CEEF /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F36611BB2FC4294800C3CEEF /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F36611BD2FC4294800C3CEEF /* Products */ = {
 			isa = PBXGroup;
 			children = (
 			);
@@ -837,6 +861,10 @@
 					ProjectRef = F37844542FA5346200CE581F /* CommunityCore.xcodeproj */;
 				},
 				{
+					ProductGroup = F36611B92FC4294800C3CEEF /* Products */;
+					ProjectRef = F36611602FC4294800C3CEEF /* CommunityCore.xcodeproj */;
+				},
+				{
 					ProductGroup = F3EB99FC2FA0DA6000C04747 /* Products */;
 					ProjectRef = F3EB99C62FA0DA6000C04747 /* CommunityCore.xcodeproj */;
 				},
@@ -895,6 +923,10 @@
 				{
 					ProductGroup = F3057A2C2FA00D0A007297CC /* Products */;
 					ProjectRef = F30579FA2FA00D0A007297CC /* CommunityCore.xcodeproj */;
+				},
+				{
+					ProductGroup = F36611BB2FC4294800C3CEEF /* Products */;
+					ProjectRef = F366117F2FC4294800C3CEEF /* CommunityData.xcodeproj */;
 				},
 				{
 					ProductGroup = F39689812FA3EA58005BE3CD /* Products */;
@@ -1003,6 +1035,10 @@
 				{
 					ProductGroup = F32765E92F9F7700003BC9A8 /* Products */;
 					ProjectRef = F32765E72F9F7700003BC9A8 /* CommunityUI.xcodeproj */;
+				},
+				{
+					ProductGroup = F36611BD2FC4294800C3CEEF /* Products */;
+					ProjectRef = F36611B52FC4294800C3CEEF /* CommunityUI.xcodeproj */;
 				},
 				{
 					ProductGroup = F3DF4AFB2FA5414800FEC2A8 /* Products */;
@@ -1321,6 +1357,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "community-app-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = QuickPass;
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Allow me";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -1362,6 +1399,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "community-app-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = QuickPass;
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Allow me";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
