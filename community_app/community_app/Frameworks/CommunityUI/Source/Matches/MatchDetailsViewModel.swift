@@ -9,6 +9,7 @@ import Combine
 import Foundation
 import CommunityCore
 import CoreLocation
+import MapKit
 
 @MainActor
 public protocol MatchDetailsViewModelProtocol: StateDrivenViewModel where DataType == MatchDetailResponse {
@@ -23,6 +24,7 @@ public protocol MatchDetailsViewModelProtocol: StateDrivenViewModel where DataTy
     func toggleMatchParticipation()
     func toggleMatchCancellation()
     func requestLocationAuthorization() async
+    func showDirectionsOnMap()
 }
 
 @MainActor
@@ -150,4 +152,30 @@ public final class MatchDetailsViewModel: MatchDetailsViewModelProtocol {
         }
     }
 
+    public func showDirectionsOnMap() {
+        guard let lastKnownLocation = lastKnownLocation else {
+            self.state = .error("Your current location is not available to show directions. Please enable location services and try again.")
+            return
+        }
+        
+        guard let matchDetail = matchDetailResponse else {
+            self.state = .error("Match details are not available to show directions. Please ensure match data is loaded.")
+            return
+        }
+    
+        let destinationCoordinate = CLLocationCoordinate2D(latitude: matchDetail.latitude, longitude: matchDetail.longitude)
+        
+        let sourcePlacemark = MKPlacemark(coordinate: lastKnownLocation.coordinate)
+        let destinationPlacemark = MKPlacemark(coordinate: destinationCoordinate)
+        
+        let sourceMapItem = MKMapItem(placemark: sourcePlacemark)
+        sourceMapItem.name = "Your Location" // You can customize this name
+        
+        let destinationMapItem = MKMapItem(placemark: destinationPlacemark)
+        destinationMapItem.name = matchDetail.location // Use the match's provided location name
+        
+        let launchOptions = [MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeDriving]
+        
+        MKMapItem.openMaps(with: [sourceMapItem, destinationMapItem], launchOptions: launchOptions)
+    }
 }

@@ -93,6 +93,20 @@ public struct MatchDetailsView<T: MatchDetailsViewModelProtocol>: View {
                                         span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01) // Zoom level
                                     ))
                                 }
+
+                                // New: Button to show directions on map
+                                Button {
+                                    viewModel.showDirectionsOnMap()
+                                } label: {
+                                    Label("Get Directions", systemImage: "car.fill")
+                                        .frame(maxWidth: .infinity)
+                                }
+                                .buttonStyle(.borderedProminent)
+                                .controlSize(.large)
+                                .tint(Assets.theme.primaryAccent) 
+                                .disabled(viewModel.lastKnownLocation == nil || match.latitude == 0.0 || match.longitude == 0.0 || !viewModel.isAuthorized)
+                                .padding(.top, 8)
+
                             } else {
                                 Text("Location coordinates not available.")
                                     .font(.subheadline)
