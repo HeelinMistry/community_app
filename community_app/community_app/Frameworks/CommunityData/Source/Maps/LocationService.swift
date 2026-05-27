@@ -1,37 +1,35 @@
 //
-//  LocationManager.swift
-//  CommunityUI
+//  LocationService.swift
+//  CommunityData
 //
 //  Created by Heelin Mistry on 2026/05/26.
 //
 
 import CoreLocation
-import Foundation
-import Combine // Don't forget to import Combine for @Published
+import CommunityCore
+import Combine
 
-public final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
+/// Concrete implementation of MapSearchServiceProtocol using MKLocalSearch.
+@MainActor 
+public final class LocationService: NSObject, LocationProtocol, CLLocationManagerDelegate {
     private let locationManager = CLLocationManager()
     @Published public var lastKnownLocation: CLLocation?
     @Published public var authorizationStatus: CLAuthorizationStatus?
 
+    // Remove 'nonisolated' since the class is now @MainActor
     public override init() {
-        super.init()
+        super.init() // Call super.init() first to fix the error
         locationManager.delegate = self
-        locationManager.desiredAccuracy = kCLLocationAccuracyReduced // Good for general location, less battery intensive
+        locationManager.desiredAccuracy = kCLLocationAccuracyReduced
     }
 
-    public func requestLocationAuthorization() {
-        locationManager.requestWhenInUseAuthorization()
-    }
-
-    public func requestLocation() {
-        // Request a one-time location update.
-        // If you need continuous updates, use locationManager.startUpdatingLocation()
-        // and remember to stop it with locationManager.stopUpdatingLocation() when no longer needed.
+    public func lastKnownLocation() async throws {
         locationManager.requestLocation()
     }
 
-    // MARK: - CLLocationManagerDelegate
+    public func requestLocationAuthorization() async throws {
+        locationManager.requestWhenInUseAuthorization()
+    }
 
     public func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         authorizationStatus = manager.authorizationStatus
@@ -52,10 +50,12 @@ public final class LocationManager: NSObject, ObservableObject, CLLocationManage
         guard let location = locations.last else { return }
         lastKnownLocation = location
         // If you only need a single update, you can stop updates here:
-        // manager.stopUpdatingLocation()
+         manager.stopUpdatingLocation()
     }
 
+    // Crucial: Implement the didFailWithError delegate method for robust error handling.
     public func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        print("Failed to get location: \(error.localizedDescription)")
+        print("Location manager failed with error: \(error.localizedDescription)")
+        // You might want to update a published property here to notify about location errors.
     }
 }

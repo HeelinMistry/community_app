@@ -8,6 +8,7 @@
 import Combine
 import Foundation
 import CommunityCore
+import CoreLocation
 
 @MainActor
 public protocol MatchDetailsViewModelProtocol: StateDrivenViewModel where DataType == MatchDetailResponse {
@@ -15,13 +16,18 @@ public protocol MatchDetailsViewModelProtocol: StateDrivenViewModel where DataTy
     var matchDetailResponse: MatchDetailResponse? { get }
     var isTogglingParticipation: Bool { get }
     var isTogglingCancellation: Bool { get }
+    var lastKnownLocation: CLLocation? { get }
+    var isAuthorized: Bool { get }
+    
     func matchDetail()
     func toggleMatchParticipation()
     func toggleMatchCancellation()
+    func requestLocationAuthorization() async
 }
 
 @MainActor
 public final class MatchDetailsViewModel: MatchDetailsViewModelProtocol {
+    
     @Published public private(set) var state: ViewState<MatchDetailResponse> = .idle
     @Published public private(set) var isTogglingParticipation: Bool = false
     @Published public private(set) var isTogglingCancellation: Bool = false
@@ -33,6 +39,7 @@ public final class MatchDetailsViewModel: MatchDetailsViewModelProtocol {
     
     private let router: NavigationRouter
     private let useCases: any MatchUseCasesProvider
+    private let locationService: LocationProtocol
     private var fetchTask: Task<Void, Never>?
     
     private var cancellables = Set<AnyCancellable>()
@@ -40,11 +47,13 @@ public final class MatchDetailsViewModel: MatchDetailsViewModelProtocol {
     public init(
         useCases: any MatchUseCasesProvider,
         router: NavigationRouter,
-        match_id: String
+        match_id: String,
+        locationService: LocationProtocol
     ) {
         self.useCases = useCases
         self.router = router
         self.match_id = match_id
+        self.locationService = locationService
         
         self.matchURL = URL(string: "community-app://com.mistcreation.community-app/match/\(match_id)")!
     }
@@ -124,4 +133,21 @@ public final class MatchDetailsViewModel: MatchDetailsViewModelProtocol {
             }
         }
     }
+    
+    public var lastKnownLocation: CLLocation? {
+        locationService.lastKnownLocation
+    }
+    
+    public var isAuthorized: Bool {
+        locationService.authorizationStatus == .authorizedAlways || locationService.authorizationStatus == .authorizedWhenInUse
+    }
+    
+    public func requestLocationAuthorization() async {
+        do {
+            try await locationService.requestLocationAuthorization()
+        } catch {
+            state = .error(error.localizedDescription)
+        }
+    }
+
 }

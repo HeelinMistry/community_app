@@ -7,6 +7,7 @@
 
 import XCTest
 import Combine
+import CoreLocation // Import CoreLocation for CLLocation and CLAuthorizationStatus
 @testable import CommunityUI
 @testable import CommunityCore
 
@@ -15,20 +16,25 @@ final class MatchDetailsViewModelTests: XCTestCase {
     private var sut: MatchDetailsViewModel!
     private var mockRouter: NavigationRouter!
     private var mockProvider: MatchUseCasesProviderMock!
+    private var mocklocation: LocationServiceMock!
     private var cancellables: Set<AnyCancellable>!
     
     override func setUp() {
         super.setUp()
         mockProvider = .init()
         mockRouter = .init()
+        // Initialize mocklocation with default values for each test,
+        // or specific values as required by individual tests.
+        mocklocation = .init(authorizationStatus: .notDetermined, lastKnownLocation: nil)
         cancellables = []
-        sut = .init(useCases: mockProvider, router: mockRouter, match_id: "test_match_id_123")
+        sut = .init(useCases: mockProvider, router: mockRouter, match_id: "test_match_id_123", locationService: mocklocation)
     }
     
     override func tearDown() {
         sut = nil
         mockRouter = nil
         mockProvider = nil
+        mocklocation = nil
         cancellables = nil // Release cancellables
         super.tearDown()
     }
@@ -208,6 +214,107 @@ final class MatchDetailsViewModelTests: XCTestCase {
             XCTAssertEqual(message, errorMessage, "Expected the error message to match.")
         } else {
             XCTFail("Expected .error state after toggle_match_cancellation() failed, but got \(sut.state)")
+        }
+    }
+
+    // MARK: - Location Service Tests
+
+    func testLastKnownLocation_ReturnsLocationFromService() {
+        // Arrange
+        let expectedLocation = CLLocation(latitude: 34.0522, longitude: -118.2437) // Los Angeles
+        mocklocation.lastKnownLocation = expectedLocation
+
+        // Act & Assert
+        XCTAssertEqual(sut.lastKnownLocation, expectedLocation, "The lastKnownLocation should be retrieved from the location service.")
+    }
+
+    func testLastKnownLocation_ReturnsNilWhenServiceHasNoLocation() {
+        // Arrange
+        mocklocation.lastKnownLocation = nil
+
+        // Act & Assert
+        XCTAssertNil(sut.lastKnownLocation, "The lastKnownLocation should be nil if the location service has no location.")
+    }
+
+    func testIsAuthorized_WhenAuthorizedAlways_ReturnsTrue() {
+        // Arrange
+        mocklocation.authorizationStatus = .authorizedAlways
+
+        // Act & Assert
+        XCTAssertTrue(sut.isAuthorized, "isAuthorized should be true when status is .authorizedAlways.")
+    }
+
+    func testIsAuthorized_WhenAuthorizedWhenInUse_ReturnsTrue() {
+        // Arrange
+        mocklocation.authorizationStatus = .authorizedWhenInUse
+
+        // Act & Assert
+        XCTAssertTrue(sut.isAuthorized, "isAuthorized should be true when status is .authorizedWhenInUse.")
+    }
+
+    func testIsAuthorized_WhenNotDetermined_ReturnsFalse() {
+        // Arrange
+        mocklocation.authorizationStatus = .notDetermined
+
+        // Act & Assert
+        XCTAssertFalse(sut.isAuthorized, "isAuthorized should be false when status is .notDetermined.")
+    }
+
+    func testIsAuthorized_WhenDenied_ReturnsFalse() {
+        // Arrange
+        mocklocation.authorizationStatus = .denied
+
+        // Act & Assert
+        XCTAssertFalse(sut.isAuthorized, "isAuthorized should be false when status is .denied.")
+    }
+    
+    func testIsAuthorized_WhenRestricted_ReturnsFalse() {
+        // Arrange
+        mocklocation.authorizationStatus = .restricted
+
+        // Act & Assert
+        XCTAssertFalse(sut.isAuthorized, "isAuthorized should be false when status is .restricted.")
+    }
+
+    func testRequestLocationAuthorization_WhenSuccessful_CallsServiceAndUpdatesStatus() async {
+        // Arrange
+        mocklocation.authorizationStatus = .notDetermined
+        mocklocation.requestLocationAuthorizationResult = .success(())
+
+        // Act
+        await sut.requestLocationAuthorization()
+        // Small delay to allow potential Combine publishers or Task updates to propagate,
+        // though for direct property access, it's less critical here.
+        try? await Task.sleep(nanoseconds: 10_000_000)
+
+        // Assert
+        XCTAssertEqual(mocklocation.requestLocationAuthorizationCallCount, 1, "requestLocationAuthorization should be called exactly once.")
+        // Verify the mock's internal state reflects the simulated change
+        XCTAssertEqual(mocklocation.authorizationStatus, .authorizedWhenInUse, "Location service authorization status should update to .authorizedWhenInUse after a successful request.")
+        // Also verify the ViewModel's computed property reflects this
+        XCTAssertTrue(sut.isAuthorized, "ViewModel's isAuthorized should be true after successful authorization.")
+        // ViewModel's state should remain idle/unchanged for success
+        if case .error = sut.state {
+            XCTFail("ViewModel state should not be .error on successful authorization.")
+        }
+    }
+
+    func testRequestLocationAuthorization_WhenFails_SetsErrorState() async {
+        // Arrange
+        let errorMessage = "Location authorization failed."
+        let error = NSError(domain: "LocationError", code: 1, userInfo: [NSLocalizedDescriptionKey: errorMessage])
+        mocklocation.requestLocationAuthorizationResult = .failure(error)
+
+        // Act
+        await sut.requestLocationAuthorization()
+        try? await Task.sleep(nanoseconds: 10_000_000)
+
+        // Assert
+        XCTAssertEqual(mocklocation.requestLocationAuthorizationCallCount, 1, "requestLocationAuthorization should be called exactly once.")
+        if case .error(let receivedMessage) = sut.state {
+            XCTAssertEqual(receivedMessage, errorMessage, "ViewModel state should be .error with the correct message.")
+        } else {
+            XCTFail("Expected .error state, but got \(sut.state)")
         }
     }
 }

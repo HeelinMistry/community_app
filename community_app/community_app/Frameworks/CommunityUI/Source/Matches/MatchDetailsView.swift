@@ -17,8 +17,6 @@ public struct MatchDetailsView<T: MatchDetailsViewModelProtocol>: View {
     
     // State to control the map's camera position
     @State private var mapCameraPosition: MapCameraPosition = .automatic
-    // State object to manage user's location
-    @StateObject private var locationManager = LocationManager() // Initialize LocationManager
 
     public init(viewModel: @escaping @autoclosure () -> T) {
         _viewModel = StateObject(wrappedValue: viewModel())
@@ -47,23 +45,18 @@ public struct MatchDetailsView<T: MatchDetailsViewModelProtocol>: View {
                         MatchDetailRow(label: "Location", value: match.location, systemImage: "location.fill")
                         
                         // MARK: - Distance from User
-                        if let userLocation = locationManager.lastKnownLocation,
+                        if let userLocation = viewModel.lastKnownLocation,
                            match.latitude != 0.0 || match.longitude != 0.0 { // Check for valid match coordinates
                             let matchCLLocation = CLLocation(latitude: match.latitude, longitude: match.longitude)
                             MatchDetailRow(label: "Distance from you", value: formattedDistance(from: userLocation, to: matchCLLocation), systemImage: "figure.walk.circle.fill")
                         } else {
                             // Only show if location permission is not determined or denied
-                            if locationManager.authorizationStatus == .denied || locationManager.authorizationStatus == .restricted {
+                            if !viewModel.isAuthorized {
                                 Text("Location access denied. Please enable in Settings to see distance.")
                                     .font(.subheadline)
                                     .foregroundColor(.red)
                                     .padding(.leading)
-                            } else if locationManager.authorizationStatus == .notDetermined {
-                                Text("Waiting for location permission...")
-                                    .font(.subheadline)
-                                    .foregroundColor(Assets.theme.secondaryText.opacity(0.7))
-                                    .padding(.leading)
-                            } else if locationManager.lastKnownLocation == nil {
+                            } else if viewModel.lastKnownLocation == nil {
                                 Text("Getting your location...")
                                     .font(.subheadline)
                                     .foregroundColor(Assets.theme.secondaryText.opacity(0.7))
@@ -223,9 +216,10 @@ public struct MatchDetailsView<T: MatchDetailsViewModelProtocol>: View {
         .navigationTitle("Match Details")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
-            viewModel.matchDetail() // Trigger data fetch when view appears
-            locationManager.requestLocationAuthorization() // Request location permission (if not already determined)
-            // locationManager.requestLocation() // Removed here, will be called by didSet in LocationManager
+            viewModel.matchDetail()
+            Task {
+                await viewModel.requestLocationAuthorization()
+            }
         }
     }
 
