@@ -11,8 +11,29 @@ import CommunityCore // Assuming LocationProtocol is in CommunityCore
 
 @MainActor
 public final class LocationServiceMock: LocationProtocol {
-    public var authorizationStatus: CLAuthorizationStatus?
-    public var lastKnownLocation: CLLocation?
+
+    // MARK: - Publishers
+    private let _authorizationStatusSubject: CurrentValueSubject<CLAuthorizationStatus?, Never>
+    public var authorizationStatusPublisher: AnyPublisher<CLAuthorizationStatus?, Never> {
+        _authorizationStatusSubject.eraseToAnyPublisher()
+    }
+
+    private let _lastKnownLocationSubject: CurrentValueSubject<CLLocation?, Never>
+    public var lastKnownLocationPublisher: AnyPublisher<CLLocation?, Never> {
+        _lastKnownLocationSubject.eraseToAnyPublisher()
+    }
+
+    // MARK: - Stored Properties with didSet to update subjects
+    public var authorizationStatus: CLAuthorizationStatus? {
+        didSet {
+            _authorizationStatusSubject.send(authorizationStatus)
+        }
+    }
+    public var lastKnownLocation: CLLocation? {
+        didSet {
+            _lastKnownLocationSubject.send(lastKnownLocation)
+        }
+    }
 
     // MARK: - Call Tracking for async methods
     public var requestLocationAuthorizationCallCount = 0
@@ -27,6 +48,8 @@ public final class LocationServiceMock: LocationProtocol {
         authorizationStatus: CLAuthorizationStatus? = .notDetermined,
         lastKnownLocation: CLLocation? = nil
     ) {
+        self._authorizationStatusSubject = CurrentValueSubject(authorizationStatus)
+        self._lastKnownLocationSubject = CurrentValueSubject(lastKnownLocation)
         self.authorizationStatus = authorizationStatus
         self.lastKnownLocation = lastKnownLocation
     }
@@ -47,14 +70,14 @@ public final class LocationServiceMock: LocationProtocol {
         }
     }
 
-    @MainActor // Explicitly mark the method as MainActor isolated
+    @MainActor
     public func requestLocationAuthorization() async throws {
         requestLocationAuthorizationCallCount += 1
         switch requestLocationAuthorizationResult {
         case .success:
             // Simulate authorization status change after request
-            if authorizationStatus == .notDetermined {
-                authorizationStatus = .authorizedWhenInUse
+            if self.authorizationStatus == .notDetermined {
+                self.authorizationStatus = .authorizedWhenInUse // This will trigger didSet
             }
             return
         case .failure(let error):

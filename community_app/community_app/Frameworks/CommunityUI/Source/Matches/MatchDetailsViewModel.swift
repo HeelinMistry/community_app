@@ -12,22 +12,6 @@ import CoreLocation
 import MapKit
 
 @MainActor
-public protocol MatchDetailsViewModelProtocol: StateDrivenViewModel where DataType == MatchDetailResponse {
-    var matchURL: URL { get }
-    var matchDetailResponse: MatchDetailResponse? { get }
-    var isTogglingParticipation: Bool { get }
-    var isTogglingCancellation: Bool { get }
-    var lastKnownLocation: CLLocation? { get }
-    var isAuthorized: Bool { get }
-    
-    func matchDetail()
-    func toggleMatchParticipation()
-    func toggleMatchCancellation()
-    func requestLocationAuthorization() async
-    func showDirectionsOnMap()
-}
-
-@MainActor
 public final class MatchDetailsViewModel: MatchDetailsViewModelProtocol {
     
     @Published public private(set) var state: ViewState<MatchDetailResponse> = .idle
@@ -35,13 +19,16 @@ public final class MatchDetailsViewModel: MatchDetailsViewModelProtocol {
     @Published public private(set) var isTogglingCancellation: Bool = false
     @Published public private(set) var matchDetailResponse: MatchDetailResponse?
     
+    @Published public private(set) var lastKnownLocation: CLLocation?
+    @Published public private(set) var isAuthorized: Bool
+    
     public var matchURL: URL
     
     private let match_id: String
     
     private let router: NavigationRouter
     private let useCases: any MatchUseCasesProvider
-    private let locationService: LocationProtocol
+    private let locationService: LocationProtocol 
     private var fetchTask: Task<Void, Never>?
     
     private var cancellables = Set<AnyCancellable>()
@@ -58,6 +45,26 @@ public final class MatchDetailsViewModel: MatchDetailsViewModelProtocol {
         self.locationService = locationService
         
         self.matchURL = URL(string: "community-app://com.mistcreation.community-app/match/\(match_id)")!
+        
+        self.lastKnownLocation = locationService.lastKnownLocation
+        self.isAuthorized = locationService.authorizationStatus == .authorizedAlways || locationService.authorizationStatus == .authorizedWhenInUse
+        
+        setupLocationObservers()
+    }
+    
+    private func setupLocationObservers() {
+        locationService.authorizationStatusPublisher
+            .sink { [weak self] status in
+                guard let self = self else { return }
+                self.isAuthorized = status == .authorizedAlways || status == .authorizedWhenInUse
+            }
+            .store(in: &cancellables)
+        
+        locationService.lastKnownLocationPublisher
+            .sink { [weak self] location in
+                self?.lastKnownLocation = location
+            }
+            .store(in: &cancellables)
     }
     
     public func matchDetail() {
@@ -134,14 +141,6 @@ public final class MatchDetailsViewModel: MatchDetailsViewModelProtocol {
                 }
             }
         }
-    }
-    
-    public var lastKnownLocation: CLLocation? {
-        locationService.lastKnownLocation
-    }
-    
-    public var isAuthorized: Bool {
-        locationService.authorizationStatus == .authorizedAlways || locationService.authorizationStatus == .authorizedWhenInUse
     }
     
     public func requestLocationAuthorization() async {

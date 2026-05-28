@@ -6,12 +6,22 @@
 //
 
 import CoreLocation
+import Combine
 
-/// Protocol for a location service, allowing for mocking in tests.
-public protocol LocationProtocol: Sendable {
+/// A protocol defining the interface for location services, including authorization status and last known location.
+public protocol LocationProtocol {
+    /// The current authorization status for location services.
     var authorizationStatus: CLAuthorizationStatus? { get }
+    /// The last known location of the device.
     var lastKnownLocation: CLLocation? { get }
     
-    func lastKnownLocation() async throws
-    func requestLocationAuthorization() async throws 
+    /// A publisher that emits changes to the authorization status for location services.
+    var authorizationStatusPublisher: AnyPublisher<CLAuthorizationStatus?, Never> { get }
+    /// A publisher that emits the last known location of the device when it changes.
+    var lastKnownLocationPublisher: AnyPublisher<CLLocation?, Never> { get }
+    
+    /// Requests authorization to use location services.
+    /// - Throws: An error if authorization cannot be requested or fails.
+    func requestLocationAuthorization() async throws
+    // Location updates are handled by requestLocationAuthorization and delegate callbacks.
 }
