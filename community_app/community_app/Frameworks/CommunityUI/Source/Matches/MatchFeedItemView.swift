@@ -127,4 +127,3 @@ struct MatchFeedItemView: View {
         return "Unknown Date"
     }
 }
-

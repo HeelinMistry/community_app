@@ -8,10 +8,15 @@
 import SwiftUI
 import Foundation
 import CommunityCore
+import MapKit
+import CoreLocation // Import CoreLocation for user location
 
 public struct MatchDetailsView<T: MatchDetailsViewModelProtocol>: View {
     @EnvironmentObject private var router: NavigationRouter
     @StateObject private var viewModel: T
+    
+    // State to control the map's camera position
+    @State private var mapCameraPosition: MapCameraPosition = .automatic
 
     public init(viewModel: @escaping @autoclosure () -> T) {
         _viewModel = StateObject(wrappedValue: viewModel())
@@ -38,9 +43,78 @@ public struct MatchDetailsView<T: MatchDetailsViewModelProtocol>: View {
 
                         MatchDetailRow(label: "Date & Time", value: formatDate(match.start_datetime), systemImage: "calendar")
                         MatchDetailRow(label: "Location", value: match.location, systemImage: "location.fill")
+                        
+                        // MARK: - Distance from User
+                        if let userLocation = viewModel.lastKnownLocation,
+                           match.latitude != 0.0 || match.longitude != 0.0 { // Check for valid match coordinates
+                            let matchCLLocation = CLLocation(latitude: match.latitude, longitude: match.longitude)
+                            MatchDetailRow(label: "Distance from you", value: formattedDistance(from: userLocation, to: matchCLLocation), systemImage: "figure.walk.circle.fill")
+                        } else {
+                            // Only show if location permission is not determined or denied
+                            if !viewModel.isAuthorized {
+                                Text("Location access denied. Please enable in Settings to see distance.")
+                                    .font(.subheadline)
+                                    .foregroundColor(.red)
+                                    .padding(.leading)
+                            } else if viewModel.lastKnownLocation == nil {
+                                Text("Getting your location...")
+                                    .font(.subheadline)
+                                    .foregroundColor(Assets.theme.secondaryText.opacity(0.7))
+                                    .padding(.leading)
+                            }
+                        }
+                        
                         MatchDetailRow(label: "Cost", value: match.cost, systemImage: "tag.fill")
                         MatchDetailRow(label: "Players", value: "\(match.current_roster) / \(match.roster_size) players joined", systemImage: "person.3.fill")
 
+                        Divider()
+                        
+                        // MARK: - Map View for Location
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text("Match Location")
+                                .font(.headline)
+                                .foregroundColor(Assets.theme.secondaryText)
+                            
+                            // Check if coordinates are valid before showing map
+                            if match.latitude != 0.0 || match.longitude != 0.0 {
+                                Map(position: $mapCameraPosition) {
+                                    Marker(match.location, coordinate: CLLocationCoordinate2D(latitude: match.latitude, longitude: match.longitude))
+                                }
+                                .frame(height: 200)
+                                .cornerRadius(12)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                                )
+                                .onAppear {
+                                    // Set the map camera position when the view appears and match data is available
+                                    mapCameraPosition = .region(MKCoordinateRegion(
+                                        center: CLLocationCoordinate2D(latitude: match.latitude, longitude: match.longitude),
+                                        span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01) // Zoom level
+                                    ))
+                                }
+
+                                // New: Button to show directions on map
+                                Button {
+                                    viewModel.showDirectionsOnMap()
+                                } label: {
+                                    Label("Get Directions", systemImage: "car.fill")
+                                        .frame(maxWidth: .infinity)
+                                }
+                                .buttonStyle(.borderedProminent)
+                                .controlSize(.large)
+                                .tint(Assets.theme.primaryAccent) 
+                                .disabled(viewModel.lastKnownLocation == nil || match.latitude == 0.0 || match.longitude == 0.0 || !viewModel.isAuthorized)
+                                .padding(.top, 8)
+
+                            } else {
+                                Text("Location coordinates not available.")
+                                    .font(.subheadline)
+                                    .foregroundColor(Assets.theme.secondaryText.opacity(0.7))
+                                    .padding(.top, 4)
+                            }
+                        }
+                        
                         Divider()
 
                         // MARK: - Status Indicators
@@ -156,7 +230,10 @@ public struct MatchDetailsView<T: MatchDetailsViewModelProtocol>: View {
         .navigationTitle("Match Details")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
-            viewModel.matchDetail() // Trigger data fetch when view appears
+            viewModel.matchDetail()
+            Task {
+                await viewModel.requestLocationAuthorization()
+            }
         }
     }
 
@@ -184,6 +261,19 @@ public struct MatchDetailsView<T: MatchDetailsViewModelProtocol>: View {
         }
         return "Unknown Date"
     }
+    
+    // Helper function to calculate and format distance
+    private func formattedDistance(from userLocation: CLLocation, to matchLocation: CLLocation) -> String {
+        let distanceInMeters = userLocation.distance(from: matchLocation)
+        let distanceMeasurement = Measurement(value: distanceInMeters, unit: UnitLength.meters)
+        
+        let formatter = MeasurementFormatter()
+        formatter.unitStyle = .long
+        formatter.unitOptions = .providedUnit
+        formatter.numberFormatter.maximumFractionDigits = 1 // Limit decimal places
+        
+        return formatter.string(from: distanceMeasurement)
+    }
 }
 
 private extension MatchDetailsView {
@@ -202,4 +292,3 @@ private extension MatchDetailsView {
         return formatter
     }
 }
-

@@ -65,10 +65,10 @@ struct DashboardView<T: DashboardViewModelProtocol>: View {
                 .onAppear {
                     viewModel.matchFeed()
                 }
+                .refreshable {
+                    viewModel.matchFeed()
+                }
             }
-        }
-        .onAppear {
-            viewModel.matchFeed()
         }
     }
 }
