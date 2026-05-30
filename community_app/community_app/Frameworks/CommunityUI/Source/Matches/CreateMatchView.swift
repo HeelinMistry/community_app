@@ -122,6 +122,7 @@ public struct CreateMatchView<T: CreateMatchViewModelProtocol>: View {
                 DatePicker(
                     "Select Date",
                     selection: $viewModel.date_event,
+                    in: Date.now..., 
                     displayedComponents: .date
                 )
                 .labelsHidden()
@@ -150,6 +151,7 @@ public struct CreateMatchView<T: CreateMatchViewModelProtocol>: View {
                 DatePicker(
                     "Select Time",
                     selection: $viewModel.time,
+                    in: minValidTimeForTimePicker...,
                     displayedComponents: .hourAndMinute
                 )
                 .labelsHidden()
@@ -280,5 +282,23 @@ public struct CreateMatchView<T: CreateMatchViewModelProtocol>: View {
                 viewModel.cost = String(newValue)
             }
         )
+    }
+
+    /// Determines the minimum valid `Date` for the time picker, based on the selected `date_event`.
+    private var minValidTimeForTimePicker: Date {
+        let calendar = Calendar.current
+        let now = Date.now
+
+        // Get the start of today and the start of the selected event date
+        let startOfEventDate = calendar.startOfDay(for: viewModel.date_event)
+
+        if calendar.isDateInToday(viewModel.date_event) {
+            // If the selected event date is today, the minimum selectable time is the current time.
+            return now
+        } else { // startOfEventDate > startOfToday (because date_event picker is restricted to Date.now...)
+            // If the selected event date is in the future, any time on that day is valid.
+            // So the minimum time is the start of that future day.
+            return startOfEventDate
+        }
     }
 }
