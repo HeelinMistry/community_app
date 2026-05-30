@@ -7,18 +7,13 @@ on:
       - 'community_app/**'
 
 permissions:
-  contents: write
-  pages: write
-  id-token: write
+  contents: write # Needed for updating the README
+  pages: write    # Needed for deploying to Pages
+  id-token: write # Needed for security/deployment
 
 jobs:
   build-and-deploy:
     runs-on: macos-latest
-
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
     steps:
       - uses: actions/checkout@v4
 
@@ -26,51 +21,35 @@ jobs:
       - name: Build DocC
         working-directory: community_app
         run: |
-          # Create the base docs directory
           mkdir -p ./docs
-
-          # Run the build with EXPLICIT output paths
           xcodebuild docbuild \
             -project community_app.xcodeproj \
             -scheme community_app \
             -destination 'platform=iOS Simulator,name=iPhone 16' \
             -derivedDataPath /tmp/docbuild \
-            OBJROOT=/tmp/docbuild/Build/Intermediates.noindex \
-            SYMROOT=/tmp/docbuild/Build/Products \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="" \
             AD_HOC_CODE_SIGNING_ALLOWED=YES
 
-      - name: Transform and Clean Documentation
+      - name: Transform Documentation
         working-directory: community_app
         run: |
-          # This path now matches exactly where we told xcodebuild to go
           ARCHIVE_PATH="/tmp/docbuild/Build/Products/Debug-iphonesimulator"
-
           mkdir -p ./docs
 
-          # The rest of your script remains the same
-          if ls $ARCHIVE_PATH/*.doccarchive 1> /dev/null 2>&1; then
-            for archive in $ARCHIVE_PATH/*.doccarchive; do
-              if [ -d "$archive" ]; then
-                target_name=$(basename "$archive" .doccarchive)
-                echo "Found archive: $target_name. Transforming..."
+          # Find and transform
+          archive=$(find "$ARCHIVE_PATH" -name "*.doccarchive" | head -n 1)
+          target_name=$(basename "$archive" .doccarchive)
 
-                xcrun docc process-archive transform-for-static-hosting "$archive" \
-                  --output-path "./docs/$target_name" \
-                  --hosting-base-path "${{ github.event.repository.name }}/$target_name"
-              fi
-            done
-          else
-            echo "Error: No .doccarchive files found in $ARCHIVE_PATH"
-            # Debugging: let's see what actually IS in that folder if it fails
-            ls -R /tmp/docbuild
-            exit 1
-          fi
+          xcrun docc process-archive transform-for-static-hosting "$archive" \
+            --output-path "./docs" \
+            --hosting-base-path "${{ github.event.repository.name }}"
 
-          echo "<html><head><meta http-equiv='refresh' content='0; url=community_app/documentation/community_app/' /></head><body></body></html>" > ./docs/index.html
-      # 2. Update README Structure
+          # Create root index redirect
+          echo "<html><head><meta http-equiv='refresh' content='0; url=documentation/community_app/' /></head><body></body></html>" > ./docs/index.html
+
+      # 2. Update README Structure (Still allowed since you have 'contents: write')
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -80,26 +59,23 @@ jobs:
         working-directory: community_app
         run: python3 generate_structure.py
 
-      # 3. Commit and Push changes
       - name: Commit README changes
         working-directory: community_app
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add README.md # Only track the README structure
-          
-          if ! git diff --cached --exit-code; then
+          if [[ -n $(git status -s README.md) ]]; then
+            git add README.md
             git commit -m "chore: auto-update readme structure [skip ci]"
             git push origin main
-          else
-            echo "No changes to README"
           fi
 
-      # 4. Deploy to GitHub Pages
+      # 3. Deploy to GitHub Pages (Uses Artifacts - No commit required)
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: './community_app/docs'
 
       - name: Deploy to GitHub Pages
+        id: deployment
         uses: actions/deploy-pages@v4
