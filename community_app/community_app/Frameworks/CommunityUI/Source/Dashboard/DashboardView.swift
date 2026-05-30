@@ -8,8 +8,16 @@
 import SwiftUI
 import CommunityCore
 
+// Define an enum for the match tabs
+enum MatchTab: String, CaseIterable, Identifiable {
+    case upcoming = "Upcoming"
+    case history = "History"
+    var id: String { self.rawValue }
+}
+
 struct DashboardView<T: DashboardViewModelProtocol>: View {
     @StateObject private var viewModel: T
+    @State private var selectedTab: MatchTab = .upcoming
     
     public init(viewModel: T) {
         _viewModel = StateObject(wrappedValue: viewModel)
@@ -23,19 +31,32 @@ struct DashboardView<T: DashboardViewModelProtocol>: View {
                         .fontWeight(.bold)
                         .padding(.bottom, 20)
                     
+                    Picker("Match Type", selection: $selectedTab) {
+                        ForEach(MatchTab.allCases) { tab in
+                            Text(tab.rawValue).tag(tab)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                    .padding(.horizontal)
+                    .padding(.bottom, 10)
+                    
                     VStack(spacing: 16) {
                         switch viewModel.state {
                         case .idle, .loading:
                             ProgressView("Loading matches...")
                                 .padding()
-                        case .success(let matches):
-                            if matches.isEmpty {
-                                Text("No matches found. Create one to get started!")
+                        case .success:
+                            let matchesToShow = selectedTab == .upcoming ? viewModel.upcomingMatches : viewModel.historyMatches
+                            
+                            if matchesToShow.isEmpty {
+                                Text(selectedTab == .upcoming ?
+                                     "No upcoming matches found. Create one to get started!" :
+                                     "No past matches found.")
                                     .font(.headline)
                                     .foregroundColor(Assets.theme.secondaryText)
                                     .padding()
                             } else {
-                                ForEach(matches, id: \.match_id) { match in
+                                ForEach(matchesToShow, id: \.match_id) { match in
                                     MatchFeedItemView(match: match)
                                 }
                             }

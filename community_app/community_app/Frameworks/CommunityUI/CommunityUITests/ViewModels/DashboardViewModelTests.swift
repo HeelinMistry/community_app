@@ -16,6 +16,13 @@ final class DashboardViewModelTests: XCTestCase {
     private var mockRouter: NavigationRouter!
     private var mockProvider: MatchUseCasesProviderMock!
     
+    // Replicate the formatter used in DashboardViewModel for consistent date string handling
+    private static let testIsoDateFormatter: ISO8601DateFormatter = {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withDashSeparatorInDate, .withColonSeparatorInTime]
+        return formatter
+    }()
+    
     override func setUp() {
         super.setUp()
         mockProvider = .init()
@@ -73,4 +80,40 @@ final class DashboardViewModelTests: XCTestCase {
         
         XCTAssertEqual(mockRouter.sheet, .createMatch)
     }
+    
+    func testUpcomingMatches_idleState_returnsEmpty() {
+        XCTAssert(sut.upcomingMatches.isEmpty)
+    }
+
+    func testHistoryMatches_idleState_returnsEmpty() {
+        XCTAssert(sut.historyMatches.isEmpty)
+    }
+    
+    func testMatches_successState_returnsFiltered() async {
+        let futureDate = Date.now.addingTimeInterval(3600) 
+        let futureDate2 = Date.now.addingTimeInterval(7200)
+        let pastDate = Date.now.addingTimeInterval(-3600)
+        let pastDate2 = Date.now.addingTimeInterval(-7200)
+        
+        // Use the same ISO8601DateFormatter to format the date string
+        let formattedFutureDateString = Self.testIsoDateFormatter.string(from: futureDate)
+        let formattedFutureDateString2 = Self.testIsoDateFormatter.string(from: futureDate2)
+        let formattedPastDateString = Self.testIsoDateFormatter.string(from: pastDate)
+        let formattedPastDateString2 = Self.testIsoDateFormatter.string(from: pastDate2)
+        
+        let expectedResponse: Matches = [
+            .init(start_datetime: formattedPastDateString),
+            .init(start_datetime: formattedPastDateString2),
+            .init(start_datetime: formattedFutureDateString),
+            .init(start_datetime: formattedFutureDateString2)
+        ]
+        mockProvider.mockUseCases.matchResult = .success(expectedResponse)
+        
+        sut.matchFeed()
+        try? await Task.sleep(nanoseconds: 100_000_000)
+        
+        XCTAssert(sut.upcomingMatches.count == 2)
+        XCTAssert(sut.historyMatches.count == 2)
+    }
+
 }
