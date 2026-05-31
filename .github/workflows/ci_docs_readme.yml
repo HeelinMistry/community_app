@@ -42,13 +42,19 @@ jobs:
           archive=$(find "$ARCHIVE_PATH" -name "*.doccarchive" | head -n 1)
           target_name=$(basename "$archive" .doccarchive)
 
+          # 1. Transform to ./docs
+          # We use the repository name for hosting-base-path
           xcrun docc process-archive transform-for-static-hosting "$archive" \
             --output-path "./docs" \
             --hosting-base-path "${{ github.event.repository.name }}"
 
-          # Create root index redirect
-          echo "<html><head><meta http-equiv='refresh' content='0; url=documentation/community_app/' /></head><body></body></html>" > ./docs/index.html
+          # 2. Check the path!
+          # After running this, list the files to be sure where they are
+          ls -R ./docs
 
+          # Create root index redirect
+          echo "<html><head><meta http-equiv='refresh' content='0; url=documentation/index.html' /></head><body></body></html>" > ./docs/index.html
+          
       # 3. Deploy to GitHub Pages (Uses Artifacts - No commit required)
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
