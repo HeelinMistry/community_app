@@ -106,6 +106,9 @@
 		F34B8BD62FC5856E007312DF /* CommunityCore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CommunityCore.xcodeproj; sourceTree = "<group>"; };
 		F34B8BF52FC5856E007312DF /* CommunityData.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CommunityData.xcodeproj; sourceTree = "<group>"; };
 		F34B8C2D2FC5856E007312DF /* CommunityUI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CommunityUI.xcodeproj; sourceTree = "<group>"; };
+		F34B8FF52FC97B6C007312DF /* CommunityCore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CommunityCore.xcodeproj; sourceTree = "<group>"; };
+		F34B90152FC97B6C007312DF /* CommunityData.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CommunityData.xcodeproj; sourceTree = "<group>"; };
+		F34B904E2FC97B6C007312DF /* CommunityUI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CommunityUI.xcodeproj; sourceTree = "<group>"; };
 		F3637B282FB491C700158B05 /* CommunityCore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CommunityCore.xcodeproj; sourceTree = "<group>"; };
 		F3637B472FB491C700158B05 /* CommunityData.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CommunityData.xcodeproj; sourceTree = "<group>"; };
 		F3637B7A2FB491C700158B05 /* CommunityUI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CommunityUI.xcodeproj; sourceTree = "<group>"; };
@@ -449,6 +452,27 @@
 			sourceTree = "<group>";
 		};
 		F34B8C352FC5856E007312DF /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F34B90522FC97B6C007312DF /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F34B90542FC97B6C007312DF /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F34B90562FC97B6C007312DF /* Products */ = {
 			isa = PBXGroup;
 			children = (
 			);
@@ -907,6 +931,10 @@
 					ProjectRef = F34B8BD62FC5856E007312DF /* CommunityCore.xcodeproj */;
 				},
 				{
+					ProductGroup = F34B90562FC97B6C007312DF /* Products */;
+					ProjectRef = F34B8FF52FC97B6C007312DF /* CommunityCore.xcodeproj */;
+				},
+				{
 					ProductGroup = F392252A2FAE0A0400327CC7 /* Products */;
 					ProjectRef = F39224D32FAE0A0400327CC7 /* CommunityCore.xcodeproj */;
 				},
@@ -1013,6 +1041,10 @@
 				{
 					ProductGroup = F3DF4AFD2FA5414800FEC2A8 /* Products */;
 					ProjectRef = F3DF4ACD2FA5414800FEC2A8 /* CommunityData.xcodeproj */;
+				},
+				{
+					ProductGroup = F34B90522FC97B6C007312DF /* Products */;
+					ProjectRef = F34B90152FC97B6C007312DF /* CommunityData.xcodeproj */;
 				},
 				{
 					ProductGroup = F34428842F9F5F2A007CD99D /* Products */;
@@ -1129,6 +1161,10 @@
 				{
 					ProductGroup = F3EB98C52FA0C72F00C04747 /* Products */;
 					ProjectRef = F3EB98C02FA0C72F00C04747 /* CommunityUI.xcodeproj */;
+				},
+				{
+					ProductGroup = F34B90542FC97B6C007312DF /* Products */;
+					ProjectRef = F34B904E2FC97B6C007312DF /* CommunityUI.xcodeproj */;
 				},
 				{
 					ProductGroup = F37844A12FA5346200CE581F /* Products */;

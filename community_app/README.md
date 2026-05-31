@@ -36,12 +36,14 @@ Caching is done storing to a local file on device, implemented so this can imple
 ``
 ```
 - community_app/
+- community_app.entitlements
 - App/
     - DependencyContainer.swift
     - CommunitySwiftApp.swift
 - Frameworks/
     - CommunityUI/
         - Source/
+            - ValidatableViewModel.swift
             - ViewState.swift
             - StateDrivenViewModel.swift
             - Registration/
@@ -49,20 +51,35 @@ Caching is done storing to a local file on device, implemented so this can imple
                 - RegistrationViewModel.swift
             - CommunityUI.docc/
                 - CommunityUI.md
+                - Resources/
             - Navigation/
                 - NavigationRouter.swift
                 - ViewFactory.swift
                 - RootNavigationView.swift
+            - Matches/
+                - CreateMatchViewModel.swift
+                - CreateMatchView.swift
+                - MatchDetailsViewModel.swift
+                - MatchDetailsView.swift
+                - MatchFeedItemView.swift
+                - MatchDetailsViewModelProtocol.swift
+            - Dashboard/
+                - DashboardView.swift
+                - DashboardViewModel.swift
             - Theming/
                 - Assets.swift
                 - DefaultTheme.swift
                 - CommunityTheme.swift
                 - Theme.swift
             - StyledComponents/
+                - PrimaryPicker.swift
+                - PrimaryText.swift
                 - PrimaryTextInput.swift
                 - PrimaryButton.swift
                 - BrandLogo.swift
                 - SecondaryButton.swift
+            - Notifications/
+                - NotificationExt.swift
             - Login/
                 - LoginViewModel.swift
                 - LoginView.swift
@@ -70,34 +87,53 @@ Caching is done storing to a local file on device, implemented so this can imple
         - Source/
             - Models/
                 - Login.swift
+                - Participation.swift
                 - Register.swift
+                - Cancellation.swift
+                - MatchDetail.swift
+                - Match.swift
+                - CreateMatch.swift
                 - AnyEncodable.swift
             - Observability/
                 - AppEnvironment.swift
             - CommunityCore.docc/
                 - CommunityCore.md
+                - Resources/
             - UseCaseProviders/
                 - AuthUseCasesProvider.swift
+                - MatchUseCasesProvider.swift
             - Protocols/
+                - LocationProtocol.swift
                 - AuthRepositoryProtocol.swift
+                - MapSearchServiceProtocol.swift
+                - MatchRepositoryProtocol.swift
             - UseCases/
-                - AuthUseCase.swift
+                - MatchUseCases.swift
+                - AuthUseCases.swift
     - CommunityData/
         - Source/
+            - Maps/
+                - LocationService.swift
+                - MKLocalSearchService.swift
             - Networking/
                 - CommunityEndpoint.swift
                 - CommunityNetworkClient.swift
                 - NetworkConfiguration.swift
             - Repositories/
                 - AuthRepository.swift
+                - MatchRepository.swift
             - Observability/
                 - NetworkLogger.swift
             - CommunityData.docc/
                 - CommunityData.md
+                - Resources/
             - Extensions/
                 - APIEndpointExtension.swift
                 - URLRequestExtension.swift
             - Errors/
                 - NetworkErrors.swift
+                - APIErrorResponse.swift
+            - Session/
+                - AuthSessionManager.swift
 ```
 ``
