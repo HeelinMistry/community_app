@@ -49,27 +49,6 @@ jobs:
           # Create root index redirect
           echo "<html><head><meta http-equiv='refresh' content='0; url=documentation/community_app/' /></head><body></body></html>" > ./docs/index.html
 
-      # 2. Update README Structure (Still allowed since you have 'contents: write')
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.x'
-
-      - name: Run Structure Script
-        working-directory: community_app
-        run: python3 generate_structure.py
-
-      - name: Commit README changes
-        working-directory: community_app
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          if [[ -n $(git status -s README.md) ]]; then
-            git add README.md
-            git commit -m "chore: auto-update readme structure [skip ci]"
-            git push origin main
-          fi
-
       # 3. Deploy to GitHub Pages (Uses Artifacts - No commit required)
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
