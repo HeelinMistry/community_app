@@ -27,6 +27,10 @@ final class DashboardViewModelTests: XCTestCase {
         super.setUp()
         mockProvider = .init()
         mockRouter = .init()
+        
+        let expectedResponse: Matches = [.init()]
+        mockProvider.mockUseCases.matchResult = .success(expectedResponse)
+        
         sut = .init(useCases: mockProvider, router: mockRouter)
     }
     

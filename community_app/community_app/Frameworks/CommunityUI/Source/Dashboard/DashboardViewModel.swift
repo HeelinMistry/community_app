@@ -42,6 +42,7 @@ public final class DashboardViewModel: DashboardViewModelProtocol {
         self.useCases = useCases
         self.router = router
         setupObservers()
+        matchFeed()
     }
     
     private func setupObservers() {
