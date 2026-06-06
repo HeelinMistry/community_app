@@ -22,6 +22,9 @@ public final class MatchDetailsViewModel: MatchDetailsViewModelProtocol {
     @Published public private(set) var lastKnownLocation: CLLocation?
     @Published public private(set) var isAuthorized: Bool
     
+    @Published public private(set) var isSchedulingNotification: Bool = false
+    @Published public private(set) var isNotificationScheduled: Bool = false
+    
     public var matchURL: URL
     
     private let match_id: String
@@ -176,5 +179,9 @@ public final class MatchDetailsViewModel: MatchDetailsViewModelProtocol {
         let launchOptions = [MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeDriving]
         
         MKMapItem.openMaps(with: [sourceMapItem, destinationMapItem], launchOptions: launchOptions)
+    }
+    
+    public func scheduleMatchNotification() {
+        
     }
 }

@@ -14,7 +14,6 @@ public struct CreateMatchView<T: CreateMatchViewModelProtocol>: View {
     @EnvironmentObject private var router: NavigationRouter
     @StateObject private var viewModel: T
     @State private var currentStep = 1
-    @State private var searchTask: Task<Void, Never>?
     
     public init(viewModel: @escaping @autoclosure () -> T) {
         _viewModel = StateObject(wrappedValue: viewModel())
@@ -33,11 +32,11 @@ public struct CreateMatchView<T: CreateMatchViewModelProtocol>: View {
                     ScrollView {
                         VStack(spacing: 20) {
                             if currentStep == 1 {
-                                stepOneInputs // Title, Sport, Location
+                                StepOneInputsView(viewModel: viewModel)
                             } else if currentStep == 2 {
-                                stepTwoInputs // Date, Time, Duration
+                                StepTwoInputsView(viewModel: viewModel)
                             } else {
-                                stepThreeInputs // Roster, Cost
+                                StepThreeInputsView(viewModel: viewModel)
                             }
                         }
                         .padding(30)
@@ -58,7 +57,42 @@ public struct CreateMatchView<T: CreateMatchViewModelProtocol>: View {
         }
     }
     
-    private var stepOneInputs: some View {
+    private var navigationButtons: some View {
+        HStack {
+            if currentStep > 1 {
+                Button("Back") { currentStep -= 1 }
+                    .buttonStyle(.bordered)
+            }
+            
+            Spacer()
+            
+            if currentStep < 3 {
+                PrimaryButton("Next") {
+                    if viewModel.isFormValid(step: currentStep) {
+                        currentStep += 1
+                    }
+                }
+            } else {
+                PrimaryButton("Finish & Create") {
+                    if viewModel.isFormValid(step: currentStep) {
+                        viewModel.create()
+                    }
+                }
+                .disabled(viewModel.state.isLoading)
+            }
+        }
+        .padding(.horizontal, 30)
+    }
+}
+
+// MARK: - Extracted Step Views
+
+private struct StepOneInputsView<T: CreateMatchViewModelProtocol>: View {
+    @ObservedObject var viewModel: T
+    @EnvironmentObject private var router: NavigationRouter
+    @State private var searchTask: Task<Void, Never>?
+
+    var body: some View {
         VStack(spacing: 20) {
             PrimaryTextInput(label: "Title",
                              placeholder: "e.g. MNF",
@@ -110,8 +144,12 @@ public struct CreateMatchView<T: CreateMatchViewModelProtocol>: View {
             }
         }
     }
-    
-    private var stepTwoInputs: some View {
+}
+
+private struct StepTwoInputsView<T: CreateMatchViewModelProtocol>: View {
+    @ObservedObject var viewModel: T
+
+    var body: some View {
         VStack(spacing: 20) {
             VStack(alignment: .leading, spacing: 8) {
                 Text("DATE")
@@ -122,7 +160,7 @@ public struct CreateMatchView<T: CreateMatchViewModelProtocol>: View {
                 DatePicker(
                     "Select Date",
                     selection: $viewModel.date_event,
-                    in: Date.now..., 
+                    in: Date.now...,
                     displayedComponents: .date
                 )
                 .labelsHidden()
@@ -180,8 +218,48 @@ public struct CreateMatchView<T: CreateMatchViewModelProtocol>: View {
             )
         }
     }
+
+    private var durationOptions: [Int] {
+        Array(stride(from: 30, through: 300, by: 30))
+    }
     
-    private var stepThreeInputs: some View {
+    private var durationBinding: Binding<Int> {
+        Binding<Int>(
+            get: {
+                if let intValue = Int(viewModel.duration), durationOptions.contains(intValue) {
+                    return intValue
+                }
+                return durationOptions.first ?? 0
+            },
+            set: { newValue in
+                viewModel.duration = String(newValue)
+            }
+        )
+    }
+
+    /// Determines the minimum valid `Date` for the time picker, based on the selected `date_event`.
+    private var minValidTimeForTimePicker: Date {
+        let calendar = Calendar.current
+        let now = Date.now
+
+        // Get the start of today and the start of the selected event date
+        let startOfEventDate = calendar.startOfDay(for: viewModel.date_event)
+
+        if calendar.isDateInToday(viewModel.date_event) {
+            // If the selected event date is today, the minimum selectable time is the current time.
+            return now
+        } else { // startOfEventDate > startOfToday (because date_event picker is restricted to Date.now...)
+            // If the selected event date is in the future, any time on that day is valid.
+            // So the minimum time is the start of that future day.
+            return startOfEventDate
+        }
+    }
+}
+
+private struct StepThreeInputsView<T: CreateMatchViewModelProtocol>: View {
+    @ObservedObject var viewModel: T
+
+    var body: some View {
         VStack(spacing: 20) {
             PrimaryPicker(
                 label: "Roster size",
@@ -199,55 +277,7 @@ public struct CreateMatchView<T: CreateMatchViewModelProtocol>: View {
             )
         }
     }
-    
-    private var navigationButtons: some View {
-        HStack {
-            if currentStep > 1 {
-                Button("Back") { currentStep -= 1 }
-                    .buttonStyle(.bordered)
-            }
-            
-            Spacer()
-            
-            if currentStep < 3 {
-                PrimaryButton("Next") {
-                    if viewModel.isFormValid(step: currentStep) {
-                        currentStep += 1
-                    }
-                }
-            } else {
-                PrimaryButton("Finish & Create") {
-                    if viewModel.isFormValid(step: currentStep) {
-                        viewModel.create()
-                    }
-                }
-                .disabled(viewModel.state.isLoading)
-            }
-        }
-        .padding(.horizontal, 30)
-    }
-    
-    private var durationOptions: [Int] {
-        Array(stride(from: 30, through: 300, by: 30))
-    }
-    
-    private var durationBinding: Binding<Int> {
-        Binding<Int>(
-            get: {
-                // Safely convert viewModel.duration (String) to Int.
-                // If conversion fails or if the value is not in `durationOptions`,
-                // default to the first option (30 minutes) or a reasonable fallback.
-                if let intValue = Int(viewModel.duration), durationOptions.contains(intValue) {
-                    return intValue
-                }
-                return durationOptions.first ?? 0
-            },
-            set: { newValue in
-                viewModel.duration = String(newValue)
-            }
-        )
-    }
-    
+
     private var rosterSizeOptions: [Int] {
         Array(1...50)
     }
@@ -282,23 +312,5 @@ public struct CreateMatchView<T: CreateMatchViewModelProtocol>: View {
                 viewModel.cost = String(newValue)
             }
         )
-    }
-
-    /// Determines the minimum valid `Date` for the time picker, based on the selected `date_event`.
-    private var minValidTimeForTimePicker: Date {
-        let calendar = Calendar.current
-        let now = Date.now
-
-        // Get the start of today and the start of the selected event date
-        let startOfEventDate = calendar.startOfDay(for: viewModel.date_event)
-
-        if calendar.isDateInToday(viewModel.date_event) {
-            // If the selected event date is today, the minimum selectable time is the current time.
-            return now
-        } else { // startOfEventDate > startOfToday (because date_event picker is restricted to Date.now...)
-            // If the selected event date is in the future, any time on that day is valid.
-            // So the minimum time is the start of that future day.
-            return startOfEventDate
-        }
     }
 }

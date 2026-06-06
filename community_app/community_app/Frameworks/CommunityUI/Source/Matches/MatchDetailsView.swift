@@ -209,6 +209,31 @@ public struct MatchDetailsView<T: MatchDetailsViewModelProtocol>: View {
                             }
                         }
                         .padding(.top, 16)
+                        
+                        // MARK: - Notification Button
+                        // New: Notification button, enabled after joining and if not cancelled
+                        if match.is_joined && !match.is_cancelled {
+                            Button {
+                                Task {
+                                    await viewModel.scheduleMatchNotification()
+                                }
+                            } label: {
+                                if viewModel.isSchedulingNotification {
+                                    ProgressView()
+                                        .progressViewStyle(.circular)
+                                        .tint(Assets.theme.primaryAccent)
+                                } else {
+                                    Label(viewModel.isNotificationScheduled ? "Reminder Set" : "Set Reminder", systemImage: viewModel.isNotificationScheduled ? "bell.fill" : "bell.badge")
+                                        .frame(maxWidth: .infinity)
+                                }
+                            }
+                            .buttonStyle(.borderedProminent)
+                            .controlSize(.large)
+                            .tint(Assets.theme.primaryAccent)
+                            .disabled(viewModel.isSchedulingNotification || viewModel.isNotificationScheduled) // Disable if already scheduling or already set
+                            .padding(.top, 8)
+                        }
+
                         ShareLink(item: viewModel.matchURL, subject: Text("Match Invitation")) {
                             Label("Share Match", systemImage: "square.and.arrow.up")
                                 .frame(maxWidth: .infinity)
