@@ -195,83 +195,29 @@ public final class MatchDetailsViewModel: MatchDetailsViewModelProtocol {
                 return
             }
             
-            // 1. Request notification authorization
-            let center = UNUserNotificationCenter.current()
             do {
-                let settings = await center.notificationSettings()
-                guard settings.authorizationStatus == .authorized else {
-                    // Not authorized or denied, request authorization
-                    let granted = try await center.requestAuthorization(options: [.alert, .sound, .badge])
-                    guard granted else {
-                        router.alertItem = .init(title: "Permission Denied", message: "Notification permission was denied. Please enable notifications in Settings to receive match reminders.", dismissButton: .cancel())
-                        isNotificationScheduled = false
-                        return
-                    }
-                    // If granted here, proceed
-                    return
-                }
+                try await requestNotificationAuthorization()
+            } catch let error as NotificationAuthorizationError {
+                router.alertItem = .init(title: error.title, message: error.message, dismissButton: .cancel())
+                isNotificationScheduled = false
+                return
             } catch {
                 router.alertItem = .init(title: "Error", message: "Failed to get notification settings or request authorization: \(error.localizedDescription)", dismissButton: .cancel())
                 isNotificationScheduled = false
                 return
             }
             
-            // 2. Combine date_event and time into a single Date for the match start
-            let calendar = Calendar.current
-            let date = formatDate(matchDetail.start_datetime)
-            let dateComponents = calendar.dateComponents([.year, .month, .day], from: date)
-            let timeComponents = calendar.dateComponents([.hour, .minute], from: date)
-            
-            var matchStartComponents = DateComponents()
-            matchStartComponents.year = dateComponents.year
-            matchStartComponents.month = dateComponents.month
-            matchStartComponents.day = dateComponents.day
-            matchStartComponents.hour = timeComponents.hour
-            matchStartComponents.minute = timeComponents.minute
-            
-            guard let matchStartDate = calendar.date(from: matchStartComponents) else {
-                router.alertItem = .init(title: "Error", message: "Could not determine match start date for notification.", dismissButton: .cancel())
+            guard let (matchStartDate, finalTriggerDate, alertMessage) = calculateNotificationDates(for: matchDetail) else {
+                router.alertItem = .init(title: "Error", message: "Could not determine match start date or notification time.", dismissButton: .cancel())
                 isNotificationScheduled = false
                 return
             }
             
-            // Ensure the match date is in the future
-            guard matchStartDate > Date.now else {
-                router.alertItem = .init(title: "Info", message: "This match has already started or passed. Cannot schedule a future notification.", dismissButton: .cancel())
-                isNotificationScheduled = false
-                return
-            }
-            
-            // 3. Calculate notification time (e.g., 15 minutes before the match)
-            guard let notificationDate = calendar.date(byAdding: .minute, value: -15, to: matchStartDate) else {
-                router.alertItem = .init(title: "Error", message: "Could not calculate notification time.", dismissButton: .cancel())
-                isNotificationScheduled = false
-                return
-            }
-            
-            // Determine the actual date for the trigger. If 15 mins before is already in the past,
-            // schedule for the match start time, as long as it's still in the future.
-            let finalTriggerDate: Date
-            if notificationDate <= Date.now {
-                finalTriggerDate = matchStartDate
-                router.alertItem = .init(title: "Heads up!", message: "The 15-minute reminder time has passed. Scheduling reminder for the match start time instead.", dismissButton: .cancel())
-            } else {
-                finalTriggerDate = notificationDate
-                router.alertItem = .init(title: "Success", message: "Match reminder scheduled for 15 minutes before the match!", dismissButton: .cancel())
-            }
-
             // 4. Create notification content
-            let content = UNMutableNotificationContent()
-            content.title = "Upcoming Match: \(matchDetail.title)"
-            content.body = "Your match at \(matchDetail.location) is starting \(finalTriggerDate == matchStartDate ? "now" : "in 15 minutes")!"
-            content.sound = .default
-            
-            // Add user info to open the match deep link if desired
-            content.userInfo = ["match_id": match_id]
+            let content = createNotificationContent(for: matchDetail, finalTriggerDate: finalTriggerDate, matchStartDate: matchStartDate)
             
             // 5. Create UNCalendarNotificationTrigger
-            let triggerDateComponents = calendar.dateComponents([.year, .month, .day, .hour, .minute, .second], from: finalTriggerDate)
-            let trigger = UNCalendarNotificationTrigger(dateMatching: triggerDateComponents, repeats: false)
+            let trigger = createNotificationTrigger(from: finalTriggerDate)
             
             // 6. Create UNNotificationRequest
             let requestIdentifier = "match-reminder-\(matchDetail.title)"
@@ -279,13 +225,82 @@ public final class MatchDetailsViewModel: MatchDetailsViewModelProtocol {
             
             // 7. Add request to notification center
             do {
-                try await center.add(request)
+                try await UNUserNotificationCenter.current().add(request)
+                router.alertItem = .init(title: "Success", message: alertMessage, dismissButton: .cancel())
                 isNotificationScheduled = true
             } catch {
                 router.alertItem = .init(title: "Error", message: "Failed to schedule match notification: \(error.localizedDescription)", dismissButton: .cancel())
                 isNotificationScheduled = false
             }
         }
+    }
+    
+    private func requestNotificationAuthorization() async throws {
+        let center = UNUserNotificationCenter.current()
+        let settings = await center.notificationSettings()
+        
+        guard settings.authorizationStatus == .authorized else {
+            let granted = try await center.requestAuthorization(options: [.alert, .sound, .badge])
+            guard granted else {
+                throw NotificationAuthorizationError.denied
+            }
+            return
+        }
+    }
+    
+    private func calculateNotificationDates(for matchDetail: MatchDetailResponse) -> (matchStartDate: Date, finalTriggerDate: Date, alertMessage: String)? {
+        let calendar = Calendar.current
+        let date = formatDate(matchDetail.start_datetime)
+        
+        let dateComponents = calendar.dateComponents([.year, .month, .day], from: date)
+        let timeComponents = calendar.dateComponents([.hour, .minute], from: date)
+        
+        var matchStartComponents = DateComponents()
+        matchStartComponents.year = dateComponents.year
+        matchStartComponents.month = dateComponents.month
+        matchStartComponents.day = dateComponents.day
+        matchStartComponents.hour = timeComponents.hour
+        matchStartComponents.minute = timeComponents.minute
+        
+        guard let matchStartDate = calendar.date(from: matchStartComponents) else {
+            return nil
+        }
+        
+        guard matchStartDate > Date.now else {
+            router.alertItem = .init(title: "Info", message: "This match has already started or passed. Cannot schedule a future notification.", dismissButton: .cancel())
+            return nil
+        }
+        
+        guard let notificationDate = calendar.date(byAdding: .minute, value: -15, to: matchStartDate) else {
+            return nil
+        }
+        
+        let finalTriggerDate: Date
+        let alertMessage: String
+        if notificationDate <= Date.now {
+            finalTriggerDate = matchStartDate
+            alertMessage = "The 15-minute reminder time has passed. Scheduling reminder for the match start time instead."
+        } else {
+            finalTriggerDate = notificationDate
+            alertMessage = "Match reminder scheduled for 15 minutes before the match!"
+        }
+        
+        return (matchStartDate, finalTriggerDate, alertMessage)
+    }
+    
+    private func createNotificationContent(for matchDetail: MatchDetailResponse, finalTriggerDate: Date, matchStartDate: Date) -> UNMutableNotificationContent {
+        let content = UNMutableNotificationContent()
+        content.title = "Upcoming Match: \(matchDetail.title)"
+        content.body = "Your match at \(matchDetail.location) is starting \(finalTriggerDate == matchStartDate ? "now" : "in 15 minutes")!"
+        content.sound = .default
+        content.userInfo = ["match_id": match_id]
+        return content
+    }
+    
+    private func createNotificationTrigger(from date: Date) -> UNCalendarNotificationTrigger {
+        let calendar = Calendar.current
+        let triggerDateComponents = calendar.dateComponents([.year, .month, .day, .hour, .minute, .second], from: date)
+        return UNCalendarNotificationTrigger(dateMatching: triggerDateComponents, repeats: false)
     }
     
     private func formatDate(_ isoString: String) -> Date {
@@ -300,5 +315,21 @@ public final class MatchDetailsViewModel: MatchDetailsViewModelProtocol {
         formatter.formatOptions = [.withInternetDateTime, .withDashSeparatorInDate, .withColonSeparatorInTime]
         return formatter
     }
+}
+
+// Helper enum for authorization errors
+private enum NotificationAuthorizationError: Error, LocalizedError {
+    case denied
     
+    var title: String {
+        switch self {
+        case .denied: return "Permission Denied"
+        }
+    }
+    
+    var message: String {
+        switch self {
+        case .denied: return "Notification permission was denied. Please enable notifications in Settings to receive match reminders."
+        }
+    }
 }
