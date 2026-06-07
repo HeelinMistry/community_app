@@ -102,7 +102,7 @@ public final class MatchDetailsViewModel: MatchDetailsViewModelProtocol {
         if var currentMatchDetail = self.matchDetailResponse {
             isTogglingParticipation = true
             fetchTask?.cancel()
-            fetchTask = Task {
+            fetchTask = Task { @MainActor in
                 defer { isTogglingParticipation = false }
                 
                 do {
@@ -113,6 +113,13 @@ public final class MatchDetailsViewModel: MatchDetailsViewModelProtocol {
                         currentMatchDetail.player_list = participationResponse.player_list
                         self.matchDetailResponse = currentMatchDetail
                         self.state = .success(currentMatchDetail)
+                        
+                        // If the user is leaving the match, remove the scheduled notification
+                        if !participationResponse.is_joined {
+                            let requestIdentifier = "match-reminder-\(currentMatchDetail.title)"
+                            UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [requestIdentifier])
+                            self.isNotificationScheduled = false
+                        }
                     }
                 } catch {
                     if !Task.isCancelled {
