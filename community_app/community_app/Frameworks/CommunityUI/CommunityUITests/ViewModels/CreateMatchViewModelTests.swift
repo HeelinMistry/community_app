@@ -39,7 +39,7 @@ final class CreateMatchViewModelTests: XCTestCase {
     func testCreate_WhenSuccessful_SetsSuccessState() async throws {
         // Arrange
         let expectedResponse = CreateMatchResponse(match_id: "98765")
-        mockProvider.mockUseCases.createMatchResult = .success(expectedResponse)
+        mockProvider.mockMatchUseCases.createMatchResult = .success(expectedResponse)
         
         // Act
         sut.create()
@@ -60,7 +60,7 @@ final class CreateMatchViewModelTests: XCTestCase {
         // Arrange
         let errorMessage = "Invalid Credentials"
         let error = NSError(domain: "Match", code: 401, userInfo: [NSLocalizedDescriptionKey: errorMessage])
-        mockProvider.mockUseCases.createMatchResult = .failure(error)
+        mockProvider.mockMatchUseCases.createMatchResult = .failure(error)
         
         // Act
         sut.create()
