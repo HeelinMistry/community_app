@@ -88,7 +88,7 @@ extension DependencyContainer: AuthUseCasesProvider {
 
 extension DependencyContainer: MatchDetailUseCasesProvider {
     var notifications: any NotificationProtocol {
-        NotificationUseCases()
+        NotificationService()
     }
     
     var matches: any MatchUseCaseProtocol {

@@ -68,34 +68,6 @@ final class MatchUseCasesMock: MatchUseCaseProtocol, @unchecked Sendable {
     
 }
 
-final class NotificationMock: NotificationProtocol, @unchecked Sendable {
-    var authorizationRequested = false
-    var scheduledMatchID: String?
-    var cancelledMatchID: String?
-    
-    var shouldThrowError = false
-    
-    public func requestAuthorization() async throws {
-        if shouldThrowError { throw NotificationError.denied }
-        authorizationRequested = true
-    }
-    
-    public func scheduleMatchNotification(
-        id: String,
-        title: String,
-        location: String,
-        startDate: Date
-    ) async throws -> (scheduledDate: Date, message: String) {
-        if shouldThrowError { throw NotificationError.pastDate }
-        self.scheduledMatchID = id
-        return (startDate, "Scheduled")
-    }
-    
-    public func cancelMatchNotification(id: String) {
-        self.cancelledMatchID = id
-    }
-}
-
 // Mock for the provider that holds the use case
 final class MatchUseCasesProviderMock: MatchDetailUseCasesProvider, @unchecked Sendable {
     let mockMatchUseCases = MatchUseCasesMock()

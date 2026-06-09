@@ -1,13 +1,14 @@
 //
-//  NotificationUseCases.swift
-//  CommunityCore
+//  NotificationService.swift
+//  community_app
 //
 //  Created by Heelin Mistry on 2026/06/09.
 //
 
 import UserNotifications
+import CommunityCore
 
-public final class NotificationUseCases: NotificationProtocol {
+public final class NotificationService: NotificationProtocol {
     public func requestAuthorization() async throws {
         let center = UNUserNotificationCenter.current()
         let settings = await center.notificationSettings()
