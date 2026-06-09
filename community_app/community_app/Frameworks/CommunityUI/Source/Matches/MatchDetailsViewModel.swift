@@ -10,6 +10,8 @@ import Foundation
 import CommunityCore
 import CoreLocation
 import MapKit
+import UserNotifications 
+import SwiftUI
 
 @MainActor
 public final class MatchDetailsViewModel: MatchDetailsViewModelProtocol {
@@ -22,22 +24,25 @@ public final class MatchDetailsViewModel: MatchDetailsViewModelProtocol {
     @Published public private(set) var lastKnownLocation: CLLocation?
     @Published public private(set) var isAuthorized: Bool
     
+    @Published public private(set) var isSchedulingNotification: Bool = false
+    @Published public private(set) var isNotificationScheduled: Bool = false
+    
     public var matchURL: URL
     
     private let match_id: String
     
     private let router: NavigationRouter
-    private let useCases: any MatchUseCasesProvider
-    private let locationService: LocationProtocol 
+    private let useCases: any MatchDetailUseCasesProvider
+    private let locationService: LocationProtocol
     private var fetchTask: Task<Void, Never>?
     
     private var cancellables = Set<AnyCancellable>()
     
     public init(
-        useCases: any MatchUseCasesProvider,
+        useCases: any MatchDetailUseCasesProvider,
         router: NavigationRouter,
         match_id: String,
-        locationService: LocationProtocol
+        locationService: LocationProtocol,
     ) {
         self.useCases = useCases
         self.router = router
@@ -97,7 +102,7 @@ public final class MatchDetailsViewModel: MatchDetailsViewModelProtocol {
         if var currentMatchDetail = self.matchDetailResponse {
             isTogglingParticipation = true
             fetchTask?.cancel()
-            fetchTask = Task {
+            fetchTask = Task { @MainActor in
                 defer { isTogglingParticipation = false }
                 
                 do {
@@ -108,6 +113,12 @@ public final class MatchDetailsViewModel: MatchDetailsViewModelProtocol {
                         currentMatchDetail.player_list = participationResponse.player_list
                         self.matchDetailResponse = currentMatchDetail
                         self.state = .success(currentMatchDetail)
+                        
+                        // If the user is leaving the match, remove the scheduled notification
+                        if !participationResponse.is_joined {
+                            useCases.notifications.cancelMatchNotification(id: match_id)
+                                self.isNotificationScheduled = false
+                        }
                     }
                 } catch {
                     if !Task.isCancelled {
@@ -176,5 +187,45 @@ public final class MatchDetailsViewModel: MatchDetailsViewModelProtocol {
         let launchOptions = [MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeDriving]
         
         MKMapItem.openMaps(with: [sourceMapItem, destinationMapItem], launchOptions: launchOptions)
+    }
+    
+    public func scheduleMatchNotification() {
+        guard !isSchedulingNotification else { return }
+        isSchedulingNotification = true
+        
+        Task { @MainActor in
+            defer { isSchedulingNotification = false }
+            guard let match = matchDetailResponse else { return }
+
+            do {
+                try await useCases.notifications.requestAuthorization()
+                
+                let result = try await useCases.notifications.scheduleMatchNotification(
+                    id: match_id,
+                    title: match.title,
+                    location: match.location,
+                    startDate: formatDate(match.start_datetime)
+                )
+                
+                router.alertItem = .init(title: "Success", message: result.message, dismissButton: .cancel())
+                isNotificationScheduled = true
+            } catch {
+                router.alertItem = .init(title: "Error", message: error.localizedDescription, dismissButton: .cancel())
+                isNotificationScheduled = false
+            }
+        }
+    }
+    
+    private func formatDate(_ isoString: String) -> Date {
+        if let date = Self.isoDateFormatter.date(from: isoString) {
+            return date
+        }
+        return Date()
+    }
+    
+    static var isoDateFormatter: ISO8601DateFormatter {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withDashSeparatorInDate, .withColonSeparatorInTime]
+        return formatter
     }
 }

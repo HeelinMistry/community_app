@@ -93,12 +93,12 @@ public final class CreateMatchViewModel: CreateMatchViewModelProtocol {
     }
     
     private let router: NavigationRouter
-    private let useCases: any MatchUseCasesProvider
+    private let useCases: any MatchDetailUseCasesProvider
     private let mapSearchService: MapSearchServiceProtocol
     private var fetchTask: Task<Void, Never>?
     
     public init(
-        useCases: any MatchUseCasesProvider,
+        useCases: any MatchDetailUseCasesProvider,
         router: NavigationRouter,
         mapSearchService: MapSearchServiceProtocol
     ) {

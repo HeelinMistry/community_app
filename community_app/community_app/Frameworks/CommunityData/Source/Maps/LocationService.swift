@@ -38,8 +38,6 @@ public final class LocationService: NSObject, LocationProtocol, CLLocationManage
         }
     }
 
-    // Removed `public func lastKnownLocation() async throws` as it's redundant
-
     public func requestLocationAuthorization() async throws {
         locationManager.requestWhenInUseAuthorization()
         // `locationManagerDidChangeAuthorization` will be called after this,

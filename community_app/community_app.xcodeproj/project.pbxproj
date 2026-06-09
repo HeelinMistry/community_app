@@ -131,6 +131,9 @@
 		F396897E2FA3EA58005BE3CD /* CommunityUI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CommunityUI.xcodeproj; sourceTree = "<group>"; };
 		F3A0CD3B2F90EA2600B052F7 /* community_app.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = community_app.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F3A0CD482F90EA2700B052F7 /* community_appTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = community_appTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		F3C456F32FD67C3E00088788 /* CommunityCore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CommunityCore.xcodeproj; sourceTree = "<group>"; };
+		F3C457132FD67C3E00088788 /* CommunityData.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CommunityData.xcodeproj; sourceTree = "<group>"; };
+		F3C4574B2FD67C3E00088788 /* CommunityUI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CommunityUI.xcodeproj; sourceTree = "<group>"; };
 		F3DDF9E52FACD197000DE75A /* CommunityCore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CommunityCore.xcodeproj; sourceTree = "<group>"; };
 		F3DDFA042FACD197000DE75A /* CommunityData.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CommunityData.xcodeproj; sourceTree = "<group>"; };
 		F3DDFA342FACD197000DE75A /* CommunityUI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CommunityUI.xcodeproj; sourceTree = "<group>"; };
@@ -174,6 +177,7 @@
 				Frameworks/CommunityUI/CommunityUITests/Mocks/LocationServiceMock.swift,
 				Frameworks/CommunityUI/CommunityUITests/Mocks/MapSearchServiceMock.swift,
 				Frameworks/CommunityUI/CommunityUITests/Mocks/MatchUseCasesProviderMock.swift,
+				Frameworks/CommunityUI/CommunityUITests/Mocks/NotificationServiceMock.swift,
 				Frameworks/CommunityUI/CommunityUITests/NavigationRouter/NavigationRouterTests.swift,
 				Frameworks/CommunityUI/CommunityUITests/ViewModels/CreateMatchViewModelTests.swift,
 				Frameworks/CommunityUI/CommunityUITests/ViewModels/DashboardViewModelTests.swift,
@@ -199,6 +203,7 @@
 				Frameworks/CommunityUI/CommunityUITests/Mocks/LocationServiceMock.swift,
 				Frameworks/CommunityUI/CommunityUITests/Mocks/MapSearchServiceMock.swift,
 				Frameworks/CommunityUI/CommunityUITests/Mocks/MatchUseCasesProviderMock.swift,
+				Frameworks/CommunityUI/CommunityUITests/Mocks/NotificationServiceMock.swift,
 				Frameworks/CommunityUI/CommunityUITests/NavigationRouter/NavigationRouterTests.swift,
 				Frameworks/CommunityUI/CommunityUITests/ViewModels/CreateMatchViewModelTests.swift,
 				Frameworks/CommunityUI/CommunityUITests/ViewModels/DashboardViewModelTests.swift,
@@ -640,6 +645,27 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		F3C4574F2FD67C3E00088788 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F3C457512FD67C3E00088788 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F3C457532FD67C3E00088788 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		F3DDFA372FACD197000DE75A /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -967,6 +993,10 @@
 					ProjectRef = F33CDF842FBC904800728789 /* CommunityCore.xcodeproj */;
 				},
 				{
+					ProductGroup = F3C4574F2FD67C3E00088788 /* Products */;
+					ProjectRef = F3C456F32FD67C3E00088788 /* CommunityCore.xcodeproj */;
+				},
+				{
 					ProductGroup = F3FAEE622FA3360B00869628 /* Products */;
 					ProjectRef = F3FAEE262FA3360B00869628 /* CommunityCore.xcodeproj */;
 				},
@@ -1027,6 +1057,10 @@
 					ProjectRef = F327654E2F9F7023003BC9A8 /* CommunityData.xcodeproj */;
 				},
 				{
+					ProductGroup = F3C457512FD67C3E00088788 /* Products */;
+					ProjectRef = F3C457132FD67C3E00088788 /* CommunityData.xcodeproj */;
+				},
+				{
 					ProductGroup = F3DDFA3B2FACD197000DE75A /* Products */;
 					ProjectRef = F3DDFA042FACD197000DE75A /* CommunityData.xcodeproj */;
 				},
@@ -1081,6 +1115,10 @@
 				{
 					ProductGroup = F33CDDD72FBC271700728789 /* Products */;
 					ProjectRef = F33CDDD22FBC271700728789 /* CommunityUI.xcodeproj */;
+				},
+				{
+					ProductGroup = F3C457532FD67C3E00088788 /* Products */;
+					ProjectRef = F3C4574B2FD67C3E00088788 /* CommunityUI.xcodeproj */;
 				},
 				{
 					ProductGroup = F32765DB2F9F76FF003BC9A8 /* Products */;

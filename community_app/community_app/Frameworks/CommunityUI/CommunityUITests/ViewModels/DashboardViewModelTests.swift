@@ -27,6 +27,10 @@ final class DashboardViewModelTests: XCTestCase {
         super.setUp()
         mockProvider = .init()
         mockRouter = .init()
+        
+        let expectedResponse: Matches = [.init()]
+        mockProvider.mockMatchUseCases.matchResult = .success(expectedResponse)
+        
         sut = .init(useCases: mockProvider, router: mockRouter)
     }
     
@@ -40,7 +44,7 @@ final class DashboardViewModelTests: XCTestCase {
     func testMatches_WhenSuccessful_SetsSuccessState() async {
         // Arrange
         let expectedResponse: Matches = [.init()]
-        mockProvider.mockUseCases.matchResult = .success(expectedResponse)
+        mockProvider.mockMatchUseCases.matchResult = .success(expectedResponse)
         
         // Act
         sut.matchFeed()
@@ -61,7 +65,7 @@ final class DashboardViewModelTests: XCTestCase {
         // Arrange
         let errorMessage = "Invalid Credentials"
         let error = NSError(domain: "Auth", code: 401, userInfo: [NSLocalizedDescriptionKey: errorMessage])
-        mockProvider.mockUseCases.matchResult = .failure(error)
+        mockProvider.mockMatchUseCases.matchResult = .failure(error)
         
         // Act
         sut.matchFeed()
@@ -107,7 +111,7 @@ final class DashboardViewModelTests: XCTestCase {
             .init(start_datetime: formattedFutureDateString),
             .init(start_datetime: formattedFutureDateString2)
         ]
-        mockProvider.mockUseCases.matchResult = .success(expectedResponse)
+        mockProvider.mockMatchUseCases.matchResult = .success(expectedResponse)
         
         sut.matchFeed()
         try? await Task.sleep(nanoseconds: 100_000_000)

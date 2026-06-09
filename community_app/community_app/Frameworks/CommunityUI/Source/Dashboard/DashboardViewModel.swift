@@ -24,7 +24,7 @@ public final class DashboardViewModel: DashboardViewModelProtocol {
     @Published public private(set) var state: ViewState<Matches> = .idle
     
     private let router: NavigationRouter
-    private let useCases: any MatchUseCasesProvider
+    private let useCases: any MatchDetailUseCasesProvider
     private var fetchTask: Task<Void, Never>?
     
     private var cancellables = Set<AnyCancellable>()
@@ -36,12 +36,13 @@ public final class DashboardViewModel: DashboardViewModelProtocol {
     }()
     
     public init(
-        useCases: any MatchUseCasesProvider,
+        useCases: any MatchDetailUseCasesProvider,
         router: NavigationRouter
     ) {
         self.useCases = useCases
         self.router = router
         setupObservers()
+        matchFeed()
     }
     
     private func setupObservers() {
