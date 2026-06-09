@@ -69,7 +69,7 @@ final class DashboardViewModelTests: XCTestCase {
         
         // Act
         sut.matchFeed()
-        try? await Task.sleep(nanoseconds: 200_000_000)
+        try? await Task.sleep(nanoseconds: 100_000_000)
         
         // Assert
         if case .error(let message) = sut.state {
@@ -114,7 +114,7 @@ final class DashboardViewModelTests: XCTestCase {
         mockProvider.mockMatchUseCases.matchResult = .success(expectedResponse)
         
         sut.matchFeed()
-        try? await Task.sleep(nanoseconds: 200_000_000)
+        try? await Task.sleep(nanoseconds: 100_000_000)
         
         XCTAssert(sut.upcomingMatches.count == 2)
         XCTAssert(sut.historyMatches.count == 2)
