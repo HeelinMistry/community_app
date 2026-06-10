@@ -33,7 +33,6 @@ public final class MatchDetailsViewModel: MatchDetailsViewModelProtocol {
     
     private let router: NavigationRouter
     private let useCases: any MatchDetailUseCasesProvider
-    private let locationService: LocationProtocol
     private var fetchTask: Task<Void, Never>?
     
     private var cancellables = Set<AnyCancellable>()
@@ -41,31 +40,29 @@ public final class MatchDetailsViewModel: MatchDetailsViewModelProtocol {
     public init(
         useCases: any MatchDetailUseCasesProvider,
         router: NavigationRouter,
-        match_id: String,
-        locationService: LocationProtocol,
+        match_id: String
     ) {
         self.useCases = useCases
         self.router = router
         self.match_id = match_id
-        self.locationService = locationService
         
         self.matchURL = URL(string: "community-app://com.mistcreation.community-app/match/\(match_id)")!
         
-        self.lastKnownLocation = locationService.lastKnownLocation
-        self.isAuthorized = locationService.authorizationStatus == .authorizedAlways || locationService.authorizationStatus == .authorizedWhenInUse
+        self.lastKnownLocation = useCases.location.lastKnownLocation
+        self.isAuthorized = useCases.location.authorizationStatus == .authorizedAlways || useCases.location.authorizationStatus == .authorizedWhenInUse
         
         setupLocationObservers()
     }
     
     private func setupLocationObservers() {
-        locationService.authorizationStatusPublisher
+        useCases.location.authorizationStatusPublisher
             .sink { [weak self] status in
                 guard let self = self else { return }
                 self.isAuthorized = status == .authorizedAlways || status == .authorizedWhenInUse
             }
             .store(in: &cancellables)
         
-        locationService.lastKnownLocationPublisher
+        useCases.location.lastKnownLocationPublisher
             .sink { [weak self] location in
                 self?.lastKnownLocation = location
             }
@@ -156,37 +153,27 @@ public final class MatchDetailsViewModel: MatchDetailsViewModelProtocol {
     
     public func requestLocationAuthorization() async {
         do {
-            try await locationService.requestLocationAuthorization()
+            try await useCases.location.requestLocationAuthorization()
         } catch {
             state = .error(error.localizedDescription)
         }
     }
 
     public func showDirectionsOnMap() {
-        guard let lastKnownLocation = lastKnownLocation else {
-            self.state = .error("Your current location is not available to show directions. Please enable location services and try again.")
+        guard (useCases.location.lastKnownLocation) != nil else {
+            self.state = .error("Your current location is not available.")
             return
         }
         
-        guard let matchDetail = matchDetailResponse else {
-            self.state = .error("Match details are not available to show directions. Please ensure match data is loaded.")
+        guard let match = matchDetailResponse else {
+            self.state = .error("Match details not available.")
             return
         }
-    
-        let destinationCoordinate = CLLocationCoordinate2D(latitude: matchDetail.latitude, longitude: matchDetail.longitude)
         
-        let sourcePlacemark = MKPlacemark(coordinate: lastKnownLocation.coordinate)
-        let destinationPlacemark = MKPlacemark(coordinate: destinationCoordinate)
+        let destination = CLLocationCoordinate2D(latitude: match.latitude, longitude: match.longitude)
         
-        let sourceMapItem = MKMapItem(placemark: sourcePlacemark)
-        sourceMapItem.name = "Your Location" // You can customize this name
-        
-        let destinationMapItem = MKMapItem(placemark: destinationPlacemark)
-        destinationMapItem.name = matchDetail.location // Use the match's provided location name
-        
-        let launchOptions = [MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeDriving]
-        
-        MKMapItem.openMaps(with: [sourceMapItem, destinationMapItem], launchOptions: launchOptions)
+        // Delegate to the service
+        useCases.location.openDirections(to: destination, destinationName: match.location)
     }
     
     public func scheduleMatchNotification() {

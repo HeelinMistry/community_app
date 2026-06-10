@@ -24,4 +24,7 @@ public protocol LocationProtocol {
     /// - Throws: An error if authorization cannot be requested or fails.
     func requestLocationAuthorization() async throws
     // Location updates are handled by requestLocationAuthorization and delegate callbacks.
+    
+    /// Opens the native Maps app with directions from current location to the target.
+    func openDirections(to coordinate: CLLocationCoordinate2D, destinationName: String)
 }

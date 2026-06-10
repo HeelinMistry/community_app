@@ -72,7 +72,7 @@ final class DependencyContainer {
     
     /// Creates and returns a `makeDetailMatchViewModel`.
     public func makeDetailMatchViewModel(_ match_id: String) -> MatchDetailsViewModel {
-        return MatchDetailsViewModel(useCases: self, router: router, match_id: match_id, locationService: LocationService())
+        return MatchDetailsViewModel(useCases: self, router: router, match_id: match_id)
     }
 }
 
@@ -95,6 +95,9 @@ extension DependencyContainer: MatchDetailUseCasesProvider {
         MatchUseCases(match: matchRepository)
     }
     
+    var location: any LocationProtocol {
+        LocationService()
+    }
 }
 
 extension DependencyContainer: ViewFactory {

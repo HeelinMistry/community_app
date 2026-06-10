@@ -70,8 +70,11 @@ final class MatchUseCasesMock: MatchUseCaseProtocol, @unchecked Sendable {
 
 // Mock for the provider that holds the use case
 final class MatchUseCasesProviderMock: MatchDetailUseCasesProvider, @unchecked Sendable {
+    
     let mockMatchUseCases = MatchUseCasesMock()
     let notificationMock = NotificationMock()
+    let locationMock = LocationServiceMock()
     var matches: any MatchUseCaseProtocol { mockMatchUseCases }
     var notifications: any NotificationProtocol { notificationMock }
+    var location: any LocationProtocol { locationMock }
 }

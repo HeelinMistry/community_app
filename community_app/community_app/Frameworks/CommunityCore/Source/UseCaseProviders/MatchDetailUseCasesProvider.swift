@@ -13,4 +13,7 @@ public protocol MatchDetailUseCasesProvider {
     var matches: MatchUseCaseProtocol { get }
     /// Provides access to notification-specific use case operations.
     var notifications: NotificationProtocol { get }
+    /// Provides access to location-specific use case operations.
+    var location: LocationProtocol { get }
+    
 }

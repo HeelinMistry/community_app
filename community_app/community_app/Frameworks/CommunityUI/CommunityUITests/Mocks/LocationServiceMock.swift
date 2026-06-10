@@ -11,18 +11,18 @@ import CommunityCore // Assuming LocationProtocol is in CommunityCore
 
 @MainActor
 public final class LocationServiceMock: LocationProtocol {
-
+    
     // MARK: - Publishers
     private let _authorizationStatusSubject: CurrentValueSubject<CLAuthorizationStatus?, Never>
     public var authorizationStatusPublisher: AnyPublisher<CLAuthorizationStatus?, Never> {
         _authorizationStatusSubject.eraseToAnyPublisher()
     }
-
+    
     private let _lastKnownLocationSubject: CurrentValueSubject<CLLocation?, Never>
     public var lastKnownLocationPublisher: AnyPublisher<CLLocation?, Never> {
         _lastKnownLocationSubject.eraseToAnyPublisher()
     }
-
+    
     // MARK: - Stored Properties with didSet to update subjects
     public var authorizationStatus: CLAuthorizationStatus? {
         didSet {
@@ -34,15 +34,15 @@ public final class LocationServiceMock: LocationProtocol {
             _lastKnownLocationSubject.send(lastKnownLocation)
         }
     }
-
+    
     // MARK: - Call Tracking for async methods
     public var requestLocationAuthorizationCallCount = 0
     public var lastKnownLocationCallCount = 0
-
+    
     // MARK: - Mock Behavior for async methods
     public var requestLocationAuthorizationResult: Result<Void, Error> = .success(())
     public var lastKnownLocationResult: Result<Void, Error> = .success(())
-
+    
     // Initializer
     public init(
         authorizationStatus: CLAuthorizationStatus? = .notDetermined,
@@ -53,9 +53,9 @@ public final class LocationServiceMock: LocationProtocol {
         self.authorizationStatus = authorizationStatus
         self.lastKnownLocation = lastKnownLocation
     }
-
+    
     // MARK: - LocationProtocol Conformance
-
+    
     @MainActor // Explicitly mark the method as MainActor isolated
     public func lastKnownLocation() async throws {
         lastKnownLocationCallCount += 1
@@ -69,7 +69,7 @@ public final class LocationServiceMock: LocationProtocol {
             throw error
         }
     }
-
+    
     @MainActor
     public func requestLocationAuthorization() async throws {
         requestLocationAuthorizationCallCount += 1
@@ -83,5 +83,14 @@ public final class LocationServiceMock: LocationProtocol {
         case .failure(let error):
             throw error
         }
+    }
+    
+    public var openedDirectionsCoordinate: CLLocationCoordinate2D?
+    public var openedDirectionsName: String?
+    
+    // Implement the new protocol method
+    public func openDirections(to coordinate: CLLocationCoordinate2D, destinationName: String) {
+        self.openedDirectionsCoordinate = coordinate
+        self.openedDirectionsName = destinationName
     }
 }
