@@ -48,7 +48,6 @@ public final class MatchDetailsViewModel: MatchDetailsViewModelProtocol {
         
         self.matchURL = URL(string: "community-app://com.mistcreation.community-app/match/\(match_id)")!
         
-        self.lastKnownLocation = useCases.location.lastKnownLocation
         self.isAuthorized = useCases.location.authorizationStatus == .authorizedAlways || useCases.location.authorizationStatus == .authorizedWhenInUse
         
         setupLocationObservers()
@@ -64,6 +63,7 @@ public final class MatchDetailsViewModel: MatchDetailsViewModelProtocol {
         
         useCases.location.lastKnownLocationPublisher
             .sink { [weak self] location in
+                print("ViewModel sink received: \(String(describing: location))")
                 self?.lastKnownLocation = location
             }
             .store(in: &cancellables)

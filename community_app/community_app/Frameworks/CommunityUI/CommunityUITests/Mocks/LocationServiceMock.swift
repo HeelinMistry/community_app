@@ -8,8 +8,8 @@
 import Combine
 import CoreLocation
 import CommunityCore // Assuming LocationProtocol is in CommunityCore
+import MapKit
 
-@MainActor
 public final class LocationServiceMock: LocationProtocol {
     
     // MARK: - Publishers
@@ -92,5 +92,21 @@ public final class LocationServiceMock: LocationProtocol {
     public func openDirections(to coordinate: CLLocationCoordinate2D, destinationName: String) {
         self.openedDirectionsCoordinate = coordinate
         self.openedDirectionsName = destinationName
+    }
+    
+    public var searchResult: Result<[MKMapItem], Error>?
+    public var lastQuery: String?
+    
+    public func search(query: String) async throws -> [MKMapItem] {
+        lastQuery = query
+        if let result = searchResult { 
+            switch result {
+            case .success(let items):
+                return items
+            case .failure(let error):
+                throw error
+            }
+        }
+        return [] // Default to no results if not configured
     }
 }

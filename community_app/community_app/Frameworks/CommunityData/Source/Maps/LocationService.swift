@@ -35,8 +35,9 @@ public final class LocationService: NSObject, LocationProtocol, CLLocationManage
         
         // Request an initial location if permission is already granted when the service starts
         if locationManager.authorizationStatus == .authorizedWhenInUse || locationManager.authorizationStatus == .authorizedAlways {
-            locationManager.requestLocation()
+            locationManager.startUpdatingLocation()
         }
+        print("LocationService Instance: \(Unmanaged.passUnretained(self).toOpaque())")
     }
     
     public func requestLocationAuthorization() async throws {
@@ -65,10 +66,14 @@ public final class LocationService: NSObject, LocationProtocol, CLLocationManage
     }
     
     public func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        guard let location = locations.last else { return }
-        lastKnownLocation = location // Update published property
+        Task { @MainActor in
+            guard let location = locations.last else { return }
+            self.lastKnownLocation = location
+            print("Updated lastKnownLocation to: \(location.coordinate)")
+        }
+        
         // If you only need a single update, you can stop updates here:
-        // manager.stopUpdatingLocation() // `requestLocation()` automatically stops after a single update.
+         manager.stopUpdatingLocation() // `requestLocation()` automatically stops after a single update.
     }
     
     // Crucial: Implement the didFailWithError delegate method for robust error handling.
@@ -93,5 +98,17 @@ public final class LocationService: NSObject, LocationProtocol, CLLocationManage
         let launchOptions = [MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeDriving]
         
         MKMapItem.openMaps(with: [sourceMapItem, destinationMapItem], launchOptions: launchOptions)
+    }
+    
+    /// Searches for map items using `MKLocalSearch` based on a given query string.
+    /// - Parameter query: The natural language query string to search for.
+    /// - Returns: An array of `MKMapItem` objects matching the query.
+    /// - Throws: An error if the `MKLocalSearch` operation fails.
+    public func search(query: String) async throws -> [MKMapItem] {
+        let request = MKLocalSearch.Request()
+        request.naturalLanguageQuery = query
+        let search = MKLocalSearch(request: request)
+        let response = try await search.start()
+        return response.mapItems
     }
 }
