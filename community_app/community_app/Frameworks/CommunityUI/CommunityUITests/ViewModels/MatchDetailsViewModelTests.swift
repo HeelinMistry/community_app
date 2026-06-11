@@ -11,6 +11,7 @@ import CoreLocation // Import CoreLocation for CLLocation and CLAuthorizationSta
 @testable import CommunityUI
 @testable import CommunityCore
 
+// swiftlint:disable file_length
 @MainActor
 final class MatchDetailsViewModelTests: XCTestCase {
     private var sut: MatchDetailsViewModel!
@@ -187,6 +188,7 @@ final class MatchDetailsViewModelTests: XCTestCase {
         // Assert - Verify the final state after toggling
         if case .success(let finalResponse) = sut.state {
             XCTAssertTrue(finalResponse.is_cancelled, "Expected is_cancelled to be true after toggling cancellation.")
+            XCTAssertEqual(mockProvider.notificationMock.cancelledMatchID, "test_match_id_123", "Notification should be cancelled when match is cancelled.")
         } else {
             XCTFail("Expected .success state after toggle_match_cancellation() call, got \(sut.state)")
         }
@@ -330,26 +332,52 @@ final class MatchDetailsViewModelTests: XCTestCase {
     // MARK: - NOTIFICATIONS
     
     func test_scheduleMatchNotification_callsService() async {
-        let expectedResponse: MatchDetailResponse = .init()
+        let expectedResponse: MatchDetailResponse = .init(is_joined: false)
         mockProvider.mockMatchUseCases.matchDetailsResult = .success(expectedResponse)
         
-        // Act
+        // Act - Populate match details first
         sut.matchDetail()
-        
-        // Wait for the Task to complete
-        // We use a small delay or Task.yield since loginAttempt creates a detached Task
         try? await Task.sleep(nanoseconds: 100_000_000)
-        // When
-        sut.scheduleMatchNotification()
+        
+        await sut.scheduleMatchNotification()
         
         // Then
-        // Allow a brief moment for the Task to execute
         try? await Task.sleep(nanoseconds: 100_000_000)
         XCTAssertTrue(mockProvider.notificationMock.authorizationRequested)
         XCTAssertEqual(mockProvider.notificationMock.scheduledMatchID, "test_match_id_123")
         XCTAssertTrue(mockProvider.notificationMock.scheduledMatch)
+        XCTAssertTrue(sut.isNotificationScheduled, "isNotificationScheduled should be true after successful scheduling")
+        XCTAssertFalse(sut.isSchedulingNotification, "isSchedulingNotification should be false after task completion")
+        XCTAssertNotNil(mockRouter.alertItem, "An alert should be shown for success")
+        XCTAssertEqual(mockRouter.alertItem?.title, "Success")
     }
-    
+
+    func test_cancelMatchNotification_callsServiceAndUpdatesState() async {
+        // Arrange
+        let expectedResponse: MatchDetailResponse = .init(is_joined: true)
+        mockProvider.mockMatchUseCases.matchDetailsResult = .success(expectedResponse)
+        
+        // Act - Populate match details first
+        sut.matchDetail()
+        try? await Task.sleep(nanoseconds: 100_000_000)
+
+        // Pre-condition: Simulate notification already being scheduled
+        mockProvider.notificationMock.scheduledMatch = true
+        // Refresh the ViewModel's internal state after setting the mock result
+        await sut.cancelMatchNotification()
+
+        XCTAssertFalse(sut.isNotificationScheduled, "Precondition: Notification should be scheduled.")
+        XCTAssertEqual(mockProvider.notificationMock.cancelledMatchID, "test_match_id_123")
+
+        // Assert
+        try? await Task.sleep(nanoseconds: 100_000_000) // Allow async work to complete
+        XCTAssertFalse(mockProvider.notificationMock.scheduledMatch, "cancelMatchNotification should be called on the service.")
+        XCTAssertFalse(sut.isNotificationScheduled, "isNotificationScheduled should be false after successful cancellation.")
+        XCTAssertFalse(sut.isCancellingNotification, "isCancellingNotification should be false after cancellation completes.")
+        XCTAssertNotNil(mockRouter.alertItem, "An alert should be shown for success.")
+        XCTAssertEqual(mockRouter.alertItem?.title, "Reminder Cancelled")
+    }
+
     func test_showDirectionsOnMap_whenLocationAvailable_callsService() async {
         // Given: Set up state
         let testLocation = CLLocation(latitude: -25.85, longitude: 28.21) // Centurion

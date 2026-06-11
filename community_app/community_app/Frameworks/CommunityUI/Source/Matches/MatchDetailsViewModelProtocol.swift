@@ -18,9 +18,10 @@ public protocol MatchDetailsViewModelProtocol: StateDrivenViewModel where DataTy
     var isTogglingParticipation: Bool { get }
     var isTogglingCancellation: Bool { get }
     
-    // New: Properties for notification scheduling
+    // Properties for notification scheduling
     var isSchedulingNotification: Bool { get }
     var isNotificationScheduled: Bool { get }
+    var isCancellingNotification: Bool { get }
     
     var lastKnownLocation: CLLocation? { get } 
     var isAuthorized: Bool { get }
@@ -32,4 +33,5 @@ public protocol MatchDetailsViewModelProtocol: StateDrivenViewModel where DataTy
     func showDirectionsOnMap()
     
     func scheduleMatchNotification() async
+    func cancelMatchNotification() async
 }

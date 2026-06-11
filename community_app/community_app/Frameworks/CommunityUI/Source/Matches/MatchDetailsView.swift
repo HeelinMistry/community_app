@@ -215,23 +215,28 @@ public struct MatchDetailsView<T: MatchDetailsViewModelProtocol>: View {
                         if match.is_joined && !match.is_cancelled {
                             Button {
                                 Task {
-                                    await viewModel.scheduleMatchNotification()
+                                    if viewModel.isNotificationScheduled {
+                                        await viewModel.cancelMatchNotification() // Call new cancellation method
+                                    } else {
+                                        await viewModel.scheduleMatchNotification()
+                                    }
                                 }
                             } label: {
-                                if viewModel.isSchedulingNotification {
+                                if viewModel.isSchedulingNotification || viewModel.isCancellingNotification { // Added isCancellingNotification
                                     ProgressView()
                                         .progressViewStyle(.circular)
                                         .tint(Assets.theme.primaryAccent)
                                 } else {
-                                    Label(viewModel.isNotificationScheduled ? "Reminder Set" : "Set Reminder", systemImage: viewModel.isNotificationScheduled ? "bell.fill" : "bell.badge")
+                                    Label(viewModel.isNotificationScheduled ? "Cancel Reminder" : "Set Reminder", // Changed label
+                                          systemImage: viewModel.isNotificationScheduled ? "bell.slash.fill" : "bell.badge") // Changed system image
                                         .frame(maxWidth: .infinity)
                                 }
                             }
                             .buttonStyle(.borderedProminent)
                             .controlSize(.large)
                             // Change the tint to reflect the disabled/set state
-                            .tint(viewModel.isNotificationScheduled ? Assets.theme.secondaryText.opacity(0.5) : Assets.theme.primaryAccent)
-                            .disabled(viewModel.isSchedulingNotification || viewModel.isNotificationScheduled) // Disable if already scheduling or already set
+                            .tint(viewModel.isNotificationScheduled ? .orange : Assets.theme.primaryAccent) // Changed tint for "Cancel Reminder"
+                            .disabled(viewModel.isSchedulingNotification || viewModel.isCancellingNotification) // Disable if already scheduling or cancelling
                             .padding(.top, 8)
                         }
 

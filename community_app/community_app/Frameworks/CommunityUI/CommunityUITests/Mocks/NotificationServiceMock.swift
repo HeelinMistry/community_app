@@ -35,6 +35,7 @@ final class NotificationMock: NotificationProtocol, @unchecked Sendable {
     
     public func cancelMatchNotification(id: String) {
         self.cancelledMatchID = id
+        self.scheduledMatch = false
     }
     
     func isNotificationScheduled(with identifier: String) async -> Bool {
