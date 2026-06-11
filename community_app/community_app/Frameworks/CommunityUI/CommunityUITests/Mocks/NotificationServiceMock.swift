@@ -12,6 +12,7 @@ final class NotificationMock: NotificationProtocol, @unchecked Sendable {
     var authorizationRequested = false
     var scheduledMatchID: String?
     var cancelledMatchID: String?
+    var scheduledMatch: Bool = false
     
     var shouldThrowError = false
     
@@ -28,10 +29,16 @@ final class NotificationMock: NotificationProtocol, @unchecked Sendable {
     ) async throws -> (scheduledDate: Date, message: String) {
         if shouldThrowError { throw NotificationError.pastDate }
         self.scheduledMatchID = id
+        scheduledMatch = true
         return (startDate, "Scheduled")
     }
     
     public func cancelMatchNotification(id: String) {
         self.cancelledMatchID = id
+        self.scheduledMatch = false
+    }
+    
+    func isNotificationScheduled(with identifier: String) async -> Bool {
+        return scheduledMatch
     }
 }

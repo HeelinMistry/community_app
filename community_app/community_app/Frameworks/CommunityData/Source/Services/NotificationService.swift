@@ -54,4 +54,13 @@ public final class NotificationService: NotificationProtocol {
         let requestIdentifier = "match-reminder-\(id)"
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [requestIdentifier])
     }
+    
+    public func isNotificationScheduled(with identifier: String) async -> Bool {
+        let center = UNUserNotificationCenter.current()
+        let requests = await center.pendingNotificationRequests()
+        
+        // Check if any request matches your unique ID
+        let requestIdentifier = "match-reminder-\(identifier)"
+        return requests.contains { $0.identifier == requestIdentifier }
+    }
 }

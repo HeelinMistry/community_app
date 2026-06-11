@@ -26,6 +26,7 @@ public final class MatchDetailsViewModel: MatchDetailsViewModelProtocol {
     
     @Published public private(set) var isSchedulingNotification: Bool = false
     @Published public private(set) var isNotificationScheduled: Bool = false
+    @Published public private(set) var isCancellingNotification: Bool = false 
     
     public var matchURL: URL
     
@@ -51,6 +52,11 @@ public final class MatchDetailsViewModel: MatchDetailsViewModelProtocol {
         self.isAuthorized = useCases.location.authorizationStatus == .authorizedAlways || useCases.location.authorizationStatus == .authorizedWhenInUse
         
         setupLocationObservers()
+        
+        // Initial check for notification status
+        Task { @MainActor in
+            await self.updateNotificationScheduledState()
+        }
     }
     
     private func setupLocationObservers() {
@@ -113,8 +119,8 @@ public final class MatchDetailsViewModel: MatchDetailsViewModelProtocol {
                         // If the user is leaving the match, remove the scheduled notification
                         if !participationResponse.is_joined {
                             useCases.notifications.cancelMatchNotification(id: match_id)
-                                self.isNotificationScheduled = false
                         }
+                        await self.updateNotificationScheduledState()
                     }
                 } catch {
                     if !Task.isCancelled {
@@ -140,6 +146,10 @@ public final class MatchDetailsViewModel: MatchDetailsViewModelProtocol {
                         currentMatchDetail.is_cancelled = cancellationResponse.is_cancelled
                         self.matchDetailResponse = currentMatchDetail
                         self.state = .success(currentMatchDetail)
+                        if cancellationResponse.is_cancelled {
+                            useCases.notifications.cancelMatchNotification(id: match_id)
+                        }
+                        await self.updateNotificationScheduledState()
                     }
                 } catch {
                     if !Task.isCancelled {
@@ -175,31 +185,50 @@ public final class MatchDetailsViewModel: MatchDetailsViewModelProtocol {
         useCases.location.openDirections(to: destination, destinationName: match.location)
     }
     
-    public func scheduleMatchNotification() {
+    public func scheduleMatchNotification() async {
         guard !isSchedulingNotification else { return }
         isSchedulingNotification = true
         
-        Task { @MainActor in
-            defer { isSchedulingNotification = false }
-            guard let match = matchDetailResponse else { return }
-
-            do {
-                try await useCases.notifications.requestAuthorization()
-                
-                let result = try await useCases.notifications.scheduleMatchNotification(
-                    id: match_id,
-                    title: match.title,
-                    location: match.location,
-                    startDate: formatDate(match.start_datetime)
-                )
-                
-                router.alertItem = .init(title: "Success", message: result.message, dismissButton: .cancel())
-                isNotificationScheduled = true
-            } catch {
-                router.alertItem = .init(title: "Error", message: error.localizedDescription, dismissButton: .cancel())
-                isNotificationScheduled = false
-            }
+        defer { isSchedulingNotification = false }
+        
+        guard let match = matchDetailResponse else {
+            router.alertItem = .init(title: "Error", message: "Match details not available to schedule notification.", dismissButton: .cancel())
+            await self.updateNotificationScheduledState()
+            return
         }
+
+        do {
+            try await useCases.notifications.requestAuthorization()
+            
+            let result = try await useCases.notifications.scheduleMatchNotification(
+                id: match_id,
+                title: match.title,
+                location: match.location,
+                startDate: formatDate(match.start_datetime)
+            )
+            
+            router.alertItem = .init(title: "Success", message: result.message, dismissButton: .cancel())
+            await self.updateNotificationScheduledState()
+        } catch {
+            router.alertItem = .init(title: "Error", message: error.localizedDescription, dismissButton: .cancel())
+            await self.updateNotificationScheduledState()
+        }
+    }
+
+    public func cancelMatchNotification() async {
+        guard !isCancellingNotification else { return }
+        isCancellingNotification = true
+
+        defer { isCancellingNotification = false }
+
+        useCases.notifications.cancelMatchNotification(id: match_id)
+        router.alertItem = .init(title: "Reminder Cancelled", message: "Your reminder for this match has been removed.", dismissButton: .cancel())
+        await self.updateNotificationScheduledState()
+
+    }
+    
+    private func updateNotificationScheduledState() async {
+        self.isNotificationScheduled = await useCases.notifications.isNotificationScheduled(with: match_id)
     }
     
     private func formatDate(_ isoString: String) -> Date {
