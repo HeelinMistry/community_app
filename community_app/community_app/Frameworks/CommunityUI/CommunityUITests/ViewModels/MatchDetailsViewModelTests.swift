@@ -347,6 +347,7 @@ final class MatchDetailsViewModelTests: XCTestCase {
         try? await Task.sleep(nanoseconds: 100_000_000)
         XCTAssertTrue(mockProvider.notificationMock.authorizationRequested)
         XCTAssertEqual(mockProvider.notificationMock.scheduledMatchID, "test_match_id_123")
+        XCTAssertTrue(mockProvider.notificationMock.scheduledMatch)
     }
     
     func test_showDirectionsOnMap_whenLocationAvailable_callsService() async {

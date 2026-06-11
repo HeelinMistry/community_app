@@ -229,7 +229,8 @@ public struct MatchDetailsView<T: MatchDetailsViewModelProtocol>: View {
                             }
                             .buttonStyle(.borderedProminent)
                             .controlSize(.large)
-                            .tint(Assets.theme.primaryAccent)
+                            // Change the tint to reflect the disabled/set state
+                            .tint(viewModel.isNotificationScheduled ? Assets.theme.secondaryText.opacity(0.5) : Assets.theme.primaryAccent)
                             .disabled(viewModel.isSchedulingNotification || viewModel.isNotificationScheduled) // Disable if already scheduling or already set
                             .padding(.top, 8)
                         }

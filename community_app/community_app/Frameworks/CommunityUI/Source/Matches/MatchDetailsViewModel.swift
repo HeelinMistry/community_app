@@ -51,6 +51,11 @@ public final class MatchDetailsViewModel: MatchDetailsViewModelProtocol {
         self.isAuthorized = useCases.location.authorizationStatus == .authorizedAlways || useCases.location.authorizationStatus == .authorizedWhenInUse
         
         setupLocationObservers()
+        
+        // Initial check for notification status
+        Task { @MainActor in
+            await self.updateNotificationScheduledState()
+        }
     }
     
     private func setupLocationObservers() {
@@ -113,8 +118,8 @@ public final class MatchDetailsViewModel: MatchDetailsViewModelProtocol {
                         // If the user is leaving the match, remove the scheduled notification
                         if !participationResponse.is_joined {
                             useCases.notifications.cancelMatchNotification(id: match_id)
-                                self.isNotificationScheduled = false
                         }
+                        await self.updateNotificationScheduledState()
                     }
                 } catch {
                     if !Task.isCancelled {
@@ -194,12 +199,17 @@ public final class MatchDetailsViewModel: MatchDetailsViewModelProtocol {
                 )
                 
                 router.alertItem = .init(title: "Success", message: result.message, dismissButton: .cancel())
-                isNotificationScheduled = true
+                // Update notification scheduled state after scheduling attempt
+                await self.updateNotificationScheduledState()
             } catch {
                 router.alertItem = .init(title: "Error", message: error.localizedDescription, dismissButton: .cancel())
-                isNotificationScheduled = false
+                await self.updateNotificationScheduledState()
             }
         }
+    }
+    
+    private func updateNotificationScheduledState() async {
+        self.isNotificationScheduled = await useCases.notifications.isNotificationScheduled(with: match_id)
     }
     
     private func formatDate(_ isoString: String) -> Date {

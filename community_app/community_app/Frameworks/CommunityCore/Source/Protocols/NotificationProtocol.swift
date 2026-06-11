@@ -34,4 +34,10 @@ public protocol NotificationProtocol {
     ///
     /// - Parameter id: The unique identifier of the notification to cancel.
     func cancelMatchNotification(id: String)
+    
+    /// Checks if a notification with the given identifier is currently scheduled.
+    ///
+    /// - Parameter identifier: The unique identifier of the notification to check.
+    /// - Returns: `true` if a notification with the given identifier is scheduled, otherwise `false`.
+    func isNotificationScheduled(with identifier: String) async -> Bool
 }
