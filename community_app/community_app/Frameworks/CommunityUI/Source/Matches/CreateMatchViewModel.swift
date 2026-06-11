@@ -94,17 +94,14 @@ public final class CreateMatchViewModel: CreateMatchViewModelProtocol {
     
     private let router: NavigationRouter
     private let useCases: any MatchDetailUseCasesProvider
-    private let mapSearchService: MapSearchServiceProtocol
     private var fetchTask: Task<Void, Never>?
     
     public init(
         useCases: any MatchDetailUseCasesProvider,
-        router: NavigationRouter,
-        mapSearchService: MapSearchServiceProtocol
+        router: NavigationRouter
     ) {
         self.useCases = useCases
         self.router = router
-        self.mapSearchService = mapSearchService
     }
     
     public func create() {
@@ -239,7 +236,7 @@ public final class CreateMatchViewModel: CreateMatchViewModelProtocol {
         }
         
         do {
-            let mapItems = try await mapSearchService.search(query: query)
+            let mapItems = try await useCases.location.search(query: query)
             
             if let item = mapItems.first {
                 // DO NOT overwrite self.location here, it's bound to the TextField
@@ -259,7 +256,6 @@ public final class CreateMatchViewModel: CreateMatchViewModelProtocol {
                 // Keep the user's typed location in the `location` text field
             }
         } catch {
-            //            print("Search error: \(error)") // Keeping original comment for context
             self.selectedLocationCoordinate = nil // Clear marker on error
             self.validatedLocationName = "" // Clear validated name on error
         }

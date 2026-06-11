@@ -22,7 +22,6 @@ public protocol MatchDetailsViewModelProtocol: StateDrivenViewModel where DataTy
     var isSchedulingNotification: Bool { get }
     var isNotificationScheduled: Bool { get }
     
-    // Keep these as 'get' in the protocol, the concrete ViewModel will use @Published stored properties
     var lastKnownLocation: CLLocation? { get } 
     var isAuthorized: Bool { get }
     

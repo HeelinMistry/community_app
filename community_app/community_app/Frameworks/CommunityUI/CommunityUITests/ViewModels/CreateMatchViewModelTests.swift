@@ -18,21 +18,18 @@ final class CreateMatchViewModelTests: XCTestCase {
     private var sut: CreateMatchViewModel!
     private var mockRouter: NavigationRouter!
     private var mockProvider: MatchUseCasesProviderMock!
-    private var mockMapSearchService: MockMapSearchService!
     
     override func setUp() {
         super.setUp()
         mockProvider = MatchUseCasesProviderMock()
         mockRouter = NavigationRouter()
-        mockMapSearchService = MockMapSearchService()
-        sut = CreateMatchViewModel(useCases: mockProvider, router: mockRouter, mapSearchService: mockMapSearchService)
+        sut = CreateMatchViewModel(useCases: mockProvider, router: mockRouter)
     }
     
     override func tearDown() {
         sut = nil
         mockRouter = nil
         mockProvider = nil
-        mockMapSearchService = nil
         super.tearDown()
     }
     
@@ -116,7 +113,7 @@ final class CreateMatchViewModelTests: XCTestCase {
         let mapItem = MKMapItem(placemark: placemark)
         mapItem.name = expectedName
         
-        mockMapSearchService.searchResult = .success([mapItem])
+        mockProvider.locationMock.searchResult = .success([mapItem])
         
         // Initial state before search
         XCTAssertTrue(sut.validatedLocationName.isEmpty, "validatedLocationName should be empty initially")
@@ -159,7 +156,7 @@ final class CreateMatchViewModelTests: XCTestCase {
     func testSearchLocation_noResultsClearsSelectedPropertiesButKeepsMapPosition() async {
         // 1. Arrange
         let query = "NonExistentPlace"
-        mockMapSearchService.searchResult = .success([])
+        mockProvider.locationMock.searchResult = .success([])
         
         // Set a distinct initial state to verify it doesn't change
         let initialRegion = MKCoordinateRegion(
@@ -190,7 +187,7 @@ final class CreateMatchViewModelTests: XCTestCase {
         // 1. Arrange
         let query = "ErrorQuery"
         enum TestError: Error { case searchFailed }
-        mockMapSearchService.searchResult = .failure(TestError.searchFailed)
+        mockProvider.locationMock.searchResult = .failure(TestError.searchFailed)
         
         // Explicitly set an initial region so we have something to compare against
         let initialRegion = MKCoordinateRegion(
@@ -225,7 +222,7 @@ final class CreateMatchViewModelTests: XCTestCase {
         let mapItem = MKMapItem(placemark: placemark)
         mapItem.name = nil
         
-        mockMapSearchService.searchResult = .success([mapItem])
+        mockProvider.locationMock.searchResult = .success([mapItem])
         
         await sut.searchLocation(query: query)
         

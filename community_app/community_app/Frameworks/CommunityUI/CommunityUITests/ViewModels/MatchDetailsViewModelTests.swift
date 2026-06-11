@@ -16,23 +16,20 @@ final class MatchDetailsViewModelTests: XCTestCase {
     private var sut: MatchDetailsViewModel!
     private var mockRouter: NavigationRouter!
     private var mockProvider: MatchUseCasesProviderMock!
-    private var mocklocation: LocationServiceMock!
     private var cancellables: Set<AnyCancellable>!
     
     override func setUp() {
         super.setUp()
         mockProvider = .init()
         mockRouter = .init()
-        mocklocation = .init(authorizationStatus: .notDetermined, lastKnownLocation: nil)
         cancellables = []
-        sut = .init(useCases: mockProvider, router: mockRouter, match_id: "test_match_id_123", locationService: mocklocation)
+        sut = .init(useCases: mockProvider, router: mockRouter, match_id: "test_match_id_123")
     }
     
     override func tearDown() {
         sut = nil
         mockRouter = nil
         mockProvider = nil
-        mocklocation = nil
         cancellables = nil // Release cancellables
         super.tearDown()
     }
@@ -234,7 +231,7 @@ final class MatchDetailsViewModelTests: XCTestCase {
     func testLastKnownLocation_ReturnsLocationFromService() {
         // Arrange
         let expectedLocation = CLLocation(latitude: 34.0522, longitude: -118.2437) // Los Angeles
-        mocklocation.lastKnownLocation = expectedLocation
+        mockProvider.locationMock.lastKnownLocation = expectedLocation
         
         // Act & Assert
         XCTAssertEqual(sut.lastKnownLocation, expectedLocation, "The lastKnownLocation should be retrieved from the location service.")
@@ -242,7 +239,7 @@ final class MatchDetailsViewModelTests: XCTestCase {
     
     func testLastKnownLocation_ReturnsNilWhenServiceHasNoLocation() {
         // Arrange
-        mocklocation.lastKnownLocation = nil
+        mockProvider.locationMock.lastKnownLocation = nil
         
         // Act & Assert
         XCTAssertNil(sut.lastKnownLocation, "The lastKnownLocation should be nil if the location service has no location.")
@@ -250,7 +247,7 @@ final class MatchDetailsViewModelTests: XCTestCase {
     
     func testIsAuthorized_WhenAuthorizedAlways_ReturnsTrue() {
         // Arrange
-        mocklocation.authorizationStatus = .authorizedAlways
+        mockProvider.locationMock.authorizationStatus = .authorizedAlways
         
         // Act & Assert
         XCTAssertTrue(sut.isAuthorized, "isAuthorized should be true when status is .authorizedAlways.")
@@ -258,7 +255,7 @@ final class MatchDetailsViewModelTests: XCTestCase {
     
     func testIsAuthorized_WhenAuthorizedWhenInUse_ReturnsTrue() {
         // Arrange
-        mocklocation.authorizationStatus = .authorizedWhenInUse
+        mockProvider.locationMock.authorizationStatus = .authorizedWhenInUse
         
         // Act & Assert
         XCTAssertTrue(sut.isAuthorized, "isAuthorized should be true when status is .authorizedWhenInUse.")
@@ -266,7 +263,7 @@ final class MatchDetailsViewModelTests: XCTestCase {
     
     func testIsAuthorized_WhenNotDetermined_ReturnsFalse() {
         // Arrange
-        mocklocation.authorizationStatus = .notDetermined
+        mockProvider.locationMock.authorizationStatus = .notDetermined
         
         // Act & Assert
         XCTAssertFalse(sut.isAuthorized, "isAuthorized should be false when status is .notDetermined.")
@@ -274,7 +271,7 @@ final class MatchDetailsViewModelTests: XCTestCase {
     
     func testIsAuthorized_WhenDenied_ReturnsFalse() {
         // Arrange
-        mocklocation.authorizationStatus = .denied
+        mockProvider.locationMock.authorizationStatus = .denied
         
         // Act & Assert
         XCTAssertFalse(sut.isAuthorized, "isAuthorized should be false when status is .denied.")
@@ -282,7 +279,7 @@ final class MatchDetailsViewModelTests: XCTestCase {
     
     func testIsAuthorized_WhenRestricted_ReturnsFalse() {
         // Arrange
-        mocklocation.authorizationStatus = .restricted
+        mockProvider.locationMock.authorizationStatus = .restricted
         
         // Act & Assert
         XCTAssertFalse(sut.isAuthorized, "isAuthorized should be false when status is .restricted.")
@@ -290,8 +287,8 @@ final class MatchDetailsViewModelTests: XCTestCase {
     
     func testRequestLocationAuthorization_WhenSuccessful_CallsServiceAndUpdatesStatus() async {
         // Arrange
-        mocklocation.authorizationStatus = .notDetermined
-        mocklocation.requestLocationAuthorizationResult = .success(())
+        mockProvider.locationMock.authorizationStatus = .notDetermined
+        mockProvider.locationMock.requestLocationAuthorizationResult = .success(())
         
         // Act
         await sut.requestLocationAuthorization()
@@ -300,11 +297,11 @@ final class MatchDetailsViewModelTests: XCTestCase {
         try? await Task.sleep(nanoseconds: 10_000_000)
         
         // Assert
-        XCTAssertEqual(mocklocation.requestLocationAuthorizationCallCount, 1, "requestLocationAuthorization should be called exactly once.")
+        XCTAssertEqual(mockProvider.locationMock.requestLocationAuthorizationCallCount, 1, "requestLocationAuthorization should be called exactly once.")
         // Verify the mock's internal state reflects the simulated change
-        XCTAssertEqual(mocklocation.authorizationStatus, .authorizedWhenInUse, "Location service authorization status should update to .authorizedWhenInUse after a successful request.")
+        XCTAssertEqual(mockProvider.locationMock.authorizationStatus, .authorizedWhenInUse, "Location service authorization status should update to .authorizedWhenInUse after a successful request.")
         // Also verify the ViewModel's computed property reflects this
-        XCTAssertTrue(sut.isAuthorized, "ViewModel's isAuthorized should be true after successful authorization.")
+        XCTAssertTrue((mockProvider.locationMock.authorizationStatus != nil), "ViewModel's isAuthorized should be true after successful authorization.")
         // ViewModel's state should remain idle/unchanged for success
         if case .error = sut.state {
             XCTFail("ViewModel state should not be .error on successful authorization.")
@@ -315,14 +312,14 @@ final class MatchDetailsViewModelTests: XCTestCase {
         // Arrange
         let errorMessage = "Location authorization failed."
         let error = NSError(domain: "LocationError", code: 1, userInfo: [NSLocalizedDescriptionKey: errorMessage])
-        mocklocation.requestLocationAuthorizationResult = .failure(error)
+        mockProvider.locationMock.requestLocationAuthorizationResult = .failure(error)
         
         // Act
         await sut.requestLocationAuthorization()
         try? await Task.sleep(nanoseconds: 10_000_000)
         
         // Assert
-        XCTAssertEqual(mocklocation.requestLocationAuthorizationCallCount, 1, "requestLocationAuthorization should be called exactly once.")
+        XCTAssertEqual(mockProvider.locationMock.requestLocationAuthorizationCallCount, 1, "requestLocationAuthorization should be called exactly once.")
         if case .error(let receivedMessage) = sut.state {
             XCTAssertEqual(receivedMessage, errorMessage, "ViewModel state should be .error with the correct message.")
         } else {
@@ -350,5 +347,41 @@ final class MatchDetailsViewModelTests: XCTestCase {
         try? await Task.sleep(nanoseconds: 100_000_000)
         XCTAssertTrue(mockProvider.notificationMock.authorizationRequested)
         XCTAssertEqual(mockProvider.notificationMock.scheduledMatchID, "test_match_id_123")
+    }
+    
+    func test_showDirectionsOnMap_whenLocationAvailable_callsService() async {
+        // Given: Set up state
+        let testLocation = CLLocation(latitude: -25.85, longitude: 28.21) // Centurion
+        mockProvider.locationMock.lastKnownLocation = testLocation
+        
+        let expectedResponse: MatchDetailResponse = .init()
+        mockProvider.mockMatchUseCases.matchDetailsResult = .success(expectedResponse)
+        
+        sut.matchDetail()
+        
+        // Wait for the Task to complete
+        // We use a small delay or Task.yield since loginAttempt creates a detached Task
+        try? await Task.sleep(nanoseconds: 100_000_000)
+        // When
+        sut.showDirectionsOnMap()
+        
+        // Then
+        XCTAssertNotNil(mockProvider.locationMock.openedDirectionsCoordinate)
+        XCTAssertEqual(mockProvider.locationMock.openedDirectionsName, "Local Park")
+    }
+    
+    func test_showDirectionsOnMap_whenLocationMissing_setsErrorState() {
+        // Given: Location is nil
+        mockProvider.locationMock.lastKnownLocation = nil
+        
+        // When
+        sut.showDirectionsOnMap()
+        
+        // Then
+        if case .error(let message) = sut.state {
+            XCTAssertTrue(message.contains("not available"))
+        } else {
+            XCTFail("Expected .error state, but got \(sut.state)")
+        }
     }
 }

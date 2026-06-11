@@ -23,6 +23,9 @@ final class DependencyContainer {
     
     private var dashboardViewModel: DashboardViewModel?
     
+    private lazy var _notificationService = NotificationService()
+    private lazy var _locationService = LocationService()
+    
     /// Initializes the dependency container with a navigation router and sets up networking components based on the current environment.
     /// - Parameter router: The navigation router used for view transitions.
     public init(router: NavigationRouter) {
@@ -67,12 +70,12 @@ final class DependencyContainer {
     /// Creates and returns a `CreateMatchViewModel`.
     public func makeCreateMatchViewModel() -> CreateMatchViewModel {
         // Inject the concrete MKLocalSearchService
-        return CreateMatchViewModel(useCases: self, router: router, mapSearchService: MKLocalSearchService())
+        return CreateMatchViewModel(useCases: self, router: router)
     }
     
     /// Creates and returns a `makeDetailMatchViewModel`.
     public func makeDetailMatchViewModel(_ match_id: String) -> MatchDetailsViewModel {
-        return MatchDetailsViewModel(useCases: self, router: router, match_id: match_id, locationService: LocationService())
+        return MatchDetailsViewModel(useCases: self, router: router, match_id: match_id)
     }
 }
 
@@ -88,13 +91,16 @@ extension DependencyContainer: AuthUseCasesProvider {
 
 extension DependencyContainer: MatchDetailUseCasesProvider {
     var notifications: any NotificationProtocol {
-        NotificationService()
+        _notificationService
     }
     
     var matches: any MatchUseCaseProtocol {
         MatchUseCases(match: matchRepository)
     }
     
+    var location: any LocationProtocol {
+        _locationService
+    }
 }
 
 extension DependencyContainer: ViewFactory {

@@ -7,6 +7,7 @@
 
 import CoreLocation
 import Combine
+import MapKit
 
 /// A protocol defining the interface for location services, including authorization status and last known location.
 public protocol LocationProtocol {
@@ -23,5 +24,13 @@ public protocol LocationProtocol {
     /// Requests authorization to use location services.
     /// - Throws: An error if authorization cannot be requested or fails.
     func requestLocationAuthorization() async throws
-    // Location updates are handled by requestLocationAuthorization and delegate callbacks.
+
+    /// Opens the native Maps app with directions from current location to the target.
+    func openDirections(to coordinate: CLLocationCoordinate2D, destinationName: String)
+    
+    /// Searches for map items based on a given query string.
+    /// - Parameter query: The natural language query string to search for.
+    /// - Returns: An array of `MKMapItem` objects matching the query.
+    /// - Throws: An error if the search operation fails.
+    func search(query: String) async throws -> [MKMapItem]
 }
