@@ -113,7 +113,9 @@ final class DashboardViewModelTests: XCTestCase {
         ]
         mockProvider.mockMatchUseCases.matchResult = .success(expectedResponse)
         
-        sut.matchFeed()
+        Task { @MainActor in
+            sut.matchFeed()
+        }
         try? await Task.sleep(nanoseconds: 100_000_000)
         
         XCTAssert(sut.upcomingMatches.count == 2)
