@@ -6,7 +6,6 @@
 //
 
 /// A provider protocol for accessing match-related and notification-related use cases.
-@MainActor
 public protocol MatchDetailUseCasesProvider {
     
     /// Provides access to match-specific use case operations.

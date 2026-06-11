@@ -10,8 +10,6 @@ import CommunityCore
 import Combine
 import MapKit
 
-/// Concrete implementation of MapSearchServiceProtocol using MKLocalSearch.
-@MainActor
 public final class LocationService: NSObject, LocationProtocol, CLLocationManagerDelegate, ObservableObject {
     private let locationManager = CLLocationManager()
     
@@ -28,38 +26,35 @@ public final class LocationService: NSObject, LocationProtocol, CLLocationManage
     public override init() {
         super.init()
         locationManager.delegate = self
-        locationManager.desiredAccuracy = kCLLocationAccuracyReduced
         
         // Initialize published properties with current status if available
         authorizationStatus = locationManager.authorizationStatus
         
-        // Request an initial location if permission is already granted when the service starts
         if locationManager.authorizationStatus == .authorizedWhenInUse || locationManager.authorizationStatus == .authorizedAlways {
             locationManager.startUpdatingLocation()
         }
-        print("LocationService Instance: \(Unmanaged.passUnretained(self).toOpaque())")
     }
     
     public func requestLocationAuthorization() async throws {
-        // Explicitly run on MainActor to satisfy Swift 6 strict concurrency
         await MainActor.run {
             locationManager.requestWhenInUseAuthorization()
         }
-        // `locationManagerDidChangeAuthorization` will be called after this,
-        // handling the update of `authorizationStatus` and subsequent `requestLocation()` if authorized.
     }
     
     public func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
-        authorizationStatus = manager.authorizationStatus // Update published property
+        authorizationStatus = manager.authorizationStatus 
         switch manager.authorizationStatus {
         case .authorizedWhenInUse, .authorizedAlways:
-            manager.requestLocation() // Get an initial location if authorized
+            manager.startUpdatingLocation()
+            print("Started Updating Location")
         case .denied, .restricted:
             print("Location access denied or restricted.")
-            lastKnownLocation = nil // Clear last known location if denied/restricted
+            manager.stopUpdatingLocation()
+            lastKnownLocation = nil
             // You might want to show an alert to the user here
         case .notDetermined:
             print("Location authorization not determined.")
+            // No action needed here, authorization request will handle starting updates.
         @unknown default:
             print("Unknown authorization status.")
         }
@@ -69,11 +64,7 @@ public final class LocationService: NSObject, LocationProtocol, CLLocationManage
         Task { @MainActor in
             guard let location = locations.last else { return }
             self.lastKnownLocation = location
-            print("Updated lastKnownLocation to: \(location.coordinate)")
         }
-        
-        // If you only need a single update, you can stop updates here:
-         manager.stopUpdatingLocation() // `requestLocation()` automatically stops after a single update.
     }
     
     // Crucial: Implement the didFailWithError delegate method for robust error handling.

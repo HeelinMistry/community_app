@@ -63,7 +63,6 @@ public final class MatchDetailsViewModel: MatchDetailsViewModelProtocol {
         
         useCases.location.lastKnownLocationPublisher
             .sink { [weak self] location in
-                print("ViewModel sink received: \(String(describing: location))")
                 self?.lastKnownLocation = location
             }
             .store(in: &cancellables)

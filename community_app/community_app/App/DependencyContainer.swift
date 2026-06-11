@@ -23,6 +23,9 @@ final class DependencyContainer {
     
     private var dashboardViewModel: DashboardViewModel?
     
+    private lazy var _notificationService = NotificationService()
+    private lazy var _locationService = LocationService()
+    
     /// Initializes the dependency container with a navigation router and sets up networking components based on the current environment.
     /// - Parameter router: The navigation router used for view transitions.
     public init(router: NavigationRouter) {
@@ -88,7 +91,7 @@ extension DependencyContainer: AuthUseCasesProvider {
 
 extension DependencyContainer: MatchDetailUseCasesProvider {
     var notifications: any NotificationProtocol {
-        NotificationService()
+        _notificationService
     }
     
     var matches: any MatchUseCaseProtocol {
@@ -96,7 +99,7 @@ extension DependencyContainer: MatchDetailUseCasesProvider {
     }
     
     var location: any LocationProtocol {
-        LocationService()
+        _locationService
     }
 }
 
