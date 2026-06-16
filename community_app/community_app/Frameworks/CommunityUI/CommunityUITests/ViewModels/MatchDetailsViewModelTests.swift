@@ -7,7 +7,7 @@
 
 import XCTest
 import Combine
-import CoreLocation // Import CoreLocation for CLLocation and CLAuthorizationStatus
+import CoreLocation
 @testable import CommunityUI
 @testable import CommunityCore
 
@@ -21,7 +21,7 @@ final class MatchDetailsViewModelTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        mockProvider = .init()
+        mockProvider = .init() 
         mockRouter = .init()
         cancellables = []
         sut = .init(useCases: mockProvider, router: mockRouter, match_id: "test_match_id_123")
@@ -346,8 +346,8 @@ final class MatchDetailsViewModelTests: XCTestCase {
         XCTAssertTrue(mockProvider.notificationMock.authorizationRequested)
         XCTAssertEqual(mockProvider.notificationMock.scheduledMatchID, "test_match_id_123")
         XCTAssertTrue(mockProvider.notificationMock.scheduledMatch)
-        XCTAssertTrue(sut.isNotificationScheduled, "isNotificationScheduled should be true after successful scheduling")
-        XCTAssertFalse(sut.isSchedulingNotification, "isSchedulingNotification should be false after task completion")
+        XCTAssertTrue(sut.notificationState == .reminderSet, "isNotificationScheduled should be true after successful scheduling")
+        XCTAssertFalse(sut.notificationState == .updating, "isSchedulingNotification should be false after task completion")
         XCTAssertNotNil(mockRouter.alertItem, "An alert should be shown for success")
         XCTAssertEqual(mockRouter.alertItem?.title, "Success")
     }
@@ -366,14 +366,13 @@ final class MatchDetailsViewModelTests: XCTestCase {
         // Refresh the ViewModel's internal state after setting the mock result
         await sut.cancelMatchNotification()
 
-        XCTAssertFalse(sut.isNotificationScheduled, "Precondition: Notification should be scheduled.")
+        XCTAssertTrue(sut.notificationState == .noReminder, "Precondition: Notification should be scheduled.")
         XCTAssertEqual(mockProvider.notificationMock.cancelledMatchID, "test_match_id_123")
 
         // Assert
         try? await Task.sleep(nanoseconds: 100_000_000) // Allow async work to complete
         XCTAssertFalse(mockProvider.notificationMock.scheduledMatch, "cancelMatchNotification should be called on the service.")
-        XCTAssertFalse(sut.isNotificationScheduled, "isNotificationScheduled should be false after successful cancellation.")
-        XCTAssertFalse(sut.isCancellingNotification, "isCancellingNotification should be false after cancellation completes.")
+        XCTAssertFalse(sut.notificationState == .updating, "isCancellingNotification should be false after cancellation completes.")
         XCTAssertNotNil(mockRouter.alertItem, "An alert should be shown for success.")
         XCTAssertEqual(mockRouter.alertItem?.title, "Reminder Cancelled")
     }

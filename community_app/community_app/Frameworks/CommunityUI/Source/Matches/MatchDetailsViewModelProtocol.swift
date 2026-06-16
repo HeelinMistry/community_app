@@ -19,9 +19,7 @@ public protocol MatchDetailsViewModelProtocol: StateDrivenViewModel where DataTy
     var isTogglingCancellation: Bool { get }
     
     // Properties for notification scheduling
-    var isSchedulingNotification: Bool { get }
-    var isNotificationScheduled: Bool { get }
-    var isCancellingNotification: Bool { get }
+    var notificationState: NotificationState { get }
     
     var lastKnownLocation: CLLocation? { get } 
     var isAuthorized: Bool { get }

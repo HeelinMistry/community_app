@@ -30,3 +30,17 @@ public enum NotificationError: Error, LocalizedError {
         }
     }
 }
+
+/// Represents the various states of a notification reminder for an event.
+public enum NotificationState {
+    /// The reminder state is currently being updated.
+    case updating
+    /// No reminder has been set for the event.
+    case noReminder
+    /// A reminder has been successfully set for the event.
+    case reminderSet
+    /// The event is within the final hour before it starts.
+    case finalHour
+    /// The event has already passed.
+    case passed
+}

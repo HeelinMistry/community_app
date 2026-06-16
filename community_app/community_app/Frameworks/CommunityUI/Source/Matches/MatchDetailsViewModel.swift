@@ -24,10 +24,8 @@ public final class MatchDetailsViewModel: MatchDetailsViewModelProtocol {
     @Published public private(set) var lastKnownLocation: CLLocation?
     @Published public private(set) var isAuthorized: Bool
     
-    @Published public private(set) var isSchedulingNotification: Bool = false
-    @Published public private(set) var isNotificationScheduled: Bool = false
-    @Published public private(set) var isCancellingNotification: Bool = false 
-    
+    @Published public private(set) var notificationState: NotificationState = .noReminder
+ 
     public var matchURL: URL
     
     private let match_id: String
@@ -186,10 +184,8 @@ public final class MatchDetailsViewModel: MatchDetailsViewModelProtocol {
     }
     
     public func scheduleMatchNotification() async {
-        guard !isSchedulingNotification else { return }
-        isSchedulingNotification = true
-        
-        defer { isSchedulingNotification = false }
+        guard notificationState != .updating else { return }
+        notificationState = .updating
         
         guard let match = matchDetailResponse else {
             router.alertItem = .init(title: "Error", message: "Match details not available to schedule notification.", dismissButton: .cancel())
@@ -216,10 +212,8 @@ public final class MatchDetailsViewModel: MatchDetailsViewModelProtocol {
     }
 
     public func cancelMatchNotification() async {
-        guard !isCancellingNotification else { return }
-        isCancellingNotification = true
-
-        defer { isCancellingNotification = false }
+        guard notificationState != .updating else { return }
+        notificationState = .updating
 
         useCases.notifications.cancelMatchNotification(id: match_id)
         router.alertItem = .init(title: "Reminder Cancelled", message: "Your reminder for this match has been removed.", dismissButton: .cancel())
@@ -228,7 +222,11 @@ public final class MatchDetailsViewModel: MatchDetailsViewModelProtocol {
     }
     
     private func updateNotificationScheduledState() async {
-        self.isNotificationScheduled = await useCases.notifications.isNotificationScheduled(with: match_id)
+        if await useCases.notifications.isNotificationScheduled(with: match_id) {
+            notificationState = .reminderSet
+        } else {
+            notificationState = .noReminder 
+        }
     }
     
     private func formatDate(_ isoString: String) -> Date {
