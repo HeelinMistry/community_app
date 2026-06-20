@@ -9,7 +9,7 @@ import SwiftUI
 import Foundation
 import CommunityCore
 import MapKit
-import CoreLocation // Import CoreLocation for user location
+import CoreLocation
 
 public struct MatchDetailsView<T: MatchDetailsViewModelProtocol>: View {
     @EnvironmentObject private var router: NavigationRouter
@@ -170,75 +170,7 @@ public struct MatchDetailsView<T: MatchDetailsViewModelProtocol>: View {
                         Divider()
 
                         // MARK: - Action Buttons
-                        HStack {
-                            Button {
-                                viewModel.toggleMatchParticipation()
-                            } label: {
-                                if viewModel.isTogglingParticipation {
-                                    ProgressView()
-                                        .progressViewStyle(.circular)
-                                        .tint(match.is_joined ? .red : Assets.theme.primaryAccent)
-                                } else {
-                                    Label(match.is_joined ? "Leave Match" : "Join Match", systemImage: match.is_joined ? "person.crop.circle.badge.minus" : "person.crop.circle.badge.plus")
-                                        .frame(maxWidth: .infinity)
-                                }
-                            }
-                            .buttonStyle(.borderedProminent)
-                            .controlSize(.large)
-                            .tint(match.is_joined ? .red : Assets.theme.primaryAccent)
-                            .disabled(viewModel.isTogglingParticipation)
-
-                            // Host-specific button for cancelling/uncancelling
-                            if match.is_host {
-                                Button {
-                                    viewModel.toggleMatchCancellation()
-                                } label: {
-                                    if viewModel.isTogglingCancellation {
-                                        ProgressView()
-                                            .progressViewStyle(.circular)
-                                            .tint(match.is_cancelled ? Assets.theme.primaryAccent : .red)
-                                    } else {
-                                        Label(match.is_cancelled ? "Uncancel" : "Cancel", systemImage: match.is_cancelled ? "arrow.uturn.backward.circle.fill" : "xmark.octagon.fill")
-                                            .frame(maxWidth: .infinity)
-                                    }
-                                }
-                                .buttonStyle(.borderedProminent)
-                                .controlSize(.large)
-                                .tint(match.is_cancelled ? Assets.theme.primaryAccent : .red)
-                                .disabled(viewModel.isTogglingCancellation)
-                            }
-                        }
-                        .padding(.top, 16)
-                        
-                        // MARK: - Notification Button
-                        // New: Notification button, enabled after joining and if not cancelled
-                        if match.is_joined && !match.is_cancelled {
-                            Button {
-                                Task {
-                                    if viewModel.notificationState == .reminderSet {
-                                        await viewModel.cancelMatchNotification() // Call new cancellation method
-                                    } else {
-                                        await viewModel.scheduleMatchNotification()
-                                    }
-                                }
-                            } label: {
-                                if viewModel.notificationState == .updating {
-                                    ProgressView()
-                                        .progressViewStyle(.circular)
-                                        .tint(Assets.theme.primaryAccent)
-                                } else {
-                                    Label(viewModel.notificationState == .reminderSet ? "Cancel Reminder" : "Set Reminder", // Changed label
-                                          systemImage: viewModel.notificationState == .reminderSet ? "bell.slash.fill" : "bell.badge") // Changed system image
-                                        .frame(maxWidth: .infinity)
-                                }
-                            }
-                            .buttonStyle(.borderedProminent)
-                            .controlSize(.large)
-                            // Change the tint to reflect the disabled/set state
-                            .tint(viewModel.notificationState == .reminderSet ? .orange : Assets.theme.primaryAccent) // Changed tint for "Cancel Reminder"
-                            .disabled(viewModel.notificationState == .updating) // Disable if already scheduling or cancelling
-                            .padding(.top, 8)
-                        }
+                        actionButtons
 
                         ShareLink(item: viewModel.matchURL, subject: Text("Match Invitation")) {
                             Label("Share Match", systemImage: "square.and.arrow.up")
@@ -301,9 +233,103 @@ public struct MatchDetailsView<T: MatchDetailsViewModelProtocol>: View {
         let formatter = MeasurementFormatter()
         formatter.unitStyle = .long
         formatter.unitOptions = .providedUnit
-        formatter.numberFormatter.maximumFractionDigits = 1 // Limit decimal places
+        formatter.numberFormatter.maximumFractionDigits = 1
         
         return formatter.string(from: distanceMeasurement)
+    }
+    
+    private var actionButtons: some View {
+        VStack(spacing: 16) {
+            if viewModel.isUpcoming {
+                upcomingMatchActions
+            } else {
+                pastMatchActions
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private var upcomingMatchActions: some View {
+        // 1. Join/Leave Button
+        if let match = viewModel.matchDetailResponse {
+            Button(
+                action: { viewModel.toggleMatchParticipation()},
+                label: {
+                    if viewModel.isTogglingParticipation {
+                        ProgressView()
+                            .progressViewStyle(.circular)
+                            .tint(match.is_joined ? .red : Assets.theme.primaryAccent)
+                    } else {
+                        Label(match.is_joined ? "Leave Match" : "Join Match", systemImage: match.is_joined ? "person.crop.circle.badge.minus" : "person.crop.circle.badge.plus")
+                            .frame(maxWidth: .infinity)
+                    }
+                })
+            
+            if match.is_host {
+                Button {
+                    viewModel.toggleMatchCancellation()
+                } label: {
+                    if viewModel.isTogglingCancellation {
+                        ProgressView()
+                            .progressViewStyle(.circular)
+                            .tint(match.is_cancelled ? Assets.theme.primaryAccent : .red)
+                    } else {
+                        Label(match.is_cancelled ? "Uncancel" : "Cancel", systemImage: match.is_cancelled ? "arrow.uturn.backward.circle.fill" : "xmark.octagon.fill")
+                            .frame(maxWidth: .infinity)
+                    }
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.large)
+                .tint(match.is_cancelled ? Assets.theme.primaryAccent : .red)
+                .disabled(viewModel.isTogglingCancellation)
+            }
+            
+            // 2. Notification Button
+            if match.is_joined && !match.is_cancelled {
+                notificationButton
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var pastMatchActions: some View {
+        Text("Match has concluded")
+            .font(.caption)
+            .foregroundColor(Assets.theme.secondaryText)
+        
+        Button(action: { /* Navigate to Rate Match View */ }, label: {
+            Label("Rate Match", systemImage: "star.fill")
+                .frame(maxWidth: .infinity)
+        })
+        .buttonStyle(.bordered)
+    }
+
+    @ViewBuilder
+    private var notificationButton: some View {
+        Button {
+            Task {
+                if viewModel.notificationState == .reminderSet {
+                    await viewModel.cancelMatchNotification() // Call new cancellation method
+                } else {
+                    await viewModel.scheduleMatchNotification()
+                }
+            }
+        } label: {
+            if viewModel.notificationState == .updating {
+                ProgressView()
+                    .progressViewStyle(.circular)
+                    .tint(Assets.theme.primaryAccent)
+            } else {
+                Label(viewModel.notificationState == .reminderSet ? "Cancel Reminder" : "Set Reminder",
+                      systemImage: viewModel.notificationState == .reminderSet ? "bell.slash.fill" : "bell.badge")
+                    .frame(maxWidth: .infinity)
+            }
+        }
+        .buttonStyle(.borderedProminent)
+        .controlSize(.large)
+        .tint(viewModel.notificationState == .reminderSet ? .orange : Assets.theme.primaryAccent)
+        .disabled(viewModel.notificationState == .updating)
+        .padding(.top, 8)
     }
 }
 

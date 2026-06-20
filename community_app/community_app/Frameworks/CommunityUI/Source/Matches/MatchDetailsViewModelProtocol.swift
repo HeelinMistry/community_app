@@ -18,11 +18,12 @@ public protocol MatchDetailsViewModelProtocol: StateDrivenViewModel where DataTy
     var isTogglingParticipation: Bool { get }
     var isTogglingCancellation: Bool { get }
     
-    // Properties for notification scheduling
     var notificationState: NotificationState { get }
     
     var lastKnownLocation: CLLocation? { get } 
     var isAuthorized: Bool { get }
+    
+    var isUpcoming: Bool { get }
     
     func matchDetail()
     func toggleMatchParticipation()

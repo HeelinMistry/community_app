@@ -26,6 +26,11 @@ public final class MatchDetailsViewModel: MatchDetailsViewModelProtocol {
     
     @Published public private(set) var notificationState: NotificationState = .noReminder
  
+    public var isUpcoming: Bool {
+        guard let match = matchDetailResponse else { return false }
+        return formatDate(match.start_datetime) > Date()
+    }
+    
     public var matchURL: URL
     
     private let match_id: String
