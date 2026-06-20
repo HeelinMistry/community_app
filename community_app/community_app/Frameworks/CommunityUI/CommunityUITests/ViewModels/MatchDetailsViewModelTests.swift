@@ -412,4 +412,19 @@ final class MatchDetailsViewModelTests: XCTestCase {
             XCTFail("Expected .error state, but got \(sut.state)")
         }
     }
+    
+    func test_isUpcoming_past() async {
+        let expectedResponse: MatchDetailResponse = .init(is_joined: false)
+        mockProvider.mockMatchUseCases.matchDetailsResult = .success(expectedResponse)
+        
+        // Act - Populate match details first
+        sut.matchDetail()
+        try? await Task.sleep(nanoseconds: 100_000_000)
+        
+        XCTAssert(sut.isUpcoming == false)
+    }
+    
+    func test_isUpcoming_error() async {
+        XCTAssert(sut.isUpcoming == false)
+    }
 }
