@@ -56,7 +56,7 @@ public struct PrimaryPicker<SelectionValue: Hashable>: View {
             .cornerRadius(12)
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(errorMessage == nil ? Color.white.opacity(0.1) : Color.red, lineWidth: 1)
+                    .stroke(errorMessage == nil ? Color.primary.opacity(0.1) : Color.red, lineWidth: 1)
             )
             .accentColor(Assets.theme.primary)
             

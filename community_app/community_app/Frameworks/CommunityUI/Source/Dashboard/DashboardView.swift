@@ -67,7 +67,7 @@ struct DashboardView<T: DashboardViewModelProtocol>: View {
                         }
                     }
                     .padding()
-                    .background(Assets.theme.inputBackground)
+                    .background(Assets.theme.surfaceBackground)
                     .cornerRadius(10)
                 }
                 .padding()

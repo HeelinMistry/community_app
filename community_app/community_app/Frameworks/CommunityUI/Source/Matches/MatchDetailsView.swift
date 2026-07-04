@@ -35,7 +35,7 @@ private func fileFormatDate(_ isoString: String) -> String {
 
 private func fileFormattedDistance(from userLocation: CLLocation, to matchLocation: CLLocation) -> String {
     let distanceInMeters = userLocation.distance(from: matchLocation)
-    let distanceMeasurement = Measurement(value: distanceInMeters, unit: UnitLength.meters)
+    let distanceMeasurement = Measurement(value: distanceInMeters, unit: UnitLength.kilometers)
     
     let formatter = MeasurementFormatter()
     formatter.unitStyle = .long
@@ -262,6 +262,7 @@ private struct MatchDetailsSuccessContentView<T: MatchDetailsViewModelProtocol>:
             }
             
             Divider()
+                .foregroundStyle(Assets.theme.primary.opacity(0.3))
 
             // MARK: - Status Indicators
             VStack(alignment: .leading, spacing: 8) {
@@ -288,6 +289,7 @@ private struct MatchDetailsSuccessContentView<T: MatchDetailsViewModelProtocol>:
             .padding(.vertical, 4)
 
             Divider()
+                .foregroundStyle(Assets.theme.primary.opacity(0.3))
 
             // MARK: - Player List
             VStack(alignment: .leading, spacing: 10) {
@@ -314,6 +316,7 @@ private struct MatchDetailsSuccessContentView<T: MatchDetailsViewModelProtocol>:
             }
 
             Divider()
+                .foregroundStyle(Assets.theme.primary.opacity(0.3))
 
             // MARK: - Action Buttons
             MatchDetailsActionButtons(viewModel: viewModel)
