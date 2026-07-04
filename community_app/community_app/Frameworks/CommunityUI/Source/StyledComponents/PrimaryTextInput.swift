@@ -55,9 +55,9 @@ public struct PrimaryTextInput: View {
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
                         // Highlight border in red if there is an error
-                            .stroke(errorMessage == nil ? Color.white.opacity(0.1) : Color.red, lineWidth: 1)
+                            .stroke(errorMessage == nil ? Color.primary.opacity(0.1) : Color.red, lineWidth: 1)
                     )
-                    .foregroundColor(.white)
+                    .foregroundColor(.primary)
             } else {
                 TextField("", text: $text, prompt: Text(placeholder).foregroundColor(Assets.theme.secondaryText))
                     .padding()
@@ -66,9 +66,9 @@ public struct PrimaryTextInput: View {
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
                         // Highlight border in red if there is an error
-                            .stroke(errorMessage == nil ? Color.white.opacity(0.1) : Color.red, lineWidth: 1)
+                            .stroke(errorMessage == nil ? Color.primary.opacity(0.1) : Color.red, lineWidth: 1)
                     )
-                    .foregroundColor(.white)
+                    .foregroundColor(.primary)
             }
             
             // Display the error message if it exists

@@ -15,8 +15,6 @@ public struct LoginView<T: LoginViewModelProtocol>: View {
     
     public var body: some View {
         ZStack {
-            Assets.theme.inputBackground.ignoresSafeArea()
-            
             VStack(spacing: 30) {
                 BrandLogo(
                     "PITCH",
@@ -39,7 +37,7 @@ public struct LoginView<T: LoginViewModelProtocol>: View {
                 .disabled(viewModel.state.isLoading)
                 
                 Divider()
-                    .background(Color.white.opacity(0.1))
+                    .background(Color.primary.opacity(0.1))
                 
                 HStack(spacing: 4) {
                     Text("NEW TO THE COMMUNITY?")
@@ -52,7 +50,7 @@ public struct LoginView<T: LoginViewModelProtocol>: View {
                 }
             }
             .padding(30)
-            .background(Assets.theme.inputBackground)
+            .background(Assets.theme.surfaceBackground)
             .cornerRadius(30)
             .padding(.horizontal, 20)
             .overlay {
