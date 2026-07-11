@@ -41,7 +41,7 @@ public nonisolated struct RegisterRequest: Sendable, Codable, Equatable {
 public nonisolated struct RegisterResponse: Sendable, Equatable, Encodable, Decodable {
     public let success: Bool
     public let detail: String
-
+    
     public init(success: Bool, detail: String) {
         self.success = success
         self.detail = detail
