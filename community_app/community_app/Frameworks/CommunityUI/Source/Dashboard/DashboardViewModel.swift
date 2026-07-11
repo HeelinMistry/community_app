@@ -8,44 +8,61 @@
 import Combine
 import Foundation
 import CommunityCore
+import CoreLocation
+import MapKit
 
 @MainActor
-public protocol DashboardViewModelProtocol: StateDrivenViewModel where DataType == Matches, DataType: Collection, DataType.Element == MatchResponse {
+public protocol DashboardViewModelProtocol: StateDrivenViewModel where DataType == DashboardModel {
     
-    var upcomingMatches: [MatchResponse] { get }
-    var historyMatches: [MatchResponse] { get }
+    var lastKnownLocation: CLLocation? { get }
+    var isAuthorized: Bool { get }
+    
+    var dashboardModel: DashboardModel { get }
     
     func matchFeed()
     func createMatchTapped()
+    
+    func nearbySuppliers()
 }
 
 @MainActor
 public final class DashboardViewModel: DashboardViewModelProtocol {
-    @Published public private(set) var state: ViewState<Matches> = .idle
+    @Published public private(set) var state: ViewState<DashboardModel> = .idle
+    
+    @Published public private(set) var dashboardModel: DashboardModel = .init()
+    
+    @Published public private(set) var lastKnownLocation: CLLocation?
+    @Published public private(set) var isAuthorized: Bool
     
     private let router: NavigationRouter
-    private let useCases: any MatchDetailUseCasesProvider
+    private let useCases: any DashboardUseCasesProvider
     private var fetchTask: Task<Void, Never>?
     
     private var cancellables = Set<AnyCancellable>()
     
-    private static let isoDateFormatter: ISO8601DateFormatter = {
-        let formatter = ISO8601DateFormatter()
-        formatter.formatOptions = [.withInternetDateTime, .withDashSeparatorInDate, .withColonSeparatorInTime]
-        return formatter
-    }()
-    
     public init(
-        useCases: any MatchDetailUseCasesProvider,
+        useCases: any DashboardUseCasesProvider,
         router: NavigationRouter
     ) {
         self.useCases = useCases
         self.router = router
+        self.isAuthorized = useCases.location.authorizationStatus == .authorizedAlways || useCases.location.authorizationStatus == .authorizedWhenInUse
         setupObservers()
         matchFeed()
     }
     
     private func setupObservers() {
+        useCases.location.authorizationStatusPublisher
+            .sink { [weak self] status in
+                guard let self = self else { return }
+                self.isAuthorized = status == .authorizedAlways || status == .authorizedWhenInUse
+            }
+            .store(in: &cancellables)
+        useCases.location.lastKnownLocationPublisher
+            .sink { [weak self] location in
+                self?.lastKnownLocation = location
+            }
+            .store(in: &cancellables)
         NotificationCenter.default.publisher(for: .matchCreated)
             .receive(on: RunLoop.main)
             .sink { [weak self] _ in
@@ -65,7 +82,35 @@ public final class DashboardViewModel: DashboardViewModelProtocol {
             do {
                 let response: Matches = try await useCases.matches.userRelatedMatches()
                 if !Task.isCancelled {
-                    self.state = .success(response)
+                    dashboardModel.update(matches: response)
+                    state = .success(dashboardModel)
+                }
+            } catch {
+                if !Task.isCancelled {
+                    self.state = .error(error.localizedDescription)
+                }
+            }
+        }
+    }
+    
+    public func nearbySuppliers() {
+        if state == .loading {
+            return
+        }
+        
+        fetchTask?.cancel()
+        state = .loading
+        fetchTask = Task {
+            do {
+                let request: SupplierRequest = .init(
+                    lat: lastKnownLocation?.coordinate.latitude ?? 0,
+                    lon: lastKnownLocation?.coordinate.longitude ?? 0,
+                    user_radius: 5.0
+                )
+                let response: Suppliers = try await useCases.suppliers.nearbySuppliers(request)
+                if !Task.isCancelled {
+                    dashboardModel.update(suppliers: response)
+                    state = .success(dashboardModel)
                 }
             } catch {
                 if !Task.isCancelled {
@@ -77,33 +122,5 @@ public final class DashboardViewModel: DashboardViewModelProtocol {
     
     public func createMatchTapped() {
         router.sheet = .createMatch
-    }
-    
-    // MARK: - Match Filtering
-    
-    public var upcomingMatches: [MatchResponse] {
-        guard case .success(let matches) = state else { return [] }
-        let now = Date()
-        return matches.filter { match in
-            guard let matchDate = DashboardViewModel.isoDateFormatter.date(from: match.start_datetime) else { return false }
-            return matchDate > now
-        }.sorted(by: {
-            guard let date1 = DashboardViewModel.isoDateFormatter.date(from: $0.start_datetime),
-                  let date2 = DashboardViewModel.isoDateFormatter.date(from: $1.start_datetime) else { return false }
-            return date1 < date2 // Sort upcoming from earliest to latest
-        })
-    }
-    
-    public var historyMatches: [MatchResponse] {
-        guard case .success(let matches) = state else { return [] }
-        let now = Date()
-        return matches.filter { match in
-            guard let matchDate = DashboardViewModel.isoDateFormatter.date(from: match.start_datetime) else { return false }
-            return matchDate <= now
-        }.sorted(by: {
-            guard let date1 = DashboardViewModel.isoDateFormatter.date(from: $0.start_datetime),
-                  let date2 = DashboardViewModel.isoDateFormatter.date(from: $1.start_datetime) else { return false }
-            return date1 > date2 // Sort history from newest to oldest
-        })
     }
 }

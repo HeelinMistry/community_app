@@ -8,7 +8,18 @@
 import SwiftUI
 import CommunityCore
 
-// Define an enum for the match tabs
+enum FeedCategory: String, CaseIterable {
+    case events, services, products
+    
+    var display: (text: String, icon: String) {
+        switch self {
+        case .events: return ("Events", "calendar")
+        case .services: return ("Services", "hammer.fill")
+        case .products: return ("Products", "cart.fill")
+        }
+    }
+}
+
 enum MatchTab: String, CaseIterable, Identifiable {
     case upcoming = "Upcoming"
     case history = "History"
@@ -17,6 +28,7 @@ enum MatchTab: String, CaseIterable, Identifiable {
 
 struct DashboardView<T: DashboardViewModelProtocol>: View {
     @StateObject private var viewModel: T
+    @State private var selectedCategory: FeedCategory = .events
     @State private var selectedTab: MatchTab = .upcoming
     
     public init(viewModel: T) {
@@ -26,10 +38,12 @@ struct DashboardView<T: DashboardViewModelProtocol>: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 16) {
-                    PrimaryText(label: "Welcome to Your Feed!")
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
-                        .padding(.bottom, 20)
+                    CategoryPicker(
+                        options: FeedCategory.allCases,
+                        selection: $selectedCategory
+                    ) { category in
+                        category.display
+                    }
                     
                     Picker("Match Type", selection: $selectedTab) {
                         ForEach(MatchTab.allCases) { tab in
@@ -46,7 +60,7 @@ struct DashboardView<T: DashboardViewModelProtocol>: View {
                             ProgressView("Loading matches...")
                                 .padding()
                         case .success:
-                            let matchesToShow = selectedTab == .upcoming ? viewModel.upcomingMatches : viewModel.historyMatches
+                            let matchesToShow = selectedTab == .upcoming ? viewModel.dashboardModel.upcomingMatches : viewModel.dashboardModel.historyMatches
                             
                             if matchesToShow.isEmpty {
                                 Text(selectedTab == .upcoming ?
@@ -73,7 +87,6 @@ struct DashboardView<T: DashboardViewModelProtocol>: View {
                 .padding()
                 .background(Color.clear.ignoresSafeArea())
                 .navigationTitle("Dashboard")
-                .navigationBarTitleDisplayMode(.large)
                 .toolbar {
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Button {
@@ -85,6 +98,17 @@ struct DashboardView<T: DashboardViewModelProtocol>: View {
                 }
                 .onAppear {
                     viewModel.matchFeed()
+                }
+                .onChange(of: selectedCategory) {
+                    switch selectedCategory {
+                    case .events:
+                        viewModel.matchFeed()
+                    case .services:
+                        viewModel.nearbySuppliers()
+                    case .products:
+                        // viewModel.loadProducts()
+                        break
+                    }
                 }
             }
         }

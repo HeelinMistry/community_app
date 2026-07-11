@@ -5,7 +5,7 @@ This module contains the SQLAlchemy model definitions for the application's
 database tables, including users, passkeys, matches, and match players.
 """
 
-from sqlalchemy import Column, String, Integer, ForeignKey, Boolean, DateTime, Double
+from sqlalchemy import Column, String, Integer, ForeignKey, Boolean, DateTime, Double, REAL, Index
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.db.database import Base
@@ -21,11 +21,13 @@ class User(Base):
         id (str): Unique identifier for the user.
         display_name (str): The user's display name.
         matches_hosted (relationship): Relationship to the matches hosted by the user.
+        suppliers (relationship): Relationship to the suppliers owned by the user.
     """
     __tablename__ = "users"
     id = Column(Integer, primary_key=True, index=True)
     display_name = Column(String)
     matches_hosted = relationship("Match", back_populates="host")
+    suppliers = relationship("Supplier", back_populates="owner")
 
 class Credential(Base):
     """
@@ -112,3 +114,35 @@ class MatchPlayer(Base):
     date_modified = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
     match = relationship("Match", back_populates="players")
+
+class Supplier(Base):
+    """
+    Represents a supplier of services or products.
+
+    Attributes:
+        id (int): Unique identifier for the supplier.
+        user_id (int): Foreign key to the user who owns this supplier entry.
+        business_name (str): The name of the business.
+        description (str): A description of the services or products offered.
+        latitude (float): The latitude of the supplier's location.
+        longitude (float): The longitude of the supplier's location.
+        service_radius (float): The radius of the service area in kilometers.
+        category (str): The category of the supplier.
+        owner (relationship): Relationship to the user who owns this supplier entry.
+    """
+    __tablename__ = "suppliers"
+
+    id = Column(Integer, primary_key=True, autoincrement=True, default=f"s_{uuid.uuid4().hex[:8]}")
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    business_name = Column(String, nullable=False)
+    description = Column(String)
+    latitude = Column(REAL, nullable=False)
+    longitude = Column(REAL, nullable=False)
+    service_radius = Column(REAL)
+    category = Column(String)
+
+    owner = relationship("User", back_populates="suppliers")
+
+    __table_args__ = (
+        Index('idx_supplier_location', 'latitude', 'longitude'),
+    )

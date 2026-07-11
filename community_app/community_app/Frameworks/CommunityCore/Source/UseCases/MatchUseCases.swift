@@ -5,12 +5,6 @@
 //  Created by Heelin Mistry on 2026/04/30.
 //
 
-/// This protocol is `Sendable` to ensure it can be safely used across concurrency domains.
-public protocol MatchesUseCaseProtocol: Sendable {
-    func getMatches() async throws -> MatchResponse
-
-}
-
 public final class MatchUseCases: MatchUseCaseProtocol {
     
     private let match: any MatchRepositoryProtocol

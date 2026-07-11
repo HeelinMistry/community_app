@@ -20,6 +20,7 @@ final class DependencyContainer {
     
     private var authRepository: AuthRepositoryProtocol!
     private var matchRepository: MatchRepositoryProtocol!
+    private var supplierRepository: SupplierRepositoryProtocol!
     
     private var dashboardViewModel: DashboardViewModel?
     
@@ -45,6 +46,7 @@ final class DependencyContainer {
         self.networkClient = .init(networkConfig: networkConfig)
         self.authRepository = AuthRepository(networkClient: networkClient)
         self.matchRepository = MatchRepository(networkClient: networkClient)
+        self.supplierRepository = SupplierRepository(networkClient: networkClient)
     }
     
     /// Creates and returns a `LoginViewModel`.
@@ -88,7 +90,8 @@ extension DependencyContainer: AuthUseCasesProvider {
     }
 }
 
-extension DependencyContainer: MatchDetailUseCasesProvider {
+extension DependencyContainer: MatchDetailUseCasesProvider, DashboardUseCasesProvider {
+
     var notifications: any NotificationProtocol {
         _notificationService
     }
@@ -99,6 +102,10 @@ extension DependencyContainer: MatchDetailUseCasesProvider {
     
     var location: any LocationProtocol {
         _locationService
+    }
+    
+    var suppliers: any SupplierUseCasesProtocol {
+        SupplierUseCases(supplier: supplierRepository)
     }
 }
 

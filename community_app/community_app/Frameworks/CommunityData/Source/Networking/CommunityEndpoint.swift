@@ -41,12 +41,21 @@ enum CommunityEndpoint: APIEndpoint {
     case toggleParticipation(_ matchDetailRequest: MatchDetailRequest)
     case toggleCancel(_ matchDetailRequest: MatchDetailRequest)
     
+    case suppliers(_ supplierRequest: SupplierRequest)
+    
     /// The HTTP method for all OpenWeatherMap endpoints, which is GET.
     var method: HTTPMethod {
         switch self {
-        case .matches, .matchDetail: return .get
-        case .login, .register, .createMatch, .toggleParticipation, .toggleCancel
-            : return .post
+        case .matches,
+                .matchDetail,
+                .suppliers:
+            return .get
+        case .login,
+                .register,
+                .createMatch,
+                .toggleParticipation,
+                .toggleCancel:
+            return .post
         }
     }
     
@@ -60,6 +69,7 @@ enum CommunityEndpoint: APIEndpoint {
         case .matchDetail(let request): return "api/v1/matches/\(request.match_id)"
         case .toggleParticipation(let request): return "api/v1/matches/\(request.match_id)/toggle-join"
         case .toggleCancel(let request): return "api/v1/matches/\(request.match_id)/toggle-cancel"
+        case .suppliers: return "api/v1/suppliers"
         }
     }
     
@@ -74,6 +84,14 @@ enum CommunityEndpoint: APIEndpoint {
                 .toggleParticipation,
                 .toggleCancel:
             return []
+        case .suppliers(let request):
+            let coordinates = request.convertCoordinateToReal
+            let queryItems: [URLQueryItem] = [
+                URLQueryItem(name: "lat", value: coordinates.0),
+                URLQueryItem(name: "lon", value: coordinates.1),
+                URLQueryItem(name: "user_radius", value: request.convertRadiusToReal)
+            ]
+            return queryItems
         }
     }
     

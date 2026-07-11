@@ -14,7 +14,7 @@ import Combine
 final class DashboardViewModelTests: XCTestCase {
     private var sut: DashboardViewModel!
     private var mockRouter: NavigationRouter!
-    private var mockProvider: MatchUseCasesProviderMock!
+    private var mockProvider: DashboardUseCasesProviderMock!
     
     // Replicate the formatter used in DashboardViewModel for consistent date string handling
     private static let testIsoDateFormatter: ISO8601DateFormatter = {
@@ -28,8 +28,11 @@ final class DashboardViewModelTests: XCTestCase {
         mockProvider = .init()
         mockRouter = .init()
         
-        let expectedResponse: Matches = [.init()]
-        mockProvider.mockMatchUseCases.matchResult = .success(expectedResponse)
+        // Provide a default history match in setUp for general cases
+        let pastDateForSetup = Date.now.addingTimeInterval(-3600) // 1 hour ago
+        let formattedPastDateStringForSetup = Self.testIsoDateFormatter.string(from: pastDateForSetup)
+        let expectedResponseForSetup: Matches = [.init(start_datetime: formattedPastDateStringForSetup)]
+        mockProvider.mockMatchUseCases.matchResult = .success(expectedResponseForSetup)
         
         sut = .init(useCases: mockProvider, router: mockRouter)
     }
@@ -43,19 +46,22 @@ final class DashboardViewModelTests: XCTestCase {
     
     func testMatches_WhenSuccessful_SetsSuccessState() async {
         // Arrange
-        let expectedResponse: Matches = [.init()]
+        let pastDate = Date.now.addingTimeInterval(-3600) // A date in the past (e.g., 1 hour ago)
+        let formattedPastDateString = Self.testIsoDateFormatter.string(from: pastDate)
+        
+        let expectedResponse: Matches = [.init(start_datetime: formattedPastDateString)]
         mockProvider.mockMatchUseCases.matchResult = .success(expectedResponse)
         
         // Act
         sut.matchFeed()
         
         // Wait for the Task to complete
-        // We use a small delay or Task.yield since loginAttempt creates a detached Task
         try? await Task.sleep(nanoseconds: 100_000_000)
         
         // Assert
         if case .success(let response) = sut.state {
-            XCTAssertTrue(response == expectedResponse)
+            XCTAssertEqual(response.historyMatches.count, 1, "Expected 1 history match")
+            XCTAssertEqual(response.upcomingMatches.count, 0, "Expected 0 upcoming matches") // Added for clarity
         } else {
             XCTFail("Expected .success state, got \(sut.state)")
         }
@@ -88,11 +94,17 @@ final class DashboardViewModelTests: XCTestCase {
     }
     
     func testUpcomingMatches_idleState_returnsEmpty() {
-        XCTAssert(sut.upcomingMatches.isEmpty)
+        // After setup, if matchFeed hasn't been called, upcoming should be empty.
+        // If setUp always calls matchFeed with a past match, this test might need adjustment.
+        // Assuming matchFeed is not implicitly called before this test runs or state is reset.
+        XCTAssert(sut.dashboardModel.upcomingMatches.isEmpty)
     }
 
     func testHistoryMatches_idleState_returnsEmpty() {
-        XCTAssert(sut.historyMatches.isEmpty)
+        // Similar to upcomingMatches_idleState, depends on when matchFeed is called.
+        // If setUp provides a history match, this test might fail as historyMatches won't be empty.
+        // For truly idle state, you might need to ensure matchFeed is not called, or state is cleared.
+        XCTAssert(sut.dashboardModel.historyMatches.isEmpty)
     }
     
     func testMatches_successState_returnsFiltered() async {
@@ -120,8 +132,50 @@ final class DashboardViewModelTests: XCTestCase {
         }
         try? await Task.sleep(nanoseconds: 100_000_000)
         
-        XCTAssert(sut.upcomingMatches.count == 2)
-        XCTAssert(sut.historyMatches.count == 2)
+        XCTAssert(sut.dashboardModel.upcomingMatches.count == 2)
+        XCTAssert(sut.dashboardModel.historyMatches.count == 2)
+    }
+    
+    func testNearbySuppliers_WhenSuccessful_SetsSuccessState() async throws {
+        let expectedSupplier: Suppliers = [.init(
+            id: "s_1231",
+            user_id: "1231",
+            business_name: "test_business",
+            description: "Rotis",
+            category: "Catering",
+            distance_km: 10.0
+        )]
+        mockProvider.mockSuppliersUseCases.supplierResult = .success(expectedSupplier)
+        sut.nearbySuppliers()
+        
+        // Wait for the Task to complete
+        try? await Task.sleep(nanoseconds: 100_000_000)
+        
+        // Assert
+        if case .success(let response) = sut.state {
+            XCTAssertEqual(response.suppliers.count, 1, "Expected 1 supplier")
+        } else {
+            XCTFail("Expected .success state, got \(sut.state)")
+        }
     }
 
+    func testNearbySuppliers_WhenFails_SetsErrorState() async {
+        // Arrange
+        let errorMessage = "Invalid Credentials"
+        let error = NSError(domain: "Auth", code: 401, userInfo: [NSLocalizedDescriptionKey: errorMessage])
+        mockProvider.mockSuppliersUseCases.supplierResult = .failure(error)
+        
+        // Act
+        Task { @MainActor in
+            sut.nearbySuppliers()
+        }
+        try? await Task.sleep(nanoseconds: 100_000_000)
+        
+        // Assert
+        if case .error(let message) = sut.state {
+            XCTAssertEqual(message, errorMessage)
+        } else {
+            XCTFail("Expected .error state")
+        }
+    }
 }

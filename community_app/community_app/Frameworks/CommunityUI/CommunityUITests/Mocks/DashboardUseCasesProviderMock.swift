@@ -1,5 +1,5 @@
 //
-//  MatchUseCasesProviderMock.swift
+//  DashboardUseCasesProviderMock.swift
 //  community_app
 //
 //  Created by Heelin Mistry on 2026/07/11.
@@ -9,12 +9,14 @@ import Foundation
 import CommunityCore
 @testable import CommunityUI
 
-final class MatchUseCasesProviderMock: MatchDetailUseCasesProvider, @unchecked Sendable {
+final class DashboardUseCasesProviderMock: DashboardUseCasesProvider, @unchecked Sendable {
+    
+    let mockSuppliersUseCases = SupplierUseCasesMock()
+    var suppliers: any SupplierUseCasesProtocol { mockSuppliersUseCases }
     
     let mockMatchUseCases = MatchUseCasesMock()
-    let notificationMock = NotificationMock()
-    let locationMock = LocationServiceMock()
     var matches: any MatchUseCaseProtocol { mockMatchUseCases }
-    var notifications: any NotificationProtocol { notificationMock }
+    
+    let locationMock = LocationServiceMock()
     var location: any LocationProtocol { locationMock }
 }
