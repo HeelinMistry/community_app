@@ -65,6 +65,8 @@ struct RootNavigationView: View {
             factory.makeRegistrationView()
         case .createMatch:
             factory.makeCreateMatchView()
+        case .createSupplier:
+            factory.makeCreateSupplierView()
         }
     }
 }

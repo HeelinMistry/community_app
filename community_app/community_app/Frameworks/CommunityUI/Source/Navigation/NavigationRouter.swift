@@ -17,6 +17,7 @@ public enum Destination: Hashable {
 public enum SheetDestination: Identifiable {
     case registration
     case createMatch
+    case createSupplier
     
     public var id: String { String(describing: self) }
 }

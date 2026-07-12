@@ -78,6 +78,11 @@ final class DependencyContainer {
     public func makeDetailMatchViewModel(_ match_id: String) -> MatchDetailsViewModel {
         return MatchDetailsViewModel(useCases: self, router: router, match_id: match_id)
     }
+    
+    /// Creates and returns a `CreateMatchViewModel`.
+    public func makeCreateSupplierViewModel() -> CreateSupplierViewModel {
+        return CreateSupplierViewModel(useCases: self, router: router)
+    }
 }
 
 extension DependencyContainer: AuthUseCasesProvider {
@@ -90,7 +95,7 @@ extension DependencyContainer: AuthUseCasesProvider {
     }
 }
 
-extension DependencyContainer: MatchDetailUseCasesProvider, DashboardUseCasesProvider {
+extension DependencyContainer: MatchDetailUseCasesProvider, DashboardUseCasesProvider, SupplierUseCasesProvider {
 
     var notifications: any NotificationProtocol {
         _notificationService
@@ -132,6 +137,12 @@ extension DependencyContainer: ViewFactory {
     public func makeCreateMatchView() -> AnyView {
         let viewModel = makeCreateMatchViewModel()
         return AnyView(CreateMatchView(viewModel: viewModel))
+    }
+    
+    @MainActor
+    public func makeCreateSupplierView() -> AnyView {
+        let viewModel = makeCreateSupplierViewModel()
+        return AnyView(CreateSupplierView(viewModel: viewModel))
     }
     
     @MainActor

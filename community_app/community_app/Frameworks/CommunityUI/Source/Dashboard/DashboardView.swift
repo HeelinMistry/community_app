@@ -90,14 +90,31 @@ struct DashboardView<T: DashboardViewModelProtocol>: View {
                 .toolbar {
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Button {
-                            viewModel.createMatchTapped()
+                            switch selectedCategory {
+                            case .events:
+                                viewModel.createMatchTapped()
+                            case .services:
+                                viewModel.createSupplierTapped()
+                            case .products:
+                                // viewModel.loadProducts()
+                                break
+                            }
+                            
                         } label: {
-                            Label("Create Match", systemImage: "plus.circle.fill")
+                            Label("Create", systemImage: "plus.circle.fill")
                         }
                     }
                 }
                 .onAppear {
-                    viewModel.matchFeed()
+                    switch selectedCategory {
+                    case .events:
+                        viewModel.matchFeed()
+                    case .services:
+                        viewModel.nearbySuppliers()
+                    case .products:
+                        // viewModel.loadProducts()
+                        break
+                    }
                 }
                 .onChange(of: selectedCategory) {
                     switch selectedCategory {

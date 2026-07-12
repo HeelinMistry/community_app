@@ -1,8 +1,8 @@
 //
-//  CreateMatchView.swift
-//  community_app
+//  CreateSupplierView.swift
+//  CommunityUI
 //
-//  Created by Heelin Mistry on 2026/05/01.
+//  Created by Heelin Mistry on 2026/07/11.
 //
 
 import SwiftUI
@@ -10,7 +10,7 @@ import CommunityCore
 import Combine
 import MapKit
 
-public struct CreateMatchView<T: CreateMatchViewModelProtocol>: View {
+public struct CreateSupplierView<T: CreateSupplierViewModelProtocol>: View {
     @EnvironmentObject private var router: NavigationRouter
     @StateObject private var viewModel: T
     @State private var currentStep = 1
@@ -33,10 +33,6 @@ public struct CreateMatchView<T: CreateMatchViewModelProtocol>: View {
                         VStack(spacing: 20) {
                             if currentStep == 1 {
                                 StepOneInputsView(viewModel: viewModel)
-                            } else if currentStep == 2 {
-                                StepTwoInputsView(viewModel: viewModel)
-                            } else {
-                                StepThreeInputsView(viewModel: viewModel)
                             }
                         }
                         .padding(30)
@@ -47,7 +43,7 @@ public struct CreateMatchView<T: CreateMatchViewModelProtocol>: View {
                 }
             }
             .padding(30)
-            .navigationTitle("Create Event")
+            .navigationTitle("Provide Service")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -59,27 +55,12 @@ public struct CreateMatchView<T: CreateMatchViewModelProtocol>: View {
     
     private var navigationButtons: some View {
         HStack {
-            if currentStep > 1 {
-                Button("Back") { currentStep -= 1 }
-                    .buttonStyle(.bordered)
-            }
-            
-            Spacer()
-            
-            if currentStep < 3 {
-                PrimaryButton("Next") {
-                    if viewModel.isFormValid(step: currentStep) {
-                        currentStep += 1
-                    }
+            PrimaryButton("Finish & Create") {
+                if viewModel.isFormValid(step: currentStep) {
+                    viewModel.create()
                 }
-            } else {
-                PrimaryButton("Finish & Create") {
-                    if viewModel.isFormValid(step: currentStep) {
-                        viewModel.create()
-                    }
-                }
-                .disabled(viewModel.state.isLoading)
             }
+            .disabled(viewModel.state.isLoading)
         }
         .padding(.horizontal, 30)
     }
@@ -87,24 +68,24 @@ public struct CreateMatchView<T: CreateMatchViewModelProtocol>: View {
 
 // MARK: - Extracted Step Views
 
-private struct StepOneInputsView<T: CreateMatchViewModelProtocol>: View {
+private struct StepOneInputsView<T: CreateSupplierViewModelProtocol>: View {
     @ObservedObject var viewModel: T
     @EnvironmentObject private var router: NavigationRouter
     @State private var searchTask: Task<Void, Never>?
 
     var body: some View {
         VStack(spacing: 20) {
-            PrimaryTextInput(label: "Title",
-                             placeholder: "e.g. MNF",
-                             text: $viewModel.title,
-                             errorMessage: viewModel.validationErrors["title"]
+            PrimaryTextInput(label: "Name",
+                             placeholder: "e.g. Shoe Cleaning",
+                             text: $viewModel.business_name,
+                             errorMessage: viewModel.validationErrors["business_name"]
             )
             PrimaryPicker(
-                label: "Sport",
-                selection: $viewModel.sport,
-                options: Sport.allCases,
-                optionLabel: { sport in Text(sport.localizedName) },
-                errorMessage: viewModel.validationErrors["sport"]
+                label: "Category",
+                selection: $viewModel.category,
+                options: SupplierCategory.allCases,
+                optionLabel: { category in Text(category.localizedName) },
+                errorMessage: viewModel.validationErrors["category"]
             )
             VStack(spacing: 20) {
                 PrimaryTextInput(

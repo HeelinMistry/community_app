@@ -24,4 +24,13 @@ public final class SupplierRepository: SupplierRepositoryProtocol {
             throw error
         }
     }
+    
+    public func createSupplier(_ supplierRequest: CreateSupplierRequest) async throws -> CreateSupplierResponse {
+        do {
+            let dto: CreateSupplierResponse = try await networkClient.fetch(from: CommunityEndpoint.createSupplier(supplierRequest))
+            return dto
+        } catch {
+            throw error
+        }
+    }
 }

@@ -20,6 +20,8 @@ public protocol ViewFactory: Sendable {
     @MainActor func makeDashboardView() -> AnyView
     @MainActor func makeCreateMatchView() -> AnyView
     @MainActor func makeDetailMatchView(_ match_id: String) -> AnyView
+    
+    @MainActor func makeCreateSupplierView() -> AnyView
 }
 
 private struct ViewFactoryKey: EnvironmentKey {
@@ -43,4 +45,5 @@ private struct DefaultViewFactory: ViewFactory {
     func makeDashboardView() -> AnyView { AnyView(Text("Factory Missing")) }
     func makeCreateMatchView() -> AnyView { AnyView(Text("Factory Missing")) }
     func makeDetailMatchView(_ match_id: String) -> AnyView { AnyView(Text("Factory Missing")) }
+    func makeCreateSupplierView() -> AnyView { AnyView(Text("Factory Missing")) }
 }

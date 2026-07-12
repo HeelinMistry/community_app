@@ -23,6 +23,7 @@ public protocol DashboardViewModelProtocol: StateDrivenViewModel where DataType 
     func createMatchTapped()
     
     func nearbySuppliers()
+    func createSupplierTapped()
 }
 
 @MainActor
@@ -107,7 +108,7 @@ public final class DashboardViewModel: DashboardViewModelProtocol {
                     lon: lastKnownLocation?.coordinate.longitude ?? 0,
                     user_radius: 5.0
                 )
-                let response: Suppliers = try await useCases.suppliers.nearbySuppliers(request)
+                let response: Suppliers = try await useCases.suppliers.userNearbySuppliers(request)
                 if !Task.isCancelled {
                     dashboardModel.update(suppliers: response)
                     state = .success(dashboardModel)
@@ -122,5 +123,9 @@ public final class DashboardViewModel: DashboardViewModelProtocol {
     
     public func createMatchTapped() {
         router.sheet = .createMatch
+    }
+    
+    public func createSupplierTapped() {
+        router.sheet = .createSupplier
     }
 }
