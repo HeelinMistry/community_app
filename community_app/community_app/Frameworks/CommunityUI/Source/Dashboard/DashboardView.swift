@@ -45,87 +45,95 @@ struct DashboardView<T: DashboardViewModelProtocol>: View {
                         category.display
                     }
                     
-                    Picker("Match Type", selection: $selectedTab) {
-                        ForEach(MatchTab.allCases) { tab in
-                            Text(tab.rawValue).tag(tab)
-                        }
-                    }
-                    .pickerStyle(.segmented)
-                    .padding(.horizontal)
-                    .padding(.bottom, 10)
-                    
-                    VStack(spacing: 16) {
-                        switch viewModel.state {
-                        case .idle, .loading:
-                            ProgressView("Loading matches...")
-                                .padding()
-                        case .success:
-                            let matchesToShow = selectedTab == .upcoming ? viewModel.dashboardModel.upcomingMatches : viewModel.dashboardModel.historyMatches
-                            
-                            if matchesToShow.isEmpty {
-                                Text(selectedTab == .upcoming ?
-                                     "No upcoming matches found. Create one to get started!" :
-                                     "No past matches found.")
+                    switch viewModel.state {
+                    case .idle, .loading:
+                        ProgressView("Loading matches...")
+                            .padding()
+                    case .success:
+                        switch selectedCategory {
+                        case .events:
+                            VStack(spacing: 16) {
+                                Picker("Match Type", selection: $selectedTab) {
+                                    ForEach(MatchTab.allCases) { tab in
+                                        Text(tab.rawValue).tag(tab)
+                                    }
+                                }
+                                .pickerStyle(.segmented)
+                                .padding(.horizontal)
+                                .padding(.bottom, 10)
+                                
+                                let matchesToShow = selectedTab == .upcoming ? viewModel.dashboardModel.upcomingMatches : viewModel.dashboardModel.historyMatches
+                                
+                                if matchesToShow.isEmpty {
+                                    Text(selectedTab == .upcoming ?
+                                         "No upcoming matches found. Create one to get started!" :
+                                            "No past matches found.")
                                     .font(.headline)
                                     .foregroundColor(Assets.theme.secondaryText)
                                     .padding()
-                            } else {
-                                ForEach(matchesToShow, id: \.match_id) { match in
-                                    MatchFeedItemView(match: match)
+                                } else {
+                                    ForEach(matchesToShow, id: \.match_id) { match in
+                                        MatchFeedItemView(match: match)
+                                    }
                                 }
                             }
-                        case .error(let message):
-                            Text("Error loading matches: \(message)")
-                                .foregroundColor(.red)
-                                .padding()
+                        case .services:
+                            Label("Coming soon", systemImage: "star.fill")
+                        case .products:
+                            
+                            Label("Coming soon", systemImage: "star.fill")
                         }
+                    case .error(let message):
+                        Text("Error loading matches: \(message)")
+                            .foregroundColor(.red)
+                            .padding()
                     }
-                    .padding()
-                    .background(Assets.theme.surfaceBackground)
-                    .cornerRadius(10)
                 }
                 .padding()
-                .background(Color.clear.ignoresSafeArea())
-                .navigationTitle("Dashboard")
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Button {
-                            switch selectedCategory {
-                            case .events:
-                                viewModel.createMatchTapped()
-                            case .services:
-                                viewModel.createSupplierTapped()
-                            case .products:
-                                // viewModel.loadProducts()
-                                break
-                            }
-                            
-                        } label: {
-                            Label("Create", systemImage: "plus.circle.fill")
+                .background(Assets.theme.surfaceBackground)
+                .cornerRadius(10)
+            }
+            .padding()
+            .background(Color.clear.ignoresSafeArea())
+            .navigationTitle("Dashboard")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        switch selectedCategory {
+                        case .events:
+                            viewModel.createMatchTapped()
+                        case .services:
+                            viewModel.createSupplierTapped()
+                        case .products:
+                            // viewModel.loadProducts()
+                            break
                         }
+                        
+                    } label: {
+                        Label("Create", systemImage: "plus.circle.fill")
                     }
                 }
-                .onAppear {
-                    switch selectedCategory {
-                    case .events:
-                        viewModel.matchFeed()
-                    case .services:
-                        viewModel.nearbySuppliers()
-                    case .products:
-                        // viewModel.loadProducts()
-                        break
-                    }
+            }
+            .onAppear {
+                switch selectedCategory {
+                case .events:
+                    viewModel.matchFeed()
+                case .services:
+                    viewModel.nearbySuppliers()
+                case .products:
+                    // viewModel.loadProducts()
+                    break
                 }
-                .onChange(of: selectedCategory) {
-                    switch selectedCategory {
-                    case .events:
-                        viewModel.matchFeed()
-                    case .services:
-                        viewModel.nearbySuppliers()
-                    case .products:
-                        // viewModel.loadProducts()
-                        break
-                    }
+            }
+            .onChange(of: selectedCategory) {
+                switch selectedCategory {
+                case .events:
+                    viewModel.matchFeed()
+                case .services:
+                    viewModel.nearbySuppliers()
+                case .products:
+                    // viewModel.loadProducts()
+                    break
                 }
             }
         }

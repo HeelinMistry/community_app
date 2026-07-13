@@ -132,7 +132,7 @@ class Supplier(Base):
     """
     __tablename__ = "suppliers"
 
-    id = Column(Integer, primary_key=True, autoincrement=True, default=f"s_{uuid.uuid4().hex[:8]}")
+    id = Column(String, primary_key=True, default=lambda: f"s_{uuid.uuid4().hex[:8]}")
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     business_name = Column(String, nullable=False)
     description = Column(String)

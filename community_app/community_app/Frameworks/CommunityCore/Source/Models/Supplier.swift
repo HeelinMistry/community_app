@@ -40,7 +40,6 @@ public nonisolated struct SupplierRequest: Sendable, Equatable, Encodable, Decod
 
 public nonisolated struct SupplierResponse: Sendable, Equatable, Encodable, Decodable {
     public let id: String
-    public let user_id: String
     public let business_name: String
     public let description: String
     public let category: String
@@ -48,7 +47,6 @@ public nonisolated struct SupplierResponse: Sendable, Equatable, Encodable, Deco
     
     public init(id: String, user_id: String, business_name: String, description: String, category: String, distance_km: Double) {
         self.id = id
-        self.user_id = user_id
         self.business_name = business_name
         self.description = description
         self.category = category
@@ -58,7 +56,6 @@ public nonisolated struct SupplierResponse: Sendable, Equatable, Encodable, Deco
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = try container.decode(String.self, forKey: .id)
-        self.user_id = try container.decode(String.self, forKey: .user_id)
         self.business_name = try container.decode(String.self, forKey: .business_name)
         self.description = try container.decode(String.self, forKey: .description)
         self.category = try container.decode(String.self, forKey: .category)
