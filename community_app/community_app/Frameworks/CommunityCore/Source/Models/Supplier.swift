@@ -13,28 +13,21 @@ public typealias Suppliers = [SupplierResponse]
 public nonisolated struct SupplierRequest: Sendable, Equatable, Encodable, Decodable {
     public let lat: Double
     public let lon: Double
-    public let user_radius: Double
     
-    public init(lat: Double, lon: Double, user_radius: Double) {
+    public init(lat: Double, lon: Double) {
         self.lat = lat
         self.lon = lon
-        self.user_radius = user_radius
     }
     
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.lat = try container.decode(Double.self, forKey: .lat)
         self.lon = try container.decode(Double.self, forKey: .lon)
-        self.user_radius = try container.decode(Double.self, forKey: .user_radius)
     }
     
     public var convertCoordinateToReal: (String, String) {
         return (String(format: "%.6f", lat), String(format: "%.6f", lon))
         
-    }
-    
-    public var convertRadiusToReal: String {
-        return String(format: "%.1f", user_radius)
     }
 }
 

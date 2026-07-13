@@ -70,6 +70,12 @@ public final class DashboardViewModel: DashboardViewModelProtocol {
                 self?.matchFeed()
             }
             .store(in: &cancellables)
+        NotificationCenter.default.publisher(for: .supplierCreated)
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in
+                self?.nearbySuppliers()
+            }
+            .store(in: &cancellables)
     }
     
     public func matchFeed() {

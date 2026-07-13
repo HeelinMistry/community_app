@@ -24,30 +24,31 @@ class SupplierCreate(BaseModel):
 async def get_nearby_suppliers(
         lat: float = Query(...),
         lon: float = Query(...),
-        user_radius: float = Query(5.0),  # User's search range
         db: Session = Depends(get_db),
         current_user: dict = Depends(decode_access_token)
 ):
     """
-    Returns suppliers whose service area overlaps with the user's location + search radius.
+    Returns suppliers whose service area covers the user's current location.
     """
-    # 1. Bounding Box Pre-filter (approx 1 degree = 111km)
-    # We add the max possible service radius to the delta to be safe
-    buffer = (user_radius + 50.0) / 111.0
+    # 1. Bounding Box Pre-filter
+    # We use a static 50km buffer to capture any supplier that *could* # possibly cover the user's current point.
+    buffer = 50.0 / 111.0
 
     candidates = db.query(tables.Supplier).filter(
         tables.Supplier.latitude.between(lat - buffer, lat + buffer),
         tables.Supplier.longitude.between(lon - buffer, lon + buffer)
     ).all()
 
-    # 2. Geometric Intersection Filter
+    # 2. Point-in-Circle Filter
     user_loc = (lat, lon)
     nearby_suppliers = []
 
     for s in candidates:
+        # Distance from user to the supplier's center
         distance = geodesic(user_loc, (s.latitude, s.longitude)).km
-        # Logic: Circles overlap if distance <= sum of radii
-        if distance <= (user_radius + s.service_radius):
+
+        # A supplier is accessible if the user is within their service radius
+        if distance <= s.service_radius:
             nearby_suppliers.append({
                 "id": s.id,
                 "business_name": s.business_name,

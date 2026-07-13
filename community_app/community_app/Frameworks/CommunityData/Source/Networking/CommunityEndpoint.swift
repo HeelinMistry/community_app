@@ -92,8 +92,7 @@ enum CommunityEndpoint: APIEndpoint {
             let coordinates = request.convertCoordinateToReal
             let queryItems: [URLQueryItem] = [
                 URLQueryItem(name: "lat", value: coordinates.0),
-                URLQueryItem(name: "lon", value: coordinates.1),
-                URLQueryItem(name: "user_radius", value: request.convertRadiusToReal)
+                URLQueryItem(name: "lon", value: coordinates.1)
             ]
             return queryItems
         }
