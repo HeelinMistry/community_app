@@ -7,6 +7,8 @@
 
 import SwiftUI
 import CommunityCore
+import MapKit
+import CoreLocation
 
 enum FeedCategory: String, CaseIterable {
     case events, services, products
@@ -30,112 +32,243 @@ struct DashboardView<T: DashboardViewModelProtocol>: View {
     @StateObject private var viewModel: T
     @State private var selectedCategory: FeedCategory = .events
     @State private var selectedTab: MatchTab = .upcoming
+    @State private var mapCameraPosition: MapCameraPosition = .automatic
     
     public init(viewModel: T) {
         _viewModel = StateObject(wrappedValue: viewModel)
     }
+    
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 16) {
-                    CategoryPicker(
-                        options: FeedCategory.allCases,
-                        selection: $selectedCategory
-                    ) { category in
-                        category.display
-                    }
-                    
-                    switch viewModel.state {
-                    case .idle, .loading:
-                        ProgressView("Loading matches...")
-                            .padding()
-                    case .success:
-                        switch selectedCategory {
-                        case .events:
-                            VStack(spacing: 16) {
-                                Picker("Match Type", selection: $selectedTab) {
-                                    ForEach(MatchTab.allCases) { tab in
-                                        Text(tab.rawValue).tag(tab)
-                                    }
-                                }
-                                .pickerStyle(.segmented)
-                                .padding(.horizontal)
-                                .padding(.bottom, 10)
-                                
-                                let matchesToShow = selectedTab == .upcoming ? viewModel.dashboardModel.upcomingMatches : viewModel.dashboardModel.historyMatches
-                                
-                                if matchesToShow.isEmpty {
-                                    Text(selectedTab == .upcoming ?
-                                         "No upcoming matches found. Create one to get started!" :
-                                            "No past matches found.")
-                                    .font(.headline)
-                                    .foregroundColor(Assets.theme.secondaryText)
-                                    .padding()
-                                } else {
-                                    ForEach(matchesToShow, id: \.match_id) { match in
-                                        MatchFeedItemView(match: match)
-                                    }
-                                }
-                            }
-                        case .services:
-                            Label("Coming soon", systemImage: "star.fill")
-                        case .products:
-                            
-                            Label("Coming soon", systemImage: "star.fill")
-                        }
-                    case .error(let message):
-                        Text("Error loading matches: \(message)")
-                            .foregroundColor(.red)
-                            .padding()
-                    }
+            // Main VStack to organize the CategoryPicker and the content area
+            VStack(spacing: 0) {
+                CategoryPicker(
+                    options: FeedCategory.allCases,
+                    selection: $selectedCategory
+                ) { category in
+                    category.display
                 }
-                .padding()
+                .padding(.horizontal) // Apply horizontal padding to the picker
+                .padding(.bottom, 16) // Spacing below the picker
                 .background(Assets.theme.surfaceBackground)
-                .cornerRadius(10)
+                
+                // Conditional content based on selectedCategory
+                if selectedCategory == .services {
+                    // For services, the map should take remaining space directly
+                    DashboardContent(
+                        viewModel: viewModel,
+                        selectedCategory: $selectedCategory,
+                        selectedTab: $selectedTab,
+                        mapCameraPosition: $mapCameraPosition
+                    )
+                    .frame(maxWidth: .infinity, maxHeight: .infinity) // Allow content to fill
+                    .background(Assets.theme.surfaceBackground)
+                    .cornerRadius(10)
+                    .padding(.horizontal) // Horizontal padding for this block
+                } else {
+                    // For other categories, use a ScrollView
+                    ScrollView {
+                        // This VStack provides the consistent spacing and styling for scrollable content
+                        VStack(spacing: 16) {
+                            DashboardContent(
+                                viewModel: viewModel,
+                                selectedCategory: $selectedCategory,
+                                selectedTab: $selectedTab,
+                                mapCameraPosition: $mapCameraPosition
+                            )
+                        }
+                        .padding() // Inner padding for the scrollable content block
+                        .background(Assets.theme.surfaceBackground)
+                        .cornerRadius(10)
+                    }
+                    .padding(.horizontal) // Horizontal padding for the scroll view itself
+                }
             }
-            .padding()
-            .background(Color.clear.ignoresSafeArea())
+            .background(Color.clear.ignoresSafeArea()) // Overall background for the NavigationStack content
             .navigationTitle("Dashboard")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
-                        switch selectedCategory {
-                        case .events:
-                            viewModel.createMatchTapped()
-                        case .services:
-                            viewModel.createSupplierTapped()
-                        case .products:
-                            // viewModel.loadProducts()
-                            break
-                        }
-                        
+                        handleCreateButtonTapped()
                     } label: {
                         Label("Create", systemImage: "plus.circle.fill")
                     }
                 }
             }
-            .onAppear {
-                switch selectedCategory {
-                case .events:
-                    viewModel.matchFeed()
-                case .services:
-                    viewModel.nearbySuppliers()
-                case .products:
-                    // viewModel.loadProducts()
-                    break
+            .onAppear(perform: handleOnAppear)
+            .onChange(of: selectedCategory, handleCategoryChange)
+        }
+    }
+    
+    // MARK: - Private Helper Methods for Actions
+    private func handleCreateButtonTapped() {
+        switch selectedCategory {
+        case .events:
+            viewModel.createMatchTapped()
+        case .services:
+            viewModel.createSupplierTapped()
+        case .products:
+            // viewModel.loadProducts()
+            break
+        }
+    }
+    
+    private func handleOnAppear() {
+        Task {
+            await viewModel.requestLocationAuthorization()
+        }
+        
+        switch selectedCategory {
+        case .events:
+            viewModel.matchFeed()
+        case .services:
+            viewModel.nearbySuppliers()
+        case .products:
+            // viewModel.loadProducts()
+            break
+        }
+    }
+    
+    private func handleCategoryChange() {
+        switch selectedCategory {
+        case .events:
+            viewModel.matchFeed()
+        case .services:
+            viewModel.nearbySuppliers()
+        case .products:
+            // viewModel.loadProducts()
+            break
+        }
+    }
+}
+
+// MARK: - Helper Views for Dashboard Content
+/// A private helper view to encapsulate the main content driven by `viewModel.state`.
+private struct DashboardContent<T: DashboardViewModelProtocol>: View {
+    @ObservedObject var viewModel: T // Use @ObservedObject for child views observing a parent's StateObject
+    @Binding var selectedCategory: FeedCategory
+    @Binding var selectedTab: MatchTab
+    @Binding var mapCameraPosition: MapCameraPosition
+    
+    var body: some View {
+        switch viewModel.state {
+        case .idle, .loading:
+            ProgressView("Loading matches...")
+                .padding()
+        case .success:
+            // Further extract the success state content based on selectedCategory
+            DashboardSuccessContent(
+                viewModel: viewModel,
+                selectedCategory: $selectedCategory,
+                selectedTab: $selectedTab,
+                mapCameraPosition: $mapCameraPosition
+            )
+        case .error(let message):
+            Text("Error loading \(message)")
+                .foregroundColor(.red)
+                .padding()
+        }
+    }
+}
+
+/// A private helper view to encapsulate the content when `viewModel.state` is `.success`.
+private struct DashboardSuccessContent<T: DashboardViewModelProtocol>: View {
+    @ObservedObject var viewModel: T
+    @Binding var selectedCategory: FeedCategory
+    @Binding var selectedTab: MatchTab
+    @Binding var mapCameraPosition: MapCameraPosition
+    
+    var body: some View {
+        switch selectedCategory {
+        case .events:
+            EventFeedContent(viewModel: viewModel, selectedTab: $selectedTab)
+        case .services:
+            ServiceFeedContent(viewModel: viewModel, mapCameraPosition: $mapCameraPosition)
+        case .products:
+            Label("Coming soon", systemImage: "star.fill")
+        }
+    }
+}
+
+/// A private helper view for displaying event-related content.
+private struct EventFeedContent<T: DashboardViewModelProtocol>: View {
+    @ObservedObject var viewModel: T
+    @Binding var selectedTab: MatchTab
+    
+    var body: some View {
+        VStack(spacing: 16) {
+            Picker("Match Type", selection: $selectedTab) {
+                ForEach(MatchTab.allCases) { tab in
+                    Text(tab.rawValue).tag(tab)
                 }
             }
-            .onChange(of: selectedCategory) {
-                switch selectedCategory {
-                case .events:
-                    viewModel.matchFeed()
-                case .services:
-                    viewModel.nearbySuppliers()
-                case .products:
-                    // viewModel.loadProducts()
-                    break
+            .pickerStyle(.segmented)
+            .padding(.horizontal)
+            .padding(.bottom, 10)
+            
+            let matchesToShow = selectedTab == .upcoming ? viewModel.dashboardModel.upcomingMatches : viewModel.dashboardModel.historyMatches
+            
+            if matchesToShow.isEmpty {
+                Text(selectedTab == .upcoming ?
+                     "No upcoming matches found. Create one to get started!" :
+                        "No past matches found.")
+                .font(.headline)
+                .foregroundColor(Assets.theme.secondaryText)
+                .padding()
+            } else {
+                ForEach(matchesToShow, id: \.match_id) { match in
+                    MatchFeedItemView(match: match)
                 }
             }
         }
+    }
+}
+
+/// A private helper view for displaying service-related content, including the map.
+private struct ServiceFeedContent<T: DashboardViewModelProtocol>: View {
+    @ObservedObject var viewModel: T
+    @Binding var mapCameraPosition: MapCameraPosition
+    
+    var body: some View {
+        VStack(spacing: 16) { // This VStack needs to expand to let the Map expand
+            Map(position: $mapCameraPosition, interactionModes: .all) {
+                UserAnnotation()
+                // Add markers for suppliers
+                ForEach(viewModel.dashboardModel.suppliers, id: \.id) { supplier in
+                    if supplier.latitude != 0.0 || supplier.longitude != 0.0 {
+                        Marker(
+                            supplier.business_name,
+                            coordinate: CLLocationCoordinate2D(
+                                latitude: supplier.latitude,
+                                longitude: supplier.longitude
+                            )
+                        )
+                    }
+                }
+            }
+            .mapControls {
+                MapUserLocationButton()
+            }
+            // Removed fixed height, now it will expand within its parent VStack
+            .frame(maxWidth: .infinity, maxHeight: .infinity) // Allow map to take all available space
+            .cornerRadius(12)
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+            )
+            .onAppear {
+                // Set the initial camera position when the view appears, if still automatic.
+                // This ensures the map centers on the lastKnownLocation or the first supplier.
+                if mapCameraPosition == .automatic {
+                    if let userLocation = viewModel.lastKnownLocation {
+                        mapCameraPosition = .camera(MapCamera(centerCoordinate: userLocation.coordinate, distance: 10000)) // 10km distance around user
+                    } else if let firstSupplier = viewModel.dashboardModel.suppliers.first,
+                              firstSupplier.latitude != 0.0 || firstSupplier.longitude != 0.0 {
+                        mapCameraPosition = .camera(MapCamera(centerCoordinate: CLLocationCoordinate2D(latitude: firstSupplier.latitude, longitude: firstSupplier.longitude), distance: 10000)) // 10km distance around first supplier
+                    }
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }

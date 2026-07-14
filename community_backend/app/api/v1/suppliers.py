@@ -54,7 +54,9 @@ async def get_nearby_suppliers(
                 "business_name": s.business_name,
                 "description": s.description,
                 "category": s.category,
-                "distance_km": round(distance, 2)
+                "distance_km": round(distance, 2),
+                "latitude": s.latitude,
+                "longitude": s.longitude
             })
 
     return nearby_suppliers
