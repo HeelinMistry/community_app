@@ -39,8 +39,9 @@ public nonisolated struct SupplierResponse: Sendable, Equatable, Encodable, Deco
     public let distance_km: Double
     public let latitude: Double
     public let longitude: Double
+    public let is_creator: Bool
     
-    public init(id: String, user_id: String, business_name: String, description: String, category: String, distance_km: Double, latitude: Double, longitude: Double) {
+    public init(id: String, user_id: String, business_name: String, description: String, category: String, distance_km: Double, latitude: Double, longitude: Double, is_creator: Bool) {
         self.id = id
         self.business_name = business_name
         self.description = description
@@ -48,6 +49,7 @@ public nonisolated struct SupplierResponse: Sendable, Equatable, Encodable, Deco
         self.distance_km = distance_km
         self.latitude = latitude
         self.longitude = longitude
+        self.is_creator = is_creator
     }
     
     public init(from decoder: any Decoder) throws {
@@ -59,5 +61,6 @@ public nonisolated struct SupplierResponse: Sendable, Equatable, Encodable, Deco
         self.distance_km = try container.decode(Double.self, forKey: .distance_km)
         self.latitude = try container.decode(Double.self, forKey: .latitude)
         self.longitude = try container.decode(Double.self, forKey: .longitude)
+        self.is_creator = try container.decode(Bool.self, forKey: .is_creator)
     }
 }

@@ -19,6 +19,8 @@ public protocol DashboardViewModelProtocol: StateDrivenViewModel where DataType 
     
     var dashboardModel: DashboardModel { get }
     
+    func requestLocationAuthorization() async
+    
     func matchFeed()
     func createMatchTapped()
     
@@ -54,13 +56,17 @@ public final class DashboardViewModel: DashboardViewModelProtocol {
     
     private func setupObservers() {
         useCases.location.authorizationStatusPublisher
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] status in
+                print("Authorization received: \(String(describing: status))")
                 guard let self = self else { return }
                 self.isAuthorized = status == .authorizedAlways || status == .authorizedWhenInUse
             }
             .store(in: &cancellables)
         useCases.location.lastKnownLocationPublisher
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] location in
+                print("Location received: \(String(describing: location))")
                 self?.lastKnownLocation = location
             }
             .store(in: &cancellables)
@@ -100,6 +106,14 @@ public final class DashboardViewModel: DashboardViewModelProtocol {
         }
     }
     
+    public func requestLocationAuthorization() async {
+        do {
+            try await useCases.location.requestLocationAuthorization()
+        } catch {
+            state = .error(error.localizedDescription)
+        }
+    }
+    
     public func nearbySuppliers() {
         if state == .loading {
             return
@@ -107,23 +121,27 @@ public final class DashboardViewModel: DashboardViewModelProtocol {
         
         fetchTask?.cancel()
         state = .loading
-        fetchTask = Task {
-            do {
-                let request: SupplierRequest = .init(
-                    lat: lastKnownLocation?.coordinate.latitude ?? 0,
-                    lon: lastKnownLocation?.coordinate.longitude ?? 0,
-                    user_radius: 5.0
-                )
-                let response: Suppliers = try await useCases.suppliers.userNearbySuppliers(request)
-                if !Task.isCancelled {
-                    dashboardModel.update(suppliers: response)
-                    state = .success(dashboardModel)
-                }
-            } catch {
-                if !Task.isCancelled {
-                    self.state = .error(error.localizedDescription)
+        
+        if let coordinate = lastKnownLocation?.coordinate {
+            fetchTask = Task {
+                do {
+                    let request: SupplierRequest = .init(
+                        lat: coordinate.latitude,
+                        lon: coordinate.longitude
+                    )
+                    let response: Suppliers = try await useCases.suppliers.userNearbySuppliers(request)
+                    if !Task.isCancelled {
+                        dashboardModel.update(suppliers: response)
+                        state = .success(dashboardModel)
+                    }
+                } catch {
+                    if !Task.isCancelled {
+                        self.state = .error(error.localizedDescription)
+                    }
                 }
             }
+        } else {
+            state = .error("No location found")
         }
     }
     

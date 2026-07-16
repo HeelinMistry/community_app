@@ -11,7 +11,8 @@ import Combine
 public enum Destination: Hashable {
     case login
     case dashboard
-    case detail(match_id: String)
+    case matchDetail(match_id: String)
+    case supplierDetail(supplier_id: String) 
 }
 
 public enum SheetDestination: Identifiable {
@@ -58,7 +59,7 @@ public class NavigationRouter: ObservableObject {
         if let matchID = pendingMatchID {
             self.pendingMatchID = nil
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                self.navigate(to: .detail(match_id: matchID))
+                self.navigate(to: .matchDetail(match_id: matchID))
             }
         }
     }
@@ -72,7 +73,7 @@ public class NavigationRouter: ObservableObject {
         }
         guard isAuthenticated else { return }
         print("User is authenticated, navigating to detail for matchID: \(matchID)")
-        navigate(to: .detail(match_id: matchID))
+        navigate(to: .matchDetail(match_id: matchID))
     }
 }
 

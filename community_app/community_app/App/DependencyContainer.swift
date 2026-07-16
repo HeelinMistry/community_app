@@ -96,7 +96,7 @@ extension DependencyContainer: AuthUseCasesProvider {
 }
 
 extension DependencyContainer: MatchDetailUseCasesProvider, DashboardUseCasesProvider, SupplierUseCasesProvider {
-
+    
     var notifications: any NotificationProtocol {
         _notificationService
     }
@@ -120,7 +120,7 @@ extension DependencyContainer: ViewFactory {
         let viewModel = makeLoginViewModel()
         return AnyView(LoginView(viewModel: viewModel))
     }
-
+    
     @MainActor
     public func makeRegistrationView() -> AnyView {
         let viewModel = makeRegistrationViewModel()
@@ -148,6 +148,12 @@ extension DependencyContainer: ViewFactory {
     @MainActor
     public func makeDetailMatchView(_ match_id: String) -> AnyView {
         let viewModel = makeDetailMatchViewModel(match_id)
+        return AnyView(MatchDetailsView(viewModel: viewModel))
+    }
+    
+    @MainActor
+    public func makeDetailSupplierView(_ supplier_id: String) -> AnyView {
+        let viewModel = makeDetailMatchViewModel(supplier_id)
         return AnyView(MatchDetailsView(viewModel: viewModel))
     }
 }

@@ -54,7 +54,8 @@ struct RootNavigationView: View {
         switch destination {
         case .login: factory.makeLoginView()
         case .dashboard: factory.makeDashboardView()
-        case .detail(let match_id): factory.makeDetailMatchView(match_id)
+        case .matchDetail(let match_id): factory.makeDetailMatchView(match_id)
+        case .supplierDetail(let supplier_id): factory.makeDetailSupplierView(supplier_id)
         }
     }
     

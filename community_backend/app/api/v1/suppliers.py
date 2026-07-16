@@ -30,6 +30,8 @@ async def get_nearby_suppliers(
     """
     Returns suppliers whose service area covers the user's current location.
     """
+    user_id = int(current_user["sub"])
+
     # 1. Bounding Box Pre-filter
     # We use a static 50km buffer to capture any supplier that *could* # possibly cover the user's current point.
     buffer = 50.0 / 111.0
@@ -56,7 +58,8 @@ async def get_nearby_suppliers(
                 "category": s.category,
                 "distance_km": round(distance, 2),
                 "latitude": s.latitude,
-                "longitude": s.longitude
+                "longitude": s.longitude,
+                "is_creator": s.user_id == user_id
             })
 
     return nearby_suppliers

@@ -28,10 +28,17 @@ enum MatchTab: String, CaseIterable, Identifiable {
     var id: String { self.rawValue }
 }
 
+enum ServiceTab: String, CaseIterable, Identifiable {
+    case map = "Map"
+    case list = "List"
+    var id: String { self.rawValue }
+}
+
 struct DashboardView<T: DashboardViewModelProtocol>: View {
     @StateObject private var viewModel: T
     @State private var selectedCategory: FeedCategory = .events
-    @State private var selectedTab: MatchTab = .upcoming
+    @State private var selectedEventTab: MatchTab = .upcoming
+    @State private var selectedServiceTab: ServiceTab = .map
     @State private var mapCameraPosition: MapCameraPosition = .automatic
     
     public init(viewModel: T) {
@@ -58,7 +65,8 @@ struct DashboardView<T: DashboardViewModelProtocol>: View {
                     DashboardContent(
                         viewModel: viewModel,
                         selectedCategory: $selectedCategory,
-                        selectedTab: $selectedTab,
+                        selectedEventTab: $selectedEventTab,
+                        selectedServiceTab: $selectedServiceTab,
                         mapCameraPosition: $mapCameraPosition
                     )
                     .frame(maxWidth: .infinity, maxHeight: .infinity) // Allow content to fill
@@ -73,7 +81,8 @@ struct DashboardView<T: DashboardViewModelProtocol>: View {
                             DashboardContent(
                                 viewModel: viewModel,
                                 selectedCategory: $selectedCategory,
-                                selectedTab: $selectedTab,
+                                selectedEventTab: $selectedEventTab,
+                                selectedServiceTab: $selectedServiceTab,
                                 mapCameraPosition: $mapCameraPosition
                             )
                         }
@@ -147,7 +156,8 @@ struct DashboardView<T: DashboardViewModelProtocol>: View {
 private struct DashboardContent<T: DashboardViewModelProtocol>: View {
     @ObservedObject var viewModel: T // Use @ObservedObject for child views observing a parent's StateObject
     @Binding var selectedCategory: FeedCategory
-    @Binding var selectedTab: MatchTab
+    @Binding var selectedEventTab: MatchTab
+    @Binding var selectedServiceTab: ServiceTab
     @Binding var mapCameraPosition: MapCameraPosition
     
     var body: some View {
@@ -160,7 +170,8 @@ private struct DashboardContent<T: DashboardViewModelProtocol>: View {
             DashboardSuccessContent(
                 viewModel: viewModel,
                 selectedCategory: $selectedCategory,
-                selectedTab: $selectedTab,
+                selectedEventTab: $selectedEventTab,
+                selectedServiceTab: $selectedServiceTab,
                 mapCameraPosition: $mapCameraPosition
             )
         case .error(let message):
@@ -175,15 +186,16 @@ private struct DashboardContent<T: DashboardViewModelProtocol>: View {
 private struct DashboardSuccessContent<T: DashboardViewModelProtocol>: View {
     @ObservedObject var viewModel: T
     @Binding var selectedCategory: FeedCategory
-    @Binding var selectedTab: MatchTab
+    @Binding var selectedEventTab: MatchTab
+    @Binding var selectedServiceTab: ServiceTab
     @Binding var mapCameraPosition: MapCameraPosition
     
     var body: some View {
         switch selectedCategory {
         case .events:
-            EventFeedContent(viewModel: viewModel, selectedTab: $selectedTab)
+            EventFeedContent(viewModel: viewModel, selectedTab: $selectedEventTab)
         case .services:
-            ServiceFeedContent(viewModel: viewModel, mapCameraPosition: $mapCameraPosition)
+            ServiceFeedContent(viewModel: viewModel, selectedTab: $selectedServiceTab, mapCameraPosition: $mapCameraPosition)
         case .products:
             Label("Coming soon", systemImage: "star.fill")
         }
@@ -227,48 +239,64 @@ private struct EventFeedContent<T: DashboardViewModelProtocol>: View {
 /// A private helper view for displaying service-related content, including the map.
 private struct ServiceFeedContent<T: DashboardViewModelProtocol>: View {
     @ObservedObject var viewModel: T
+    @Binding var selectedTab: ServiceTab
     @Binding var mapCameraPosition: MapCameraPosition
     
     var body: some View {
-        VStack(spacing: 16) { // This VStack needs to expand to let the Map expand
-            Map(position: $mapCameraPosition, interactionModes: .all) {
-                UserAnnotation()
-                // Add markers for suppliers
-                ForEach(viewModel.dashboardModel.suppliers, id: \.id) { supplier in
-                    if supplier.latitude != 0.0 || supplier.longitude != 0.0 {
-                        Marker(
-                            supplier.business_name,
-                            coordinate: CLLocationCoordinate2D(
-                                latitude: supplier.latitude,
-                                longitude: supplier.longitude
-                            )
-                        )
-                    }
+        
+        VStack(spacing: 16) {
+            Picker("Service view", selection: $selectedTab) {
+                ForEach(ServiceTab.allCases) { tab in
+                    Text(tab.rawValue).tag(tab)
                 }
             }
-            .mapControls {
-                MapUserLocationButton()
-            }
-            // Removed fixed height, now it will expand within its parent VStack
-            .frame(maxWidth: .infinity, maxHeight: .infinity) // Allow map to take all available space
-            .cornerRadius(12)
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color.gray.opacity(0.2), lineWidth: 1)
-            )
-            .onAppear {
-                // Set the initial camera position when the view appears, if still automatic.
-                // This ensures the map centers on the lastKnownLocation or the first supplier.
-                if mapCameraPosition == .automatic {
-                    if let userLocation = viewModel.lastKnownLocation {
-                        mapCameraPosition = .camera(MapCamera(centerCoordinate: userLocation.coordinate, distance: 10000)) // 10km distance around user
-                    } else if let firstSupplier = viewModel.dashboardModel.suppliers.first,
-                              firstSupplier.latitude != 0.0 || firstSupplier.longitude != 0.0 {
-                        mapCameraPosition = .camera(MapCamera(centerCoordinate: CLLocationCoordinate2D(latitude: firstSupplier.latitude, longitude: firstSupplier.longitude), distance: 10000)) // 10km distance around first supplier
+            .pickerStyle(.segmented)
+            .padding(.horizontal)
+            .padding(.bottom, 10)
+            if selectedTab == .map {
+                Map(position: $mapCameraPosition, interactionModes: .all) {
+                    UserAnnotation()
+                    // Add markers for suppliers
+                    ForEach(viewModel.dashboardModel.suppliers, id: \.id) { supplier in
+                        if supplier.latitude != 0.0 || supplier.longitude != 0.0 {
+                            Marker(
+                                supplier.business_name,
+                                coordinate: CLLocationCoordinate2D(
+                                    latitude: supplier.latitude,
+                                    longitude: supplier.longitude
+                                )
+                            )
+                        }
                     }
+                }
+                .mapControls {
+                    MapUserLocationButton()
+                }
+                // Removed fixed height, now it will expand within its parent VStack
+                .frame(maxWidth: .infinity, maxHeight: .infinity) // Allow map to take all available space
+                .cornerRadius(12)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                )
+                .onAppear {
+                    // Set the initial camera position when the view appears, if still automatic.
+                    // This ensures the map centers on the lastKnownLocation or the first supplier.
+                    if mapCameraPosition == .automatic {
+                        if let userLocation = viewModel.lastKnownLocation {
+                            mapCameraPosition = .camera(MapCamera(centerCoordinate: userLocation.coordinate, distance: 10000)) // 10km distance around user
+                        } else if let firstSupplier = viewModel.dashboardModel.suppliers.first,
+                                  firstSupplier.latitude != 0.0 || firstSupplier.longitude != 0.0 {
+                            mapCameraPosition = .camera(MapCamera(centerCoordinate: CLLocationCoordinate2D(latitude: firstSupplier.latitude, longitude: firstSupplier.longitude), distance: 10000)) // 10km distance around first supplier
+                        }
+                    }
+                }
+            } else {
+                ForEach(viewModel.dashboardModel.suppliers, id: \.id) { supplier in
+                    SupplierFeedItemView(supplier: supplier)
                 }
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(maxWidth: .infinity, maxHeight: selectedTab == .map ? .infinity : .leastNonzeroMagnitude)
     }
 }

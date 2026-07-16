@@ -39,7 +39,7 @@ struct MatchFeedItemView: View {
     }
     
     var body: some View {
-        NavigationLink(value: Destination.detail(match_id: match.match_id)) {
+        NavigationLink(value: Destination.matchDetail(match_id: match.match_id)) {
             VStack(alignment: .leading, spacing: 8) {
                 // Match Title
                 PrimaryText(label: match.title)
