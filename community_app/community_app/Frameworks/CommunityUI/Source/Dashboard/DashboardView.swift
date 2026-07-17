@@ -48,7 +48,7 @@ struct DashboardView<T: DashboardViewModelProtocol>: View {
     var body: some View {
         NavigationStack {
             // Main VStack to organize the CategoryPicker and the content area
-            VStack(spacing: 0) {
+            VStack {
                 CategoryPicker(
                     options: FeedCategory.allCases,
                     selection: $selectedCategory
@@ -68,14 +68,30 @@ struct DashboardView<T: DashboardViewModelProtocol>: View {
                 }
                 .padding()
                 .background(Assets.theme.surfaceBackground)
+                .cornerRadius(15)
+                Spacer()
                 
             }
             .background(Color.clear.ignoresSafeArea()) // Overall background for the NavigationStack content
             .navigationTitle("Dashboard")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        handleCreateButtonTapped()
+                    Menu {
+                        ForEach(FeedCategory.allCases, id: \.self) { category in
+                            Button {
+                                switch category {
+                                case .events:
+                                    viewModel.createMatchTapped()
+                                case .services:
+                                    viewModel.createSupplierTapped()
+                                case .products:
+                                    // viewModel.loadProducts() // Still commented out
+                                    break
+                                }
+                            } label: {
+                                Label(category.display.text, systemImage: category.display.icon)
+                            }
+                        }
                     } label: {
                         Label("Create", systemImage: "plus.circle.fill")
                     }
@@ -87,17 +103,7 @@ struct DashboardView<T: DashboardViewModelProtocol>: View {
     }
     
     // MARK: - Private Helper Methods for Actions
-    private func handleCreateButtonTapped() {
-        switch selectedCategory {
-        case .events:
-            viewModel.createMatchTapped()
-        case .services:
-            viewModel.createSupplierTapped()
-        case .products:
-            // viewModel.loadProducts()
-            break
-        }
-    }
+    // handleCreateButtonTapped is removed as its logic is now in the Menu items
     
     private func handleOnAppear() {
         Task {
@@ -152,7 +158,8 @@ private struct DashboardContent<T: DashboardViewModelProtocol>: View {
                 mapCameraPosition: $mapCameraPosition
             )
         case .error(let message):
-            Text("Error loading \(message)")
+            Text("Error \(message)")
+                .multilineTextAlignment(.center)
                 .foregroundColor(.red)
                 .padding()
         }

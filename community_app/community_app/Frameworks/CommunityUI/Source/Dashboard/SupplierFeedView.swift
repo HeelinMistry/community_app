@@ -22,8 +22,6 @@ public struct ServiceFeedView<T: DashboardViewModelProtocol>: View {
                 }
             }
             .pickerStyle(.segmented)
-//            .padding(.horizontal)
-//            .padding(.bottom, 10)
             
             if selectedTab == .map {
                 VStack {

@@ -141,7 +141,7 @@ public final class DashboardViewModel: DashboardViewModelProtocol {
                 }
             }
         } else {
-            state = .error("No location found")
+            state = .error("\n No location found")
         }
     }
     

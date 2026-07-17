@@ -8,7 +8,6 @@
 import SwiftUI
 import CommunityCore
 
-// A new struct to display a single match, replacing FeedItemPlaceholder
 struct SupplierFeedItemView: View {
     @EnvironmentObject private var router: NavigationRouter
     let supplier: SupplierResponse

@@ -16,15 +16,19 @@ public enum CreateSupplierSteps: Int {
 }
 
 public enum SupplierCategory: String, CaseIterable, Identifiable {
-    case catering
-    case blueCollar
+    case homeLifestyle
+    case professionalServices
+    case maintenanceCare
+    case creativeCrafts
     
     public var id: String { self.rawValue }
     
     public var localizedName: String {
         switch self {
-        case .catering: return "Catering"
-        case .blueCollar: return "BlueCollar"
+        case .homeLifestyle: return "Home & Lifestyle"
+        case .professionalServices: return "Professional Services"
+        case .maintenanceCare: return "Maintenance & Care"
+        case .creativeCrafts: return "Creative & Crafts"
         }
     }
 }
@@ -52,7 +56,7 @@ public final class CreateSupplierViewModel: CreateSupplierViewModelProtocol {
     @Published public var validationErrors: [String: String] = [:]
     
     @Published public var business_name = ""
-    @Published public var category: SupplierCategory = .catering
+    @Published public var category: SupplierCategory = .homeLifestyle
     @Published public var description = ""
     @Published public var location = "" // This stays bound to the TextField
     @Published public var validatedLocationName = "" // Store the official name here
