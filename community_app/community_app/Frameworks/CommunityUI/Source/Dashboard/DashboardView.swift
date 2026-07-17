@@ -55,13 +55,9 @@ struct DashboardView<T: DashboardViewModelProtocol>: View {
                 ) { category in
                     category.display
                 }
-                .padding(.horizontal) // Apply horizontal padding to the picker
-                .padding(.bottom, 16) // Spacing below the picker
                 .background(Assets.theme.surfaceBackground)
                 
-                // Conditional content based on selectedCategory
-                if selectedCategory == .services {
-                    // For services, the map should take remaining space directly
+                VStack(spacing: 16) {
                     DashboardContent(
                         viewModel: viewModel,
                         selectedCategory: $selectedCategory,
@@ -69,29 +65,10 @@ struct DashboardView<T: DashboardViewModelProtocol>: View {
                         selectedServiceTab: $selectedServiceTab,
                         mapCameraPosition: $mapCameraPosition
                     )
-                    .frame(maxWidth: .infinity, maxHeight: .infinity) // Allow content to fill
-                    .background(Assets.theme.surfaceBackground)
-                    .cornerRadius(10)
-                    .padding(.horizontal) // Horizontal padding for this block
-                } else {
-                    // For other categories, use a ScrollView
-                    ScrollView {
-                        // This VStack provides the consistent spacing and styling for scrollable content
-                        VStack(spacing: 16) {
-                            DashboardContent(
-                                viewModel: viewModel,
-                                selectedCategory: $selectedCategory,
-                                selectedEventTab: $selectedEventTab,
-                                selectedServiceTab: $selectedServiceTab,
-                                mapCameraPosition: $mapCameraPosition
-                            )
-                        }
-                        .padding() // Inner padding for the scrollable content block
-                        .background(Assets.theme.surfaceBackground)
-                        .cornerRadius(10)
-                    }
-                    .padding(.horizontal) // Horizontal padding for the scroll view itself
                 }
+                .padding()
+                .background(Assets.theme.surfaceBackground)
+                
             }
             .background(Color.clear.ignoresSafeArea()) // Overall background for the NavigationStack content
             .navigationTitle("Dashboard")
@@ -163,7 +140,7 @@ private struct DashboardContent<T: DashboardViewModelProtocol>: View {
     var body: some View {
         switch viewModel.state {
         case .idle, .loading:
-            ProgressView("Loading matches...")
+            ProgressView("Loading \(selectedCategory.rawValue)...")
                 .padding()
         case .success:
             // Further extract the success state content based on selectedCategory
@@ -193,110 +170,11 @@ private struct DashboardSuccessContent<T: DashboardViewModelProtocol>: View {
     var body: some View {
         switch selectedCategory {
         case .events:
-            EventFeedContent(viewModel: viewModel, selectedTab: $selectedEventTab)
+            EventFeedView(viewModel: viewModel, selectedTab: $selectedEventTab)
         case .services:
-            ServiceFeedContent(viewModel: viewModel, selectedTab: $selectedServiceTab, mapCameraPosition: $mapCameraPosition)
+            ServiceFeedView(viewModel: viewModel, selectedTab: $selectedServiceTab, mapCameraPosition: $mapCameraPosition)
         case .products:
             Label("Coming soon", systemImage: "star.fill")
         }
-    }
-}
-
-/// A private helper view for displaying event-related content.
-private struct EventFeedContent<T: DashboardViewModelProtocol>: View {
-    @ObservedObject var viewModel: T
-    @Binding var selectedTab: MatchTab
-    
-    var body: some View {
-        VStack(spacing: 16) {
-            Picker("Match Type", selection: $selectedTab) {
-                ForEach(MatchTab.allCases) { tab in
-                    Text(tab.rawValue).tag(tab)
-                }
-            }
-            .pickerStyle(.segmented)
-            .padding(.horizontal)
-            .padding(.bottom, 10)
-            
-            let matchesToShow = selectedTab == .upcoming ? viewModel.dashboardModel.upcomingMatches : viewModel.dashboardModel.historyMatches
-            
-            if matchesToShow.isEmpty {
-                Text(selectedTab == .upcoming ?
-                     "No upcoming matches found. Create one to get started!" :
-                        "No past matches found.")
-                .font(.headline)
-                .foregroundColor(Assets.theme.secondaryText)
-                .padding()
-            } else {
-                ForEach(matchesToShow, id: \.match_id) { match in
-                    MatchFeedItemView(match: match)
-                }
-            }
-        }
-    }
-}
-
-/// A private helper view for displaying service-related content, including the map.
-private struct ServiceFeedContent<T: DashboardViewModelProtocol>: View {
-    @ObservedObject var viewModel: T
-    @Binding var selectedTab: ServiceTab
-    @Binding var mapCameraPosition: MapCameraPosition
-    
-    var body: some View {
-        
-        VStack(spacing: 16) {
-            Picker("Service view", selection: $selectedTab) {
-                ForEach(ServiceTab.allCases) { tab in
-                    Text(tab.rawValue).tag(tab)
-                }
-            }
-            .pickerStyle(.segmented)
-            .padding(.horizontal)
-            .padding(.bottom, 10)
-            if selectedTab == .map {
-                Map(position: $mapCameraPosition, interactionModes: .all) {
-                    UserAnnotation()
-                    // Add markers for suppliers
-                    ForEach(viewModel.dashboardModel.suppliers, id: \.id) { supplier in
-                        if supplier.latitude != 0.0 || supplier.longitude != 0.0 {
-                            Marker(
-                                supplier.business_name,
-                                coordinate: CLLocationCoordinate2D(
-                                    latitude: supplier.latitude,
-                                    longitude: supplier.longitude
-                                )
-                            )
-                        }
-                    }
-                }
-                .mapControls {
-                    MapUserLocationButton()
-                }
-                // Removed fixed height, now it will expand within its parent VStack
-                .frame(maxWidth: .infinity, maxHeight: .infinity) // Allow map to take all available space
-                .cornerRadius(12)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(Color.gray.opacity(0.2), lineWidth: 1)
-                )
-                .onAppear {
-                    // Set the initial camera position when the view appears, if still automatic.
-                    // This ensures the map centers on the lastKnownLocation or the first supplier.
-                    if mapCameraPosition == .automatic {
-                        if let userLocation = viewModel.lastKnownLocation {
-                            mapCameraPosition = .camera(MapCamera(centerCoordinate: userLocation.coordinate, distance: 10000)) // 10km distance around user
-                        } else if let firstSupplier = viewModel.dashboardModel.suppliers.first,
-                                  firstSupplier.latitude != 0.0 || firstSupplier.longitude != 0.0 {
-                            mapCameraPosition = .camera(MapCamera(centerCoordinate: CLLocationCoordinate2D(latitude: firstSupplier.latitude, longitude: firstSupplier.longitude), distance: 10000)) // 10km distance around first supplier
-                        }
-                    }
-                }
-            } else {
-                ForEach(viewModel.dashboardModel.suppliers, id: \.id) { supplier in
-                    SupplierFeedItemView(supplier: supplier)
-                }
-            }
-        }
-        .frame(maxWidth: .infinity, maxHeight: selectedTab == .map ? .infinity : .leastNonzeroMagnitude)
     }
 }
