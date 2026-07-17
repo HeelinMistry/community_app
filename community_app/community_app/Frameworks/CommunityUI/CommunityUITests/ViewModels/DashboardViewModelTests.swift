@@ -149,7 +149,8 @@ final class DashboardViewModelTests: XCTestCase {
             category: "Catering",
             distance_km: 10.0,
             latitude: -25.86,
-            longitude: 28.18
+            longitude: 28.18,
+            is_creator: true
         )]
         mockProvider.mockSuppliersUseCases.supplierResult = .success(expectedSupplier)
         sut.nearbySuppliers()
