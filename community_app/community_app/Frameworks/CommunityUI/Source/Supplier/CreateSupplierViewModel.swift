@@ -42,7 +42,7 @@ public protocol CreateSupplierViewModelProtocol: ValidatableViewModel {
     var description: String { get set }
     var location: String { get set }
     var validatedLocationName: String { get set }
-    var service_radius: String { get set }
+    var service_radius: Double { get set }
     var mapCameraPosition: MapCameraPosition { get set }
     var lastKnownLocation: CLLocation? { get }
     var isAuthorized: Bool { get }
@@ -61,7 +61,7 @@ public final class CreateSupplierViewModel: CreateSupplierViewModelProtocol {
     @Published public var description = ""
     @Published public var location = "" // This stays bound to the TextField
     @Published public var validatedLocationName = "" // Store the official name here
-    @Published public var service_radius = ""
+    @Published public var service_radius: Double = 5000.0 // Changed to Double, default 5km (5000 meters)
     
     // Initial map position, matching the default in CreateMatchView
     @Published public var mapCameraPosition: MapCameraPosition = .region(MKCoordinateRegion(
@@ -147,6 +147,8 @@ public final class CreateSupplierViewModel: CreateSupplierViewModelProtocol {
         state = .loading
         fetchTask = Task {
             do {
+                // Assuming CreateSupplierRequest expects service_radius in kilometers (based on initial 5.1 value)
+                let serviceRadiusInKilometers = service_radius / 1000.0 
                 
                 let request = CreateSupplierRequest(
                     business_name: business_name,
@@ -154,7 +156,7 @@ public final class CreateSupplierViewModel: CreateSupplierViewModelProtocol {
                     category: category.rawValue,
                     latitude: lastKnownLocation?.coordinate.latitude ?? 0,
                     longitude: lastKnownLocation?.coordinate.longitude ?? 0,
-                    service_radius: 5.1
+                    service_radius: serviceRadiusInKilometers
                 )
                 let response: CreateSupplierResponse = try await useCases.suppliers.userCreateSupplier(request)
                 if !Task.isCancelled {
@@ -180,6 +182,13 @@ public final class CreateSupplierViewModel: CreateSupplierViewModelProtocol {
             errors["location"] = "Location services are required. Please enable in Settings."
         } else if lastKnownLocation == nil {
             errors["location"] = "Your current location is not available. Please ensure GPS is active and permissions are granted."
+        }
+
+        // Validate service_radius
+        if service_radius < 100 { // Minimum 100 meters
+            errors["service_radius"] = "Service radius must be at least 0.1 km."
+        } else if service_radius > 50000 { // Maximum 50 km
+            errors["service_radius"] = "Service radius cannot exceed 50 km."
         }
         
         self.validationErrors = errors

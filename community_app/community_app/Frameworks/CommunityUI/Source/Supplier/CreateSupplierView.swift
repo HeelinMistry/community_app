@@ -92,10 +92,16 @@ private struct StepOneInputsView<T: CreateSupplierViewModelProtocol>: View {
                 optionLabel: { category in Text(category.localizedName) },
                 errorMessage: viewModel.validationErrors["category"]
             )
-            VStack(spacing: 20) {
+            VStack(spacing: 20) { // This VStack contains the Map and Slider
                 // The Visual Map
                 Map(position: $viewModel.mapCameraPosition) {
                     UserAnnotation()
+                    // Add a circle overlay for the service radius
+                    if let location = viewModel.lastKnownLocation {
+                        MapCircle(center: location.coordinate, radius: viewModel.service_radius)
+                            .stroke(Assets.theme.primaryAccent, lineWidth: 2)
+                            .foregroundStyle(Assets.theme.primaryAccent.opacity(0.1))
+                    }
                 }
                 .frame(height: 200)
                 .cornerRadius(12)
@@ -124,8 +130,52 @@ private struct StepOneInputsView<T: CreateSupplierViewModelProtocol>: View {
                         .multilineTextAlignment(.center)
                         .padding(.horizontal)
                 }
+                
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("SERVICE RADIUS: \(Int(viewModel.service_radius / 1000)) km")
+                        .font(.caption)
+                        .fontWeight(.bold)
+                        .foregroundColor(Assets.theme.secondaryText)
+                    
+                    Slider(value: $viewModel.service_radius, in: 100...50000, step: 50) {
+                        Text("Service Radius")
+                    } minimumValueLabel: {
+                        Text("0.1km")
+                    } maximumValueLabel: {
+                        Text("50km")
+                    }
+                    .tint(Assets.theme.primary) // Apply accent color to the slider
+                    
+                    if let errorMessage = viewModel.validationErrors["service_radius"] {
+                        Text(errorMessage)
+                            .font(.caption2)
+                            .foregroundColor(.red)
+                            .transition(.opacity)
+                    }
+                }
+                .padding(.horizontal)
+            } // End of VStack containing Map and Slider
+            .onChange(of: viewModel.service_radius) {
+                updateMapCameraPosition(radius: viewModel.service_radius, location: viewModel.lastKnownLocation)
+            }
+            .onChange(of: viewModel.lastKnownLocation) {
+                updateMapCameraPosition(radius: viewModel.service_radius, location: viewModel.lastKnownLocation)
+            }
+            .onAppear {
+                // Set initial camera position if location is already known on appear
+                updateMapCameraPosition(radius: viewModel.service_radius, location: viewModel.lastKnownLocation)
             }
         }
+    }
+
+    /// Updates the map's camera position to encompass the service radius around the given location.
+    /// - Parameters:
+    ///   - radius: The service radius in meters.
+    ///   - location: The center location for the service radius.
+    private func updateMapCameraPosition(radius: CLLocationDistance, location: CLLocation?) {
+        guard let coordinate = location?.coordinate else { return }
+        let cameraDistance = radius * 4.5
+        viewModel.mapCameraPosition = .camera(MapCamera(centerCoordinate: coordinate, distance: cameraDistance))
     }
 }
 
