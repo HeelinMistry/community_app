@@ -51,6 +51,11 @@ public struct CreateSupplierView<T: CreateSupplierViewModelProtocol>: View {
                 }
             }
         }
+        .onAppear {
+            Task {
+                await viewModel.requestLocationAuthorization()
+            }
+        }
     }
     
     private var navigationButtons: some View {
@@ -88,33 +93,9 @@ private struct StepOneInputsView<T: CreateSupplierViewModelProtocol>: View {
                 errorMessage: viewModel.validationErrors["category"]
             )
             VStack(spacing: 20) {
-                PrimaryTextInput(
-                    label: "Search Location",
-                    placeholder: "e.g. Central Park Pitch",
-                    text: $viewModel.location,
-                    errorMessage: viewModel.validationErrors["location"]
-                )
-                .onChange(of: viewModel.location) { _, newValue in
-                    searchTask?.cancel()
-                    searchTask = Task {
-                        do {
-                            try await Task.sleep(for: .milliseconds(500))
-                            if !Task.isCancelled {
-                                await viewModel.searchLocation(query: newValue)
-                            }
-                        } catch {
-                            router.alertItem = .init(title: "Error", message: "Location setting issue", dismissButton: .cancel())
-                        }
-                    }
-                }
-                
                 // The Visual Map
                 Map(position: $viewModel.mapCameraPosition) {
-                    // Add a marker at the found location if available
-                    if let coordinate = viewModel.selectedLocationCoordinate {
-                        // Use the validated name for the marker, not the raw input
-                        Marker(viewModel.validatedLocationName, coordinate: coordinate)
-                    }
+                    UserAnnotation()
                 }
                 .frame(height: 200)
                 .cornerRadius(12)
@@ -122,6 +103,27 @@ private struct StepOneInputsView<T: CreateSupplierViewModelProtocol>: View {
                     RoundedRectangle(cornerRadius: 12)
                         .stroke(Color.gray.opacity(0.2), lineWidth: 1)
                 )
+
+                // Display error message from validationErrors or location feedback
+                if let errorMessage = viewModel.validationErrors["location"] {
+                    Text(errorMessage)
+                        .font(.caption2)
+                        .foregroundColor(.red)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal)
+                } else if !viewModel.isAuthorized {
+                    Text("Please enable location services in Settings to pinpoint your service location.")
+                        .font(.caption2)
+                        .foregroundColor(.red)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal)
+                } else if viewModel.lastKnownLocation == nil {
+                    Text("Getting your current location...")
+                        .font(.caption2)
+                        .foregroundColor(Assets.theme.secondaryText)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal)
+                }
             }
         }
     }

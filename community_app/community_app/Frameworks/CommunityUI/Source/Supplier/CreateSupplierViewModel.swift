@@ -6,10 +6,10 @@
 //
 
 import MapKit
+import SwiftUI
 import Combine
 import Foundation
 import CommunityCore
-import _MapKit_SwiftUI
 
 public enum CreateSupplierSteps: Int {
     case step1 = 1
@@ -33,7 +33,7 @@ public enum SupplierCategory: String, CaseIterable, Identifiable {
     }
 }
 
-// MARK: - CreateMatchViewModelProtocol and CreateMatchViewModel
+// MARK: - CreateSupplierViewModelProtocol and CreateSupplierViewModel
 
 @MainActor
 public protocol CreateSupplierViewModelProtocol: ValidatableViewModel {
@@ -44,10 +44,11 @@ public protocol CreateSupplierViewModelProtocol: ValidatableViewModel {
     var validatedLocationName: String { get set }
     var service_radius: String { get set }
     var mapCameraPosition: MapCameraPosition { get set }
-    var selectedLocationCoordinate: CLLocationCoordinate2D? { get set }
+    var lastKnownLocation: CLLocation? { get }
+    var isAuthorized: Bool { get }
     
+    func requestLocationAuthorization() async
     func create()
-    func searchLocation(query: String) async
 }
 
 @MainActor
@@ -64,11 +65,14 @@ public final class CreateSupplierViewModel: CreateSupplierViewModelProtocol {
     
     // Initial map position, matching the default in CreateMatchView
     @Published public var mapCameraPosition: MapCameraPosition = .region(MKCoordinateRegion(
-        center: CLLocationCoordinate2D(latitude: -25.86, longitude: 28.18),
+        center: CLLocationCoordinate2D(latitude: -25.86, longitude: 28.18), // Default South Africa location
         span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
     ))
-    // Stores the coordinate for the map marker
-    @Published public var selectedLocationCoordinate: CLLocationCoordinate2D?
+    
+    @Published public private(set) var lastKnownLocation: CLLocation?
+    @Published public private(set) var isAuthorized: Bool
+    
+    private var cancellables = Set<AnyCancellable>()
     
     public func isFormValid(step: Int? = nil) -> Bool {
         validationErrors = [:]
@@ -94,6 +98,48 @@ public final class CreateSupplierViewModel: CreateSupplierViewModelProtocol {
     ) {
         self.useCases = useCases
         self.router = router
+        self.isAuthorized = useCases.location.authorizationStatus == .authorizedAlways || useCases.location.authorizationStatus == .authorizedWhenInUse
+        setupObservers()
+    }
+    
+    private func setupObservers() {
+        useCases.location.authorizationStatusPublisher
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] status in
+                print("Authorization received: \(String(describing: status))")
+                guard let self = self else { return }
+                self.isAuthorized = status == .authorizedAlways || status == .authorizedWhenInUse
+            }
+            .store(in: &cancellables)
+        
+        useCases.location.lastKnownLocationPublisher
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] location in
+                print("Location received: \(String(describing: location))")
+                self?.lastKnownLocation = location
+                if let newLocation = location {
+                    // Only update the map camera if it's currently at the default South Africa location
+                    // or if this is the first time we're receiving a location.
+                    // This prevents overriding user's manual map interaction after they've moved it.
+                    let defaultCenter = CLLocationCoordinate2D(latitude: -25.86, longitude: 28.18)
+                    let currentMapCenter = self?.mapCameraPosition.region?.center
+                    
+                    if (currentMapCenter?.latitude == defaultCenter.latitude &&
+                        currentMapCenter?.longitude == defaultCenter.longitude) ||
+                        self?.lastKnownLocation == nil {
+                        self?.mapCameraPosition = .camera(MapCamera(centerCoordinate: newLocation.coordinate, distance: 10000)) // 10km distance
+                    }
+                }
+            }
+            .store(in: &cancellables)
+    }
+    
+    public func requestLocationAuthorization() async {
+        do {
+            try await useCases.location.requestLocationAuthorization()
+        } catch {
+            state = .error(error.localizedDescription)
+        }
     }
     
     public func create() {
@@ -106,8 +152,8 @@ public final class CreateSupplierViewModel: CreateSupplierViewModelProtocol {
                     business_name: business_name,
                     description: "test",
                     category: category.rawValue,
-                    latitude: selectedLocationCoordinate?.latitude ?? 0,
-                    longitude: selectedLocationCoordinate?.longitude ?? 0,
+                    latitude: lastKnownLocation?.coordinate.latitude ?? 0,
+                    longitude: lastKnownLocation?.coordinate.longitude ?? 0,
                     service_radius: 5.1
                 )
                 let response: CreateSupplierResponse = try await useCases.suppliers.userCreateSupplier(request)
@@ -128,9 +174,14 @@ public final class CreateSupplierViewModel: CreateSupplierViewModelProtocol {
     private func incompleteFormStep1() {
         var errors: [String: String] = [:]
         validateAndCollectError(forField: "business_name", value: business_name, nonEmptyMessage: "Business name cannot be empty", in: &errors)
-        // Validate either the raw input or the validated name if available
-        let locationToValidate = validatedLocationName.isEmpty ? location : validatedLocationName
-        validateAndCollectError(forField: "location", value: locationToValidate, nonEmptyMessage: "Location cannot be empty", in: &errors)
+        
+        // Revised Location Validation: Check for authorization and last known location
+        if !isAuthorized {
+            errors["location"] = "Location services are required. Please enable in Settings."
+        } else if lastKnownLocation == nil {
+            errors["location"] = "Your current location is not available. Please ensure GPS is active and permissions are granted."
+        }
+        
         self.validationErrors = errors
     }
     
@@ -163,44 +214,6 @@ public final class CreateSupplierViewModel: CreateSupplierViewModelProtocol {
             errors[key] = nonEmptyMessage
         } else if let numericValidator = numericValidator, let error = numericValidator(value) {
             errors[key] = error
-        }
-    }
-    
-    public func searchLocation(query: String) async {
-        guard !query.isEmpty else {
-            // Reset map to default or current known location if query is empty
-            self.mapCameraPosition = .region(MKCoordinateRegion(
-                center: CLLocationCoordinate2D(latitude: -25.86, longitude: 28.18),
-                span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
-            ))
-            self.selectedLocationCoordinate = nil // Clear the marker
-            self.validatedLocationName = "" // Clear validated name
-            return
-        }
-        
-        do {
-            let mapItems = try await useCases.location.search(query: query)
-            
-            if let item = mapItems.first {
-                // DO NOT overwrite self.location here, it's bound to the TextField
-                self.validatedLocationName = item.name ?? query // Store the official name
-                
-                // Update map camera position to show the result
-                let coordinate = item.placemark.coordinate
-                self.mapCameraPosition = .region(MKCoordinateRegion(
-                    center: coordinate,
-                    span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01) // Zoom in a bit more
-                ))
-                self.selectedLocationCoordinate = coordinate // Set the coordinate for the marker
-            } else {
-                // If no item found, clear the marker and validated location name
-                self.selectedLocationCoordinate = nil
-                self.validatedLocationName = ""
-                // Keep the user's typed location in the `location` text field
-            }
-        } catch {
-            self.selectedLocationCoordinate = nil // Clear marker on error
-            self.validatedLocationName = "" // Clear validated name on error
         }
     }
 }
