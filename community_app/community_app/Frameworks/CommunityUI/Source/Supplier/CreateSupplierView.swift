@@ -85,6 +85,12 @@ private struct StepOneInputsView<T: CreateSupplierViewModelProtocol>: View {
                              text: $viewModel.business_name,
                              errorMessage: viewModel.validationErrors["business_name"]
             )
+            // MARK: - New Description Input
+            PrimaryTextInput(label: "Description",
+                             placeholder: "Provide a detailed description of your service.",
+                             text: $viewModel.description,
+                             errorMessage: viewModel.validationErrors["description"]
+            )
             PrimaryPicker(
                 label: "Category",
                 selection: $viewModel.category,
@@ -92,6 +98,30 @@ private struct StepOneInputsView<T: CreateSupplierViewModelProtocol>: View {
                 optionLabel: { category in Text(category.localizedName) },
                 errorMessage: viewModel.validationErrors["category"]
             )
+            VStack(alignment: .leading, spacing: 8) {
+                Text("SERVICE RADIUS: \(Int(viewModel.service_radius / 1000)) km")
+                    .font(.caption)
+                    .fontWeight(.bold)
+                    .foregroundColor(Assets.theme.secondaryText)
+                
+                Slider(value: $viewModel.service_radius, in: 100...50000, step: 50) {
+                    Text("Service Radius")
+                } minimumValueLabel: {
+                    Text("0.1km")
+                } maximumValueLabel: {
+                    Text("50km")
+                }
+                .tint(Assets.theme.primary) // Apply accent color to the slider
+                
+                if let errorMessage = viewModel.validationErrors["service_radius"] {
+                    Text(errorMessage)
+                        .font(.caption2)
+                        .foregroundColor(.red)
+                        .transition(.opacity)
+                }
+            }
+            .padding(.horizontal)
+            
             VStack(spacing: 20) { // This VStack contains the Map and Slider
                 // The Visual Map
                 Map(position: $viewModel.mapCameraPosition) {
@@ -130,30 +160,6 @@ private struct StepOneInputsView<T: CreateSupplierViewModelProtocol>: View {
                         .multilineTextAlignment(.center)
                         .padding(.horizontal)
                 }
-                
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("SERVICE RADIUS: \(Int(viewModel.service_radius / 1000)) km")
-                        .font(.caption)
-                        .fontWeight(.bold)
-                        .foregroundColor(Assets.theme.secondaryText)
-                    
-                    Slider(value: $viewModel.service_radius, in: 100...50000, step: 50) {
-                        Text("Service Radius")
-                    } minimumValueLabel: {
-                        Text("0.1km")
-                    } maximumValueLabel: {
-                        Text("50km")
-                    }
-                    .tint(Assets.theme.primary) // Apply accent color to the slider
-                    
-                    if let errorMessage = viewModel.validationErrors["service_radius"] {
-                        Text(errorMessage)
-                            .font(.caption2)
-                            .foregroundColor(.red)
-                            .transition(.opacity)
-                    }
-                }
-                .padding(.horizontal)
             } // End of VStack containing Map and Slider
             .onChange(of: viewModel.service_radius) {
                 updateMapCameraPosition(radius: viewModel.service_radius, location: viewModel.lastKnownLocation)

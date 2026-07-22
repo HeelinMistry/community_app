@@ -38,7 +38,7 @@ struct DashboardView<T: DashboardViewModelProtocol>: View {
     @StateObject private var viewModel: T
     @State private var selectedCategory: FeedCategory = .events
     @State private var selectedEventTab: MatchTab = .upcoming
-    @State private var selectedServiceTab: ServiceTab = .map
+    @State private var selectedServiceTab: ServiceTab = .list
     @State private var mapCameraPosition: MapCameraPosition = .automatic
     
     public init(viewModel: T) {

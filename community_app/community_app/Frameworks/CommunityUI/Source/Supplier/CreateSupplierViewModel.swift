@@ -152,7 +152,7 @@ public final class CreateSupplierViewModel: CreateSupplierViewModelProtocol {
                 
                 let request = CreateSupplierRequest(
                     business_name: business_name,
-                    description: "test",
+                    description: description, // Changed from hardcoded "test" to use the ViewModel's property
                     category: category.rawValue,
                     latitude: lastKnownLocation?.coordinate.latitude ?? 0,
                     longitude: lastKnownLocation?.coordinate.longitude ?? 0,
@@ -176,6 +176,8 @@ public final class CreateSupplierViewModel: CreateSupplierViewModelProtocol {
     private func incompleteFormStep1() {
         var errors: [String: String] = [:]
         validateAndCollectError(forField: "business_name", value: business_name, nonEmptyMessage: "Business name cannot be empty", in: &errors)
+        // MARK: - New Description Validation
+        validateAndCollectError(forField: "description", value: description, nonEmptyMessage: "Description cannot be empty", in: &errors)
         
         // Revised Location Validation: Check for authorization and last known location
         if !isAuthorized {
