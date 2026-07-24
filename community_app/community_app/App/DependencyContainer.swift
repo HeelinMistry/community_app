@@ -83,6 +83,11 @@ final class DependencyContainer {
     public func makeCreateSupplierViewModel() -> CreateSupplierViewModel {
         return CreateSupplierViewModel(useCases: self, router: router)
     }
+    
+    /// Creates and returns a `SupplierDetailsViewModel`.
+    public func makeDetailSupplierViewModel(_ supplier_id: String) -> SupplierDetailsViewModel {
+        return SupplierDetailsViewModel(useCases: self, router: router, supplier_id: supplier_id)
+    }
 }
 
 extension DependencyContainer: AuthUseCasesProvider {
@@ -153,7 +158,7 @@ extension DependencyContainer: ViewFactory {
     
     @MainActor
     public func makeDetailSupplierView(_ supplier_id: String) -> AnyView {
-        let viewModel = makeDetailMatchViewModel(supplier_id)
-        return AnyView(MatchDetailsView(viewModel: viewModel))
+        let viewModel = makeDetailSupplierViewModel(supplier_id)
+        return AnyView(SupplierDetailsView(viewModel: viewModel))
     }
 }

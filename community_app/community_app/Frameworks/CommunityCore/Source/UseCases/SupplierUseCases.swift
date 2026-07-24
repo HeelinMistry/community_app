@@ -30,4 +30,14 @@ public final class SupplierUseCases: SupplierUseCasesProtocol {
             throw error
         }
     }
+    
+    public func selectedSupplierDetails(_ supplierRequest: SupplierDetailRequest) async throws -> SupplierDetailResponse {
+        do {
+            let supplierResponse = try await supplier.supplierDetails(supplierRequest)
+            return (supplierResponse)
+        } catch {
+            throw error
+        }
+    }
+    
 }

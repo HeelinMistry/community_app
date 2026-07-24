@@ -89,7 +89,7 @@ async def create_supplier(
 
 
 @router.get("/{supplier_id}")
-async def get_supplier_details(supplier_id: int, db: Session = Depends(get_db)):
+async def get_supplier_details(supplier_id: str, db: Session = Depends(get_db)):
     supplier = db.query(tables.Supplier).filter(tables.Supplier.id == supplier_id).first()
     if not supplier:
         raise HTTPException(status_code=404, detail="Supplier not found")

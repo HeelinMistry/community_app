@@ -33,4 +33,14 @@ final class SupplierUseCasesMock: SupplierUseCasesProtocol, @unchecked Sendable 
         fatalError("Result not set in SupplierUseCasesProtocol")
     }
     
+    var selectedSupplierResult: Result<SupplierDetailResponse, Error>?
+    func selectedSupplierDetails(_ supplierRequest: SupplierDetailRequest) async throws -> SupplierDetailResponse {
+        if let result = selectedSupplierResult {
+            switch result {
+            case .success(let response): return response
+            case .failure(let error): throw error
+            }
+        }
+        fatalError("Result not set in SupplierUseCasesProtocol")
+    }
 }
