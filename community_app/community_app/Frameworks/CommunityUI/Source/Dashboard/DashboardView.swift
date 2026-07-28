@@ -85,8 +85,7 @@ struct DashboardView<T: DashboardViewModelProtocol>: View {
                                 case .services:
                                     viewModel.createSupplierTapped()
                                 case .products:
-                                    // viewModel.loadProducts() // Still commented out
-                                    break
+                                    viewModel.createProductTapped()
                                 }
                             } label: {
                                 Label(category.display.text, systemImage: category.display.icon)

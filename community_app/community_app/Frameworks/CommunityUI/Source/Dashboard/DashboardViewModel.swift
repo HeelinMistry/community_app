@@ -26,6 +26,7 @@ public protocol DashboardViewModelProtocol: StateDrivenViewModel where DataType 
     
     func nearbySuppliers()
     func createSupplierTapped()
+    func createProductTapped()
 }
 
 @MainActor
@@ -151,5 +152,8 @@ public final class DashboardViewModel: DashboardViewModelProtocol {
     
     public func createSupplierTapped() {
         router.sheet = .createSupplier
+    }
+    public func createProductTapped() {
+        router.navigate(to: .productDetail(product_id: nil))
     }
 }
