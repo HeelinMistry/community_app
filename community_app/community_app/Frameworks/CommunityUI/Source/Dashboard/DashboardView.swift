@@ -7,6 +7,8 @@
 
 import SwiftUI
 import CommunityCore
+import MapKit
+import CoreLocation
 
 enum FeedCategory: String, CaseIterable {
     case events, services, products
@@ -26,91 +28,160 @@ enum MatchTab: String, CaseIterable, Identifiable {
     var id: String { self.rawValue }
 }
 
+enum ServiceTab: String, CaseIterable, Identifiable {
+    case map = "Map"
+    case list = "List"
+    var id: String { self.rawValue }
+}
+
 struct DashboardView<T: DashboardViewModelProtocol>: View {
     @StateObject private var viewModel: T
     @State private var selectedCategory: FeedCategory = .events
-    @State private var selectedTab: MatchTab = .upcoming
+    @State private var selectedEventTab: MatchTab = .upcoming
+    @State private var selectedServiceTab: ServiceTab = .list
+    @State private var mapCameraPosition: MapCameraPosition = .automatic
     
     public init(viewModel: T) {
         _viewModel = StateObject(wrappedValue: viewModel)
     }
+    
     var body: some View {
         NavigationStack {
-            ScrollView {
+            // Main VStack to organize the CategoryPicker and the content area
+            VStack {
+                CategoryPicker(
+                    options: FeedCategory.allCases,
+                    selection: $selectedCategory
+                ) { category in
+                    category.display
+                }
+                .background(Assets.theme.surfaceBackground)
+                
                 VStack(spacing: 16) {
-                    CategoryPicker(
-                        options: FeedCategory.allCases,
-                        selection: $selectedCategory
-                    ) { category in
-                        category.display
-                    }
-                    
-                    Picker("Match Type", selection: $selectedTab) {
-                        ForEach(MatchTab.allCases) { tab in
-                            Text(tab.rawValue).tag(tab)
-                        }
-                    }
-                    .pickerStyle(.segmented)
-                    .padding(.horizontal)
-                    .padding(.bottom, 10)
-                    
-                    VStack(spacing: 16) {
-                        switch viewModel.state {
-                        case .idle, .loading:
-                            ProgressView("Loading matches...")
-                                .padding()
-                        case .success:
-                            let matchesToShow = selectedTab == .upcoming ? viewModel.dashboardModel.upcomingMatches : viewModel.dashboardModel.historyMatches
-                            
-                            if matchesToShow.isEmpty {
-                                Text(selectedTab == .upcoming ?
-                                     "No upcoming matches found. Create one to get started!" :
-                                     "No past matches found.")
-                                    .font(.headline)
-                                    .foregroundColor(Assets.theme.secondaryText)
-                                    .padding()
-                            } else {
-                                ForEach(matchesToShow, id: \.match_id) { match in
-                                    MatchFeedItemView(match: match)
-                                }
-                            }
-                        case .error(let message):
-                            Text("Error loading matches: \(message)")
-                                .foregroundColor(.red)
-                                .padding()
-                        }
-                    }
-                    .padding()
-                    .background(Assets.theme.surfaceBackground)
-                    .cornerRadius(10)
+                    DashboardContent(
+                        viewModel: viewModel,
+                        selectedCategory: $selectedCategory,
+                        selectedEventTab: $selectedEventTab,
+                        selectedServiceTab: $selectedServiceTab,
+                        mapCameraPosition: $mapCameraPosition
+                    )
                 }
                 .padding()
-                .background(Color.clear.ignoresSafeArea())
-                .navigationTitle("Dashboard")
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Button {
-                            viewModel.createMatchTapped()
-                        } label: {
-                            Label("Create Match", systemImage: "plus.circle.fill")
+                .background(Assets.theme.surfaceBackground)
+                .cornerRadius(15)
+                Spacer()
+                
+            }
+            .background(Color.clear.ignoresSafeArea()) // Overall background for the NavigationStack content
+            .navigationTitle("Dashboard")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Menu {
+                        ForEach(FeedCategory.allCases, id: \.self) { category in
+                            Button {
+                                switch category {
+                                case .events:
+                                    viewModel.createMatchTapped()
+                                case .services:
+                                    viewModel.createSupplierTapped()
+                                case .products:
+                                    // viewModel.loadProducts() // Still commented out
+                                    break
+                                }
+                            } label: {
+                                Label(category.display.text, systemImage: category.display.icon)
+                            }
                         }
-                    }
-                }
-                .onAppear {
-                    viewModel.matchFeed()
-                }
-                .onChange(of: selectedCategory) {
-                    switch selectedCategory {
-                    case .events:
-                        viewModel.matchFeed()
-                    case .services:
-                        viewModel.nearbySuppliers()
-                    case .products:
-                        // viewModel.loadProducts()
-                        break
+                    } label: {
+                        Label("Create", systemImage: "plus.circle.fill")
                     }
                 }
             }
+            .onAppear(perform: handleOnAppear)
+            .onChange(of: selectedCategory, handleCategoryChange)
+        }
+    }
+    
+    // MARK: - Private Helper Methods for Actions
+    // handleCreateButtonTapped is removed as its logic is now in the Menu items
+    
+    private func handleOnAppear() {
+        Task {
+            await viewModel.requestLocationAuthorization()
+        }
+        
+        switch selectedCategory {
+        case .events:
+            viewModel.matchFeed()
+        case .services:
+            viewModel.nearbySuppliers()
+        case .products:
+            // viewModel.loadProducts()
+            break
+        }
+    }
+    
+    private func handleCategoryChange() {
+        switch selectedCategory {
+        case .events:
+            viewModel.matchFeed()
+        case .services:
+            viewModel.nearbySuppliers()
+        case .products:
+            // viewModel.loadProducts()
+            break
+        }
+    }
+}
+
+// MARK: - Helper Views for Dashboard Content
+/// A private helper view to encapsulate the main content driven by `viewModel.state`.
+private struct DashboardContent<T: DashboardViewModelProtocol>: View {
+    @ObservedObject var viewModel: T // Use @ObservedObject for child views observing a parent's StateObject
+    @Binding var selectedCategory: FeedCategory
+    @Binding var selectedEventTab: MatchTab
+    @Binding var selectedServiceTab: ServiceTab
+    @Binding var mapCameraPosition: MapCameraPosition
+    
+    var body: some View {
+        switch viewModel.state {
+        case .idle, .loading:
+            ProgressView("Loading \(selectedCategory.rawValue)...")
+                .padding()
+        case .success:
+            // Further extract the success state content based on selectedCategory
+            DashboardSuccessContent(
+                viewModel: viewModel,
+                selectedCategory: $selectedCategory,
+                selectedEventTab: $selectedEventTab,
+                selectedServiceTab: $selectedServiceTab,
+                mapCameraPosition: $mapCameraPosition
+            )
+        case .error(let message):
+            Text("Error \(message)")
+                .multilineTextAlignment(.center)
+                .foregroundColor(.red)
+                .padding()
+        }
+    }
+}
+
+/// A private helper view to encapsulate the content when `viewModel.state` is `.success`.
+private struct DashboardSuccessContent<T: DashboardViewModelProtocol>: View {
+    @ObservedObject var viewModel: T
+    @Binding var selectedCategory: FeedCategory
+    @Binding var selectedEventTab: MatchTab
+    @Binding var selectedServiceTab: ServiceTab
+    @Binding var mapCameraPosition: MapCameraPosition
+    
+    var body: some View {
+        switch selectedCategory {
+        case .events:
+            EventFeedView(viewModel: viewModel, selectedTab: $selectedEventTab)
+        case .services:
+            ServiceFeedView(viewModel: viewModel, selectedTab: $selectedServiceTab, mapCameraPosition: $mapCameraPosition)
+        case .products:
+            Label("Coming soon", systemImage: "star.fill")
         }
     }
 }

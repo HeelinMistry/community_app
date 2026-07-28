@@ -59,7 +59,7 @@ public struct PrimaryTextInput: View {
                     )
                     .foregroundColor(.primary)
             } else {
-                TextField("", text: $text, prompt: Text(placeholder).foregroundColor(Assets.theme.secondaryText))
+                TextField("", text: $text, prompt: Text(placeholder).foregroundColor(Assets.theme.secondaryText), axis: .vertical)
                     .padding()
                     .background(Assets.theme.inputBackground)
                     .cornerRadius(12)

@@ -9,4 +9,5 @@ import Foundation
 
 extension Notification.Name {
     static let matchCreated = Notification.Name("matchCreated")
+    static let supplierCreated = Notification.Name("supplierCreated")
 }

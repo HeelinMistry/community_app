@@ -78,6 +78,16 @@ final class DependencyContainer {
     public func makeDetailMatchViewModel(_ match_id: String) -> MatchDetailsViewModel {
         return MatchDetailsViewModel(useCases: self, router: router, match_id: match_id)
     }
+    
+    /// Creates and returns a `CreateMatchViewModel`.
+    public func makeCreateSupplierViewModel() -> CreateSupplierViewModel {
+        return CreateSupplierViewModel(useCases: self, router: router)
+    }
+    
+    /// Creates and returns a `SupplierDetailsViewModel`.
+    public func makeDetailSupplierViewModel(_ supplier_id: String) -> SupplierDetailsViewModel {
+        return SupplierDetailsViewModel(useCases: self, router: router, supplier_id: supplier_id)
+    }
 }
 
 extension DependencyContainer: AuthUseCasesProvider {
@@ -90,8 +100,8 @@ extension DependencyContainer: AuthUseCasesProvider {
     }
 }
 
-extension DependencyContainer: MatchDetailUseCasesProvider, DashboardUseCasesProvider {
-
+extension DependencyContainer: MatchDetailUseCasesProvider, DashboardUseCasesProvider, SupplierUseCasesProvider {
+    
     var notifications: any NotificationProtocol {
         _notificationService
     }
@@ -115,7 +125,7 @@ extension DependencyContainer: ViewFactory {
         let viewModel = makeLoginViewModel()
         return AnyView(LoginView(viewModel: viewModel))
     }
-
+    
     @MainActor
     public func makeRegistrationView() -> AnyView {
         let viewModel = makeRegistrationViewModel()
@@ -135,8 +145,20 @@ extension DependencyContainer: ViewFactory {
     }
     
     @MainActor
+    public func makeCreateSupplierView() -> AnyView {
+        let viewModel = makeCreateSupplierViewModel()
+        return AnyView(CreateSupplierView(viewModel: viewModel))
+    }
+    
+    @MainActor
     public func makeDetailMatchView(_ match_id: String) -> AnyView {
         let viewModel = makeDetailMatchViewModel(match_id)
         return AnyView(MatchDetailsView(viewModel: viewModel))
+    }
+    
+    @MainActor
+    public func makeDetailSupplierView(_ supplier_id: String) -> AnyView {
+        let viewModel = makeDetailSupplierViewModel(supplier_id)
+        return AnyView(SupplierDetailsView(viewModel: viewModel))
     }
 }

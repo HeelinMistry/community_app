@@ -42,19 +42,23 @@ enum CommunityEndpoint: APIEndpoint {
     case toggleCancel(_ matchDetailRequest: MatchDetailRequest)
     
     case suppliers(_ supplierRequest: SupplierRequest)
+    case createSupplier(_ supplierRequest: CreateSupplierRequest)
+    case supplierDetails(_ supplierRequest: SupplierDetailRequest)
     
     /// The HTTP method for all OpenWeatherMap endpoints, which is GET.
     var method: HTTPMethod {
         switch self {
         case .matches,
                 .matchDetail,
-                .suppliers:
+                .suppliers,
+                .supplierDetails:
             return .get
         case .login,
                 .register,
                 .createMatch,
                 .toggleParticipation,
-                .toggleCancel:
+                .toggleCancel,
+                .createSupplier:
             return .post
         }
     }
@@ -70,6 +74,8 @@ enum CommunityEndpoint: APIEndpoint {
         case .toggleParticipation(let request): return "api/v1/matches/\(request.match_id)/toggle-join"
         case .toggleCancel(let request): return "api/v1/matches/\(request.match_id)/toggle-cancel"
         case .suppliers: return "api/v1/suppliers"
+        case .createSupplier: return "api/v1/suppliers/create"
+        case .supplierDetails(let request): return "api/v1/suppliers/\(request.supplier_id)"
         }
     }
     
@@ -82,14 +88,15 @@ enum CommunityEndpoint: APIEndpoint {
                 .createMatch,
                 .matchDetail,
                 .toggleParticipation,
-                .toggleCancel:
+                .toggleCancel,
+                .createSupplier,
+                .supplierDetails:
             return []
         case .suppliers(let request):
             let coordinates = request.convertCoordinateToReal
             let queryItems: [URLQueryItem] = [
                 URLQueryItem(name: "lat", value: coordinates.0),
-                URLQueryItem(name: "lon", value: coordinates.1),
-                URLQueryItem(name: "user_radius", value: request.convertRadiusToReal)
+                URLQueryItem(name: "lon", value: coordinates.1)
             ]
             return queryItems
         }
@@ -103,6 +110,8 @@ enum CommunityEndpoint: APIEndpoint {
         case .register(let registerRequest):
             return registerRequest
         case .createMatch(let req):
+            return req
+        case .createSupplier(let req):
             return req
         default:
             return nil

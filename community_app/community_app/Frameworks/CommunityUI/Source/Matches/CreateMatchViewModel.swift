@@ -11,7 +11,7 @@ import Foundation
 import CommunityCore
 import _MapKit_SwiftUI
 
-public enum RegistrationSteps: Int {
+public enum CreateMatchSteps: Int {
     case step1 = 1
     case step2 = 2
     case step3 = 3
@@ -77,7 +77,7 @@ public final class CreateMatchViewModel: CreateMatchViewModelProtocol {
     public func isFormValid(step: Int? = nil) -> Bool {
         validationErrors = [:]
         guard let step,
-              let validationStep = RegistrationSteps(rawValue: step) else {
+              let validationStep = CreateMatchSteps(rawValue: step) else {
             validationErrors["general"] = "Validation step could not be determined."
             return false
         }

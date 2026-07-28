@@ -13,7 +13,7 @@ public final class SupplierUseCases: SupplierUseCasesProtocol {
         self.supplier = supplier
     }
     
-    public func nearbySuppliers(_ suppliersRequest: SupplierRequest) async throws -> Suppliers {
+    public func userNearbySuppliers(_ suppliersRequest: SupplierRequest) async throws -> Suppliers {
         do {
             let supplierResponse = try await supplier.nearbySuppliers(suppliersRequest)
             return supplierResponse
@@ -21,4 +21,23 @@ public final class SupplierUseCases: SupplierUseCasesProtocol {
             throw error
         }
     }
+    
+    public func userCreateSupplier(_ supplierRequest: CreateSupplierRequest) async throws -> CreateSupplierResponse {
+        do {
+            let supplierResponse = try await supplier.createSupplier(supplierRequest)
+            return (supplierResponse)
+        } catch {
+            throw error
+        }
+    }
+    
+    public func selectedSupplierDetails(_ supplierRequest: SupplierDetailRequest) async throws -> SupplierDetailResponse {
+        do {
+            let supplierResponse = try await supplier.supplierDetails(supplierRequest)
+            return (supplierResponse)
+        } catch {
+            throw error
+        }
+    }
+    
 }

@@ -7,6 +7,7 @@
 
 import XCTest
 import Combine
+import CoreLocation
 @testable import CommunityUI
 @testable import CommunityCore
 
@@ -33,6 +34,9 @@ final class DashboardViewModelTests: XCTestCase {
         let formattedPastDateStringForSetup = Self.testIsoDateFormatter.string(from: pastDateForSetup)
         let expectedResponseForSetup: Matches = [.init(start_datetime: formattedPastDateStringForSetup)]
         mockProvider.mockMatchUseCases.matchResult = .success(expectedResponseForSetup)
+        
+        let expectedLocation = CLLocation(latitude: -25.86, longitude: 28.18)
+        mockProvider.locationMock.lastKnownLocation = expectedLocation
         
         sut = .init(useCases: mockProvider, router: mockRouter)
     }
@@ -143,7 +147,10 @@ final class DashboardViewModelTests: XCTestCase {
             business_name: "test_business",
             description: "Rotis",
             category: "Catering",
-            distance_km: 10.0
+            distance_km: 10.0,
+            latitude: -25.86,
+            longitude: 28.18,
+            is_creator: true
         )]
         mockProvider.mockSuppliersUseCases.supplierResult = .success(expectedSupplier)
         sut.nearbySuppliers()
@@ -154,6 +161,8 @@ final class DashboardViewModelTests: XCTestCase {
         // Assert
         if case .success(let response) = sut.state {
             XCTAssertEqual(response.suppliers.count, 1, "Expected 1 supplier")
+            XCTAssertEqual(response.suppliers.first?.latitude, -25.86)
+            XCTAssertEqual(response.suppliers.first?.longitude, 28.18)
         } else {
             XCTFail("Expected .success state, got \(sut.state)")
         }

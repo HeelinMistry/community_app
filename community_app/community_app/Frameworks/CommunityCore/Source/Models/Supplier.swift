@@ -13,55 +13,54 @@ public typealias Suppliers = [SupplierResponse]
 public nonisolated struct SupplierRequest: Sendable, Equatable, Encodable, Decodable {
     public let lat: Double
     public let lon: Double
-    public let user_radius: Double
     
-    public init(lat: Double, lon: Double, user_radius: Double) {
+    public init(lat: Double, lon: Double) {
         self.lat = lat
         self.lon = lon
-        self.user_radius = user_radius
     }
     
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.lat = try container.decode(Double.self, forKey: .lat)
         self.lon = try container.decode(Double.self, forKey: .lon)
-        self.user_radius = try container.decode(Double.self, forKey: .user_radius)
     }
     
     public var convertCoordinateToReal: (String, String) {
         return (String(format: "%.6f", lat), String(format: "%.6f", lon))
         
     }
-    
-    public var convertRadiusToReal: String {
-        return String(format: "%.1f", user_radius)
-    }
 }
 
 public nonisolated struct SupplierResponse: Sendable, Equatable, Encodable, Decodable {
     public let id: String
-    public let user_id: String
     public let business_name: String
     public let description: String
     public let category: String
     public let distance_km: Double
+    public let latitude: Double
+    public let longitude: Double
+    public let is_creator: Bool
     
-    public init(id: String, user_id: String, business_name: String, description: String, category: String, distance_km: Double) {
+    public init(id: String, user_id: String, business_name: String, description: String, category: String, distance_km: Double, latitude: Double, longitude: Double, is_creator: Bool) {
         self.id = id
-        self.user_id = user_id
         self.business_name = business_name
         self.description = description
         self.category = category
         self.distance_km = distance_km
+        self.latitude = latitude
+        self.longitude = longitude
+        self.is_creator = is_creator
     }
     
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = try container.decode(String.self, forKey: .id)
-        self.user_id = try container.decode(String.self, forKey: .user_id)
         self.business_name = try container.decode(String.self, forKey: .business_name)
         self.description = try container.decode(String.self, forKey: .description)
         self.category = try container.decode(String.self, forKey: .category)
         self.distance_km = try container.decode(Double.self, forKey: .distance_km)
+        self.latitude = try container.decode(Double.self, forKey: .latitude)
+        self.longitude = try container.decode(Double.self, forKey: .longitude)
+        self.is_creator = try container.decode(Bool.self, forKey: .is_creator)
     }
 }

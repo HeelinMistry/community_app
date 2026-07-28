@@ -12,8 +12,30 @@ import CommunityCore
 final class SupplierUseCasesMock: SupplierUseCasesProtocol, @unchecked Sendable {
     
     var supplierResult: Result<Suppliers, Error>?
-    func nearbySuppliers(_ suppliersRequest: SupplierRequest) async throws -> Suppliers {
+    func userNearbySuppliers(_ suppliersRequest: SupplierRequest) async throws -> Suppliers {
         if let result = supplierResult {
+            switch result {
+            case .success(let response): return response
+            case .failure(let error): throw error
+            }
+        }
+        fatalError("Result not set in SupplierUseCasesProtocol")
+    }
+    
+    var createSupplierResult: Result<CreateSupplierResponse, Error>?
+    func userCreateSupplier(_ supplierRequest: CreateSupplierRequest) async throws -> CreateSupplierResponse {
+        if let result = createSupplierResult {
+            switch result {
+            case .success(let response): return response
+            case .failure(let error): throw error
+            }
+        }
+        fatalError("Result not set in SupplierUseCasesProtocol")
+    }
+    
+    var selectedSupplierResult: Result<SupplierDetailResponse, Error>?
+    func selectedSupplierDetails(_ supplierRequest: SupplierDetailRequest) async throws -> SupplierDetailResponse {
+        if let result = selectedSupplierResult {
             switch result {
             case .success(let response): return response
             case .failure(let error): throw error
