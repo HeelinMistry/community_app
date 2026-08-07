@@ -17,6 +17,7 @@ public final class ProductDetailsViewModel: ProductDetailsViewModelProtocol {
     @Published public private(set) var state: ViewState<AdvertiseProductResponse?> = .success(nil)
     @Published public var validationErrors: [String: String] = [:]
     
+    @Published public var productMarkerLocation: CLLocationCoordinate2D?
     @Published public private(set) var lastKnownLocation: CLLocation?
     @Published public private(set) var isAuthorized: Bool
     

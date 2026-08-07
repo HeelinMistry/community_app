@@ -67,7 +67,9 @@ public struct ProductDetailsView<T: ProductDetailsViewModelProtocol>: View {
                             lastKnownLocation: viewModel.lastKnownLocation,
                             isAuthorized: viewModel.isAuthorized,
                             showMultiTagPicker: $showMultiTagPicker,
-                            updateMapCameraPosition: updateMapCameraPosition // Pass the method as a closure
+                            updateMapCameraPosition: updateMapCameraPosition, // Pass the method as a closure
+                            productMarkerLocation: $viewModel.productMarkerLocation, // Pass productMarkerLocation binding
+                            onMapTapped: handleMapTap // Pass the new map tap handler
                         )
                     } else {
                         // Display actual product details for viewing
@@ -158,6 +160,29 @@ public struct ProductDetailsView<T: ProductDetailsViewModelProtocol>: View {
         guard let coordinate = location?.coordinate else { return }
         let cameraDistance = radius * 4.5
         viewModel.mapCameraPosition = .camera(MapCamera(centerCoordinate: coordinate, distance: cameraDistance))
+    }
+    
+    /// Handles a tap gesture on the map, updating the productMarkerLocation if within the service radius.
+    /// - Parameter coordinate: The CLLocationCoordinate2D where the map was tapped.
+    private func handleMapTap(coordinate: CLLocationCoordinate2D) {
+        guard let centerLocation = viewModel.lastKnownLocation else {
+            // Cannot determine if tap is within radius without a center location
+            // Optionally, show a message to the user or clear the marker
+            viewModel.productMarkerLocation = nil
+            return
+        }
+        
+        let tappedCLLocation = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
+        let distance = centerLocation.distance(from: tappedCLLocation)
+        
+        if distance <= viewModel.service_radius {
+            viewModel.productMarkerLocation = coordinate
+        } else {
+            // Tapped outside the service radius.
+            // You might want to provide visual feedback or prevent setting the marker.
+            // For now, we'll just not update the marker if it's outside.
+            print("Tapped outside service radius: \(distance) meters, radius: \(viewModel.service_radius) meters")
+        }
     }
 }
 
@@ -263,6 +288,8 @@ private struct _ProductCreationForm: View {
     let isAuthorized: Bool
     @Binding var showMultiTagPicker: Bool
     let updateMapCameraPosition: (CLLocationDistance, CLLocation?) -> Void // Closure for map update logic
+    @Binding var productMarkerLocation: CLLocationCoordinate2D? // New binding for the product marker
+    let onMapTapped: (CLLocationCoordinate2D) -> Void // New closure for map tap handling
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -361,21 +388,44 @@ private struct _ProductCreationForm: View {
             
             VStack(spacing: 20) { // This VStack contains the Map and Slider
                 // The Visual Map
-                Map(position: $mapCameraPosition) {
-                    UserAnnotation()
-                    // Add a circle overlay for the service radius
-                    if let location = lastKnownLocation {
-                        MapCircle(center: location.coordinate, radius: service_radius)
-                            .stroke(Assets.theme.primaryAccent, lineWidth: 2)
-                            .foregroundStyle(Assets.theme.primaryAccent.opacity(0.1))
+                MapReader { proxy in
+                    Map(position: $mapCameraPosition) {
+                        // Add a circle overlay for the service radius
+                        if let markerLocation = productMarkerLocation {
+                            Marker("Product Location", coordinate: markerLocation)
+                            MapCircle(center: markerLocation, radius: service_radius)
+                                .stroke(Assets.theme.primaryAccent, lineWidth: 2)
+                                .foregroundStyle(Assets.theme.primaryAccent.opacity(0.1))
+                        }
+                        if let location = lastKnownLocation {
+                            MapCircle(center: location.coordinate, radius: service_radius)
+                                .stroke(Assets.theme.secondary, lineWidth: 1)
+                                .foregroundStyle(Assets.theme.primaryAccent.opacity(0.2))
+                        }
+                        
                     }
+                    .frame(height: 200)
+                    .cornerRadius(12)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                    )
+                    // Use SpatialTapGesture to intercept taps within the MapReader context
+                    .simultaneousGesture(
+                        SpatialTapGesture(coordinateSpace: .local)
+                            .onEnded { value in
+                                let screenPoint = value.location
+                                
+                                // Convert the CGPoint to CLLocationCoordinate2D using MapProxy
+                                if let coordinate = proxy.convert(screenPoint, from: .local) {
+                                    onMapTapped(coordinate)
+                                    print("Successfully tapped coordinate: \(coordinate.latitude), \(coordinate.longitude)")
+                                } else {
+                                    print("Failed to convert screen point to coordinate.")
+                                }
+                            }
+                    )
                 }
-                .frame(height: 200)
-                .cornerRadius(12)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(Color.gray.opacity(0.2), lineWidth: 1)
-                )
                 
                 // Display error message from validationErrors or location feedback
                 if let errorMessage = validationErrors["location"] {
@@ -601,3 +651,4 @@ struct MultiTagPickerView: View {
         }
     }
 }
+

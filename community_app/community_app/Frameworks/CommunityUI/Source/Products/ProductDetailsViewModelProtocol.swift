@@ -19,6 +19,7 @@ public protocol ProductDetailsViewModelProtocol: ValidatableViewModel where Data
     var isAuthorized: Bool { get }
     var mapCameraPosition: MapCameraPosition { get set }
     var service_radius: Double { get set }
+    var productMarkerLocation: CLLocationCoordinate2D? { get set } 
 
     var productURL: URL? { get }
     var isCreateProduct: Bool { get }
@@ -46,3 +47,4 @@ public protocol ProductDetailsViewModelProtocol: ValidatableViewModel where Data
     // MARK: - Tag Handling Methods
     func removeChosenTag(_ tag: String)
 }
+
