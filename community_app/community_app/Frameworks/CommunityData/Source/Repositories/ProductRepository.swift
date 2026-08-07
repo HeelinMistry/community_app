@@ -48,4 +48,12 @@ public final class ProductRepository: ProductRepositoryProtocol {
         return (title, tags)
     }
     
+    public func create(_ product: AdvertiseProductRequest) async throws -> AdvertiseProductResponse {
+        do {
+            let dto: AdvertiseProductResponse = try await networkClient.fetch(from: CommunityEndpoint.advertise(product))
+            return dto
+        } catch {
+            throw error
+        }
+    }
 }

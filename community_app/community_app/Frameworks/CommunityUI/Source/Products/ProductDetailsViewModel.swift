@@ -12,21 +12,19 @@ import CoreLocation
 import MapKit
 import SwiftUI
 
-public nonisolated struct ProductDetailsModel: Sendable, Equatable, Encodable, Decodable {
-    var title: String = ""
-    var givenTags: [String] = []
-    var selectedTags: [String] = []
-}
-
 @MainActor
 public final class ProductDetailsViewModel: ProductDetailsViewModelProtocol {
-    @Published public private(set) var state: ViewState<ProductDetailsModel> = .success(.init())
+    @Published public private(set) var state: ViewState<AdvertiseProductResponse?> = .success(nil)
     @Published public var validationErrors: [String: String] = [:]
-    
-    @Published public private(set) var supplierDetailResponse: SupplierDetailResponse?
     
     @Published public private(set) var lastKnownLocation: CLLocation?
     @Published public private(set) var isAuthorized: Bool
+    
+    @Published public var mapCameraPosition: MapCameraPosition = .region(MKCoordinateRegion(
+        center: CLLocationCoordinate2D(latitude: -25.86, longitude: 28.18), // Default South Africa location
+        span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+    ))
+    @Published public var service_radius: Double = 5000.0 // Changed to Double, default 5km (5000 meters)
     
     @Published public private(set) var isCreateProduct: Bool
     @Published public var productImages: [URL] = []
@@ -34,7 +32,10 @@ public final class ProductDetailsViewModel: ProductDetailsViewModelProtocol {
     @Published public var showImagePicker: Bool = false
     @Published public var showCameraPicker: Bool = false
     
+    @Published public var title: String = ""
+    @Published public var description: String = ""
     @Published public var detectedTags: [String] = []
+    @Published public var chosenTags: [String] = []
     
     public var productURL: URL?
     private let product_id: String?
@@ -90,7 +91,7 @@ public final class ProductDetailsViewModel: ProductDetailsViewModelProtocol {
     }
     
     public func isFormValid(step: Int?) -> Bool {
-        true
+        return validationErrors.isEmpty
     }
     
     public func handleImageSelection(images: [UIImage]) {
@@ -101,7 +102,8 @@ public final class ProductDetailsViewModel: ProductDetailsViewModelProtocol {
         Task { @MainActor in // Ensure UI updates happen on the main actor
             do {
                 let classification = try await useCases.products.classify(images)
-                state = .success(.init(title: classification.title, givenTags: classification.tags))
+                detectedTags = classification.tags
+                state = .success(nil)
             } catch {
                 print("Image classification during selection failed: \(error.localizedDescription)")
                 state = .error(error.localizedDescription)
@@ -109,11 +111,44 @@ public final class ProductDetailsViewModel: ProductDetailsViewModelProtocol {
         }
     }
     
-    public func uploadImages() async {
-        
+    public func advertise() async {
+        fetchTask?.cancel()
+        state = .loading
+        fetchTask = Task {
+            do {
+                // Assuming CreateSupplierRequest expects service_radius in kilometers (based on initial 5.1 value)
+                let serviceRadiusInKilometers = service_radius / 1000.0
+                
+                let request = AdvertiseProductRequest(
+                    title: title,
+                    description: description, // Changed from hardcoded "test" to use the ViewModel's property
+                    tags: chosenTags,
+                    latitude: lastKnownLocation?.coordinate.latitude ?? 0,
+                    longitude: lastKnownLocation?.coordinate.longitude ?? 0,
+                    service_radius: serviceRadiusInKilometers
+                )
+                let response: AdvertiseProductResponse = try await useCases.products.advertise(request)
+                if !Task.isCancelled {
+                    self.state = .success(response)
+                    NotificationCenter.default.post(name: .supplierCreated, object: nil)
+                    router.sheet = nil
+                }
+            } catch {
+                if !Task.isCancelled {
+                    self.state = .error(error.localizedDescription)
+                    self.validationErrors["general"] = "Failed to create match: \(error.localizedDescription)"
+                }
+            }
+        }
     }
     
     public func removeSelectedImage(at index: Int) {
         selectedImages.remove(at: index)
+    }
+    
+    public func removeChosenTag(_ tag: String) {
+        if let index = chosenTags.firstIndex(of: tag) {
+            _ = chosenTags.remove(at: index)
+        }
     }
 }
