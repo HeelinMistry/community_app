@@ -7,9 +7,15 @@
 
 import Foundation
 
+public enum ProductType: String, Sendable, Encodable, Decodable {
+    case advertising
+    case requesting
+}
+
 public nonisolated struct AdvertiseProductRequest: Sendable, Equatable, Encodable, Decodable {
     public let title: String
     public let description: String
+    public var product_type: ProductType = .advertising
     public let tags: [String]
     public let latitude: Double
     public let longitude: Double
@@ -35,6 +41,7 @@ public nonisolated struct AdvertiseProductRequest: Sendable, Equatable, Encodabl
         let values = try decoder.container(keyedBy: CodingKeys.self)
         title = try values.decode(String.self, forKey: .title)
         description = try values.decode(String.self, forKey: .description)
+        product_type = try values.decode(ProductType.self, forKey: .product_type)
         tags = try values.decode([String].self, forKey: .tags)
         latitude = try values.decode(Double.self, forKey: .latitude)
         longitude = try values.decode(Double.self, forKey: .longitude)
@@ -54,3 +61,4 @@ public nonisolated struct AdvertiseProductResponse: Sendable, Equatable, Encodab
         product_id = try values.decode(String.self, forKey: .product_id)
     }
 }
+

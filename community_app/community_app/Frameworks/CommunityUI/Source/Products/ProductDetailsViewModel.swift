@@ -124,12 +124,17 @@ public final class ProductDetailsViewModel: ProductDetailsViewModelProtocol {
                 // Assuming CreateSupplierRequest expects service_radius in kilometers (based on initial 5.1 value)
                 let serviceRadiusInKilometers = service_radius / 1000.0
                 
+                guard let productMarkerLocation else {
+                    self.state = .error("Please select a location on the map")
+                    return
+                }
+                
                 let request = AdvertiseProductRequest(
                     title: title,
                     description: description, // Changed from hardcoded "test" to use the ViewModel's property
                     tags: chosenTags,
-                    latitude: productMarkerLocation?.coordinate.latitude ?? 0,
-                    longitude: productMarkerLocation?.coordinate.longitude ?? 0,
+                    latitude: productMarkerLocation.latitude,
+                    longitude: productMarkerLocation.longitude,
                     service_radius: serviceRadiusInKilometers
                 )
                 let response: AdvertiseProductResponse = try await useCases.products.advertise(request)
@@ -157,3 +162,4 @@ public final class ProductDetailsViewModel: ProductDetailsViewModelProtocol {
         }
     }
 }
+
