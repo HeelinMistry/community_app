@@ -25,7 +25,11 @@ public final class ProductDetailsViewModel: ProductDetailsViewModelProtocol {
         center: CLLocationCoordinate2D(latitude: -25.86, longitude: 28.18), // Default South Africa location
         span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
     ))
-    @Published public var service_radius: Double = 5000.0 // Changed to Double, default 5km (5000 meters)
+    @Published public var service_radius: Double = 5000.0 {
+        didSet {
+            productMarkerLocation = nil
+        }
+    }
     
     @Published public private(set) var isCreateProduct: Bool
     @Published public var productImages: [URL] = []
@@ -124,8 +128,8 @@ public final class ProductDetailsViewModel: ProductDetailsViewModelProtocol {
                     title: title,
                     description: description, // Changed from hardcoded "test" to use the ViewModel's property
                     tags: chosenTags,
-                    latitude: lastKnownLocation?.coordinate.latitude ?? 0,
-                    longitude: lastKnownLocation?.coordinate.longitude ?? 0,
+                    latitude: productMarkerLocation?.coordinate.latitude ?? 0,
+                    longitude: productMarkerLocation?.coordinate.longitude ?? 0,
                     service_radius: serviceRadiusInKilometers
                 )
                 let response: AdvertiseProductResponse = try await useCases.products.advertise(request)

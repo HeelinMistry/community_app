@@ -158,7 +158,7 @@ public struct ProductDetailsView<T: ProductDetailsViewModelProtocol>: View {
     ///   - location: The center location for the service radius.
     private func updateMapCameraPosition(radius: CLLocationDistance, location: CLLocation?) {
         guard let coordinate = location?.coordinate else { return }
-        let cameraDistance = radius * 4.5
+        let cameraDistance = radius * 7
         viewModel.mapCameraPosition = .camera(MapCamera(centerCoordinate: coordinate, distance: cameraDistance))
     }
     
@@ -651,4 +651,3 @@ struct MultiTagPickerView: View {
         }
     }
 }
-
