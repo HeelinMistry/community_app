@@ -61,4 +61,3 @@ public nonisolated struct AdvertiseProductResponse: Sendable, Equatable, Encodab
         product_id = try values.decode(String.self, forKey: .product_id)
     }
 }
-

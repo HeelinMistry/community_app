@@ -95,7 +95,8 @@ public final class ProductDetailsViewModel: ProductDetailsViewModelProtocol {
         }
     }
     
-    public func isFormValid(step: Int?) -> Bool {
+    public func isFormValid(step: Int? = nil) -> Bool {
+        incompleteForm()
         return validationErrors.isEmpty
     }
     
@@ -161,5 +162,13 @@ public final class ProductDetailsViewModel: ProductDetailsViewModelProtocol {
             _ = chosenTags.remove(at: index)
         }
     }
+    
+    private func incompleteForm() {
+        var errors: [String: String] = [:]
+        if title.isEmpty { errors["title"] = "Title is required" }
+        if description.isEmpty { errors["description"] = "Description is required" }
+        if productMarkerLocation == nil { errors["location"] = "Location is required" }
+        if chosenTags.isEmpty { errors["chosenTags"] = "Tags are required" }
+        self.validationErrors = errors
+    }
 }
-

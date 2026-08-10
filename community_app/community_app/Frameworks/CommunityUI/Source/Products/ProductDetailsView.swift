@@ -140,8 +140,8 @@ public struct ProductDetailsView<T: ProductDetailsViewModelProtocol>: View {
                             // await viewModel.createProduct() // Example
                             print("Save Product button tapped. Chosen tags: \(viewModel.chosenTags)")
                             print("Selected images count: \(viewModel.selectedImages.count)")
-                            // For now, only image upload is explicitly defined, need to add product creation logic
-                            if viewModel.isFormValid(step: 0) {
+                            // For now, only image upload is explicitly defined,
+                            if viewModel.isFormValid(step: nil) {
                                 await viewModel.advertise()
                             } // If images are part of creation
                         }
@@ -299,6 +299,7 @@ private struct _ProductCreationForm: View {
                              text: $title,
                              errorMessage: validationErrors["title"]
             )
+            
             PrimaryTextInput(label: "Description",
                              placeholder: "Describe your product",
                              text: $description,
@@ -376,13 +377,6 @@ private struct _ProductCreationForm: View {
                     Text("50km")
                 }
                 .tint(Assets.theme.primary) // Apply accent color to the slider
-                
-                if let errorMessage = validationErrors["service_radius"] {
-                    Text(errorMessage)
-                        .font(.caption2)
-                        .foregroundColor(.red)
-                        .transition(.opacity)
-                }
             }
             .padding(.horizontal)
             

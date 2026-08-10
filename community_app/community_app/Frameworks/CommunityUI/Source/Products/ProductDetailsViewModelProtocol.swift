@@ -47,4 +47,3 @@ public protocol ProductDetailsViewModelProtocol: ValidatableViewModel where Data
     // MARK: - Tag Handling Methods
     func removeChosenTag(_ tag: String)
 }
-
