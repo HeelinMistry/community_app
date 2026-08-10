@@ -69,7 +69,8 @@ public struct ProductDetailsView<T: ProductDetailsViewModelProtocol>: View {
                             showMultiTagPicker: $showMultiTagPicker,
                             updateMapCameraPosition: updateMapCameraPosition, // Pass the method as a closure
                             productMarkerLocation: $viewModel.productMarkerLocation, // Pass productMarkerLocation binding
-                            onMapTapped: handleMapTap // Pass the new map tap handler
+                            onMapTapped: handleMapTap, // Pass the new map tap handler
+                            hasSelectedImages: !viewModel.selectedImages.isEmpty // Pass the image selection status
                         )
                     } else {
                         // Display actual product details for viewing
@@ -290,6 +291,7 @@ private struct _ProductCreationForm: View {
     let updateMapCameraPosition: (CLLocationDistance, CLLocation?) -> Void // Closure for map update logic
     @Binding var productMarkerLocation: CLLocationCoordinate2D? // New binding for the product marker
     let onMapTapped: (CLLocationCoordinate2D) -> Void // New closure for map tap handling
+    let hasSelectedImages: Bool // New property to determine if images are selected
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -299,12 +301,16 @@ private struct _ProductCreationForm: View {
                              text: $title,
                              errorMessage: validationErrors["title"]
             )
+            .colorMultiply(!hasSelectedImages ? .gray : .white)
+            .disabled(!hasSelectedImages)
             
             PrimaryTextInput(label: "Description",
                              placeholder: "Describe your product",
                              text: $description,
                              errorMessage: validationErrors["description"]
             )
+            .colorMultiply(!hasSelectedImages ? .gray : .white)
+            .disabled(!hasSelectedImages)
             
             // Tag Picker for product description/tags
             VStack(alignment: .leading, spacing: 8) {
@@ -361,7 +367,9 @@ private struct _ProductCreationForm: View {
                         .transition(.opacity)
                 }
             }
-            .padding(.horizontal) // Apply padding to the whole tag picker section
+            .padding(.horizontal)
+            .colorMultiply(!hasSelectedImages ? .gray : .white)
+            .disabled(!hasSelectedImages)
             
             VStack(alignment: .leading, spacing: 8) {
                 Text("SERVICE RADIUS: \(Int(service_radius / 1000)) km")
@@ -379,6 +387,8 @@ private struct _ProductCreationForm: View {
                 .tint(Assets.theme.primary) // Apply accent color to the slider
             }
             .padding(.horizontal)
+            .colorMultiply(!hasSelectedImages ? .gray : .white)
+            .disabled(!hasSelectedImages)
             
             VStack(spacing: 20) { // This VStack contains the Map and Slider
                 // The Visual Map
@@ -452,6 +462,8 @@ private struct _ProductCreationForm: View {
                 // Set initial camera position if location is already known on appear
                 updateMapCameraPosition(service_radius, lastKnownLocation)
             }
+            .colorMultiply(!hasSelectedImages ? .gray : .white)
+            .disabled(!hasSelectedImages)
         }
         .padding() // Apply padding to the whole creation form section
     }
@@ -645,3 +657,4 @@ struct MultiTagPickerView: View {
         }
     }
 }
+
