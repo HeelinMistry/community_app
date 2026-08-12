@@ -13,7 +13,7 @@ public final class SupplierUseCases: SupplierUseCasesProtocol {
         self.supplier = supplier
     }
     
-    public func userNearbySuppliers(_ suppliersRequest: SupplierRequest) async throws -> Suppliers {
+    public func userNearbySuppliers(_ suppliersRequest: LocationRequest) async throws -> Suppliers {
         do {
             let supplierResponse = try await supplier.nearbySuppliers(suppliersRequest)
             return supplierResponse

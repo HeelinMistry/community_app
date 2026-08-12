@@ -12,7 +12,7 @@ import CommunityCore
 final class SupplierUseCasesMock: SupplierUseCasesProtocol, @unchecked Sendable {
     
     var supplierResult: Result<Suppliers, Error>?
-    func userNearbySuppliers(_ suppliersRequest: SupplierRequest) async throws -> Suppliers {
+    func userNearbySuppliers(_ suppliersRequest: LocationRequest) async throws -> Suppliers {
         if let result = supplierResult {
             switch result {
             case .success(let response): return response

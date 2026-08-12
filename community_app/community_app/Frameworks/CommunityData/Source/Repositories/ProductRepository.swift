@@ -12,7 +12,7 @@ import UIKit
 public final class ProductRepository: ProductRepositoryProtocol {
     
     private let networkClient: CommunityNetworkClient
-    private let imagePreprocessor = ImagePreprocessor() 
+    private let imagePreprocessor = ImagePreprocessor()
     
     public init(networkClient: CommunityNetworkClient) {
         self.networkClient = networkClient
@@ -51,6 +51,15 @@ public final class ProductRepository: ProductRepositoryProtocol {
     public func create(_ product: AdvertiseProductRequest) async throws -> AdvertiseProductResponse {
         do {
             let dto: AdvertiseProductResponse = try await networkClient.fetch(from: CommunityEndpoint.advertise(product))
+            return dto
+        } catch {
+            throw error
+        }
+    }
+    
+    public func nearbyProducts(_ productRequest: LocationRequest) async throws -> Products {
+        do {
+            let dto: Products = try await networkClient.fetch(from: CommunityEndpoint.products(productRequest))
             return dto
         } catch {
             throw error

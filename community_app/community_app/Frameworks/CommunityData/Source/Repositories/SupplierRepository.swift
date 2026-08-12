@@ -16,7 +16,7 @@ public final class SupplierRepository: SupplierRepositoryProtocol {
         self.networkClient = networkClient
     }
     
-    public func nearbySuppliers(_ suppliersRequest: SupplierRequest) async throws -> Suppliers {
+    public func nearbySuppliers(_ suppliersRequest: LocationRequest) async throws -> Suppliers {
         do {
             let dto: Suppliers = try await networkClient.fetch(from: CommunityEndpoint.suppliers(suppliersRequest))
             return dto

@@ -41,10 +41,11 @@ enum CommunityEndpoint: APIEndpoint {
     case toggleParticipation(_ matchDetailRequest: MatchDetailRequest)
     case toggleCancel(_ matchDetailRequest: MatchDetailRequest)
     
-    case suppliers(_ supplierRequest: SupplierRequest)
+    case suppliers(_ supplierRequest: LocationRequest)
     case createSupplier(_ supplierRequest: CreateSupplierRequest)
     case supplierDetails(_ supplierRequest: SupplierDetailRequest)
     
+    case products(_ productRequest: LocationRequest)
     case advertise(_ productRequest: AdvertiseProductRequest)
     
     /// The HTTP method for all OpenWeatherMap endpoints, which is GET.
@@ -53,7 +54,8 @@ enum CommunityEndpoint: APIEndpoint {
         case .matches,
                 .matchDetail,
                 .suppliers,
-                .supplierDetails:
+                .supplierDetails,
+                .products:
             return .get
         case .login,
                 .register,
@@ -78,8 +80,9 @@ enum CommunityEndpoint: APIEndpoint {
         case .toggleCancel(let request): return "api/v1/matches/\(request.match_id)/toggle-cancel"
         case .suppliers: return "api/v1/suppliers"
         case .createSupplier: return "api/v1/suppliers/create"
-        case .advertise: return "api/v1/product/create"
         case .supplierDetails(let request): return "api/v1/suppliers/\(request.supplier_id)"
+        case .advertise: return "api/v1/products/create"
+        case .products: return "api/v1/products"
         }
     }
     
@@ -97,7 +100,7 @@ enum CommunityEndpoint: APIEndpoint {
                 .advertise,
                 .supplierDetails:
             return []
-        case .suppliers(let request):
+        case .suppliers(let request), .products(let request):
             let coordinates = request.convertCoordinateToReal
             let queryItems: [URLQueryItem] = [
                 URLQueryItem(name: "lat", value: coordinates.0),

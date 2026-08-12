@@ -126,7 +126,6 @@ public final class ProductDetailsViewModel: ProductDetailsViewModelProtocol {
                 let serviceRadiusInKilometers = service_radius / 1000.0
                 
                 guard let productMarkerLocation else {
-                    self.state = .error("Please select a location on the map")
                     return
                 }
                 
@@ -141,8 +140,6 @@ public final class ProductDetailsViewModel: ProductDetailsViewModelProtocol {
                 let response: AdvertiseProductResponse = try await useCases.products.advertise(request)
                 if !Task.isCancelled {
                     self.state = .success(response)
-                    NotificationCenter.default.post(name: .supplierCreated, object: nil)
-                    router.sheet = nil
                 }
             } catch {
                 if !Task.isCancelled {

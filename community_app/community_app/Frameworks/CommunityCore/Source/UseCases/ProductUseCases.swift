@@ -23,4 +23,13 @@ public final class ProductUseCases: ProductUseCasesProtocol {
         return try await product.create(item)
     }
     
+    public func userNearbyProducts(_ productRequest: LocationRequest) async throws -> Products {
+        do {
+            let productResponse = try await product.nearbyProducts(productRequest)
+            return productResponse
+        } catch {
+            throw error
+        }
+    }
+    
 }

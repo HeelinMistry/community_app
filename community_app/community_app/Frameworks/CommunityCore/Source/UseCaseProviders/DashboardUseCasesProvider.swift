@@ -11,6 +11,8 @@ public protocol DashboardUseCasesProvider: Sendable {
     
     @MainActor var suppliers: SupplierUseCasesProtocol { get }
     
+    @MainActor var products: ProductUseCasesProtocol { get }
+    
     /// Provides access to location-specific use case operations.
     @MainActor var location: LocationProtocol { get }
 }

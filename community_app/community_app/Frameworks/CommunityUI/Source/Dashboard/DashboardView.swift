@@ -127,8 +127,7 @@ struct DashboardView<T: DashboardViewModelProtocol>: View {
         case .services:
             viewModel.nearbySuppliers()
         case .products:
-            // viewModel.loadProducts()
-            break
+            viewModel.nearbyProducts()
         }
     }
 }

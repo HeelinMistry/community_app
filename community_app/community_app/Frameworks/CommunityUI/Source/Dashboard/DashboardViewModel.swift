@@ -25,6 +25,8 @@ public protocol DashboardViewModelProtocol: StateDrivenViewModel where DataType 
     func createMatchTapped()
     
     func nearbySuppliers()
+    func nearbyProducts()
+    
     func createSupplierTapped()
     func createProductTapped()
 }
@@ -126,13 +128,44 @@ public final class DashboardViewModel: DashboardViewModelProtocol {
         if let coordinate = lastKnownLocation?.coordinate {
             fetchTask = Task {
                 do {
-                    let request: SupplierRequest = .init(
+                    let request: LocationRequest = .init(
                         lat: coordinate.latitude,
                         lon: coordinate.longitude
                     )
                     let response: Suppliers = try await useCases.suppliers.userNearbySuppliers(request)
                     if !Task.isCancelled {
                         dashboardModel.update(suppliers: response)
+                        state = .success(dashboardModel)
+                    }
+                } catch {
+                    if !Task.isCancelled {
+                        self.state = .error(error.localizedDescription)
+                    }
+                }
+            }
+        } else {
+            state = .error("\n No location found")
+        }
+    }
+    
+    public func nearbyProducts() {
+        if state == .loading {
+            return
+        }
+        
+        fetchTask?.cancel()
+        state = .loading
+        
+        if let coordinate = lastKnownLocation?.coordinate {
+            fetchTask = Task {
+                do {
+                    let request: LocationRequest = .init(
+                        lat: coordinate.latitude,
+                        lon: coordinate.longitude
+                    )
+                    let response: Products = try await useCases.products.userNearbyProducts(request)
+                    if !Task.isCancelled {
+                        dashboardModel.update(products: response)
                         state = .success(dashboardModel)
                     }
                 } catch {
