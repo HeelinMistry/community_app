@@ -179,7 +179,7 @@ private struct DashboardSuccessContent<T: DashboardViewModelProtocol>: View {
         case .services:
             ServiceFeedView(viewModel: viewModel, selectedTab: $selectedServiceTab, mapCameraPosition: $mapCameraPosition)
         case .products:
-            Label("Coming soon", systemImage: "star.fill")
+            ProductFeedView(viewModel: viewModel)
         }
     }
 }
