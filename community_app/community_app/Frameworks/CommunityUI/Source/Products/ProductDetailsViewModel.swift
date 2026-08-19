@@ -138,6 +138,8 @@ public final class ProductDetailsViewModel: ProductDetailsViewModelProtocol {
                     service_radius: serviceRadiusInKilometers
                 )
                 let response: AdvertiseProductResponse = try await useCases.products.advertise(request)
+                _ = try await useCases.products.link(productId: response.product_id, images: selectedImages)
+
                 if !Task.isCancelled {
                     self.state = .success(response)
                 }

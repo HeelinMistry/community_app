@@ -176,11 +176,22 @@ class Product(Base):
     latitude = Column(REAL, nullable=False)
     longitude = Column(REAL, nullable=False)
     service_radius = Column(REAL, nullable=False)
-    image_url = Column(String)  # To store the path of your uploaded image
     is_available = Column(Boolean, default=True)
 
     owner = relationship("User", back_populates="products")
+    images = relationship("ProductImage", back_populates="product", cascade="all, delete-orphan")
 
     __table_args__ = (
         Index('idx_product_location', 'latitude', 'longitude'),
     )
+
+
+class ProductImage(Base):
+    __tablename__ = "product_images"
+
+    id = Column(String, primary_key=True, default=lambda: f"img_{uuid.uuid4().hex[:8]}")
+    product_id = Column(String, ForeignKey("products.id", ondelete="CASCADE"), nullable=False)
+    image_url = Column(String, nullable=False)
+
+    # Optional: Relationship back to the product
+    product = relationship("Product", back_populates="images")

@@ -657,4 +657,3 @@ struct MultiTagPickerView: View {
         }
     }
 }
-

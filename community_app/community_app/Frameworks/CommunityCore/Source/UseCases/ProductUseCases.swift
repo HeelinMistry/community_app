@@ -14,7 +14,7 @@ public final class ProductUseCases: ProductUseCasesProtocol {
     public init(product: any ProductRepositoryProtocol) {
         self.product = product
     }
-
+    
     public func classify(_ images: [UIImage]) async throws -> (title: String, tags: [String]) {
         return try await product.classify(images)
     }
@@ -32,4 +32,12 @@ public final class ProductUseCases: ProductUseCasesProtocol {
         }
     }
     
+    public func link(productId: String, images: [UIImage]) async throws -> ProductImagesResponse {
+        do {
+            let productResponse = try await product.upload(productId: productId, images: images)
+            return productResponse
+        } catch {
+            throw error
+        }
+    }
 }

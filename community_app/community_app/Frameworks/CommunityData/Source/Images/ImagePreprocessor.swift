@@ -19,6 +19,7 @@ public struct ImagePreprocessor: Sendable {
     ///                           scaled proportionally. Defaults to 1024.
     /// - Returns: The JPEG compressed image data (with 80% quality), or `nil` if the optimization fails
     ///            (e.g., if the image context cannot be created or the image cannot be converted to data).
+    @MainActor // Mark as MainActor because it performs UI operations (UIGraphics)
     public static func optimizeForUpload(_ image: UIImage, maxDimension: CGFloat = 1024) -> Data? {
         // 1. Correct orientation
         let normalizedImage = image.fixedOrientation()
@@ -56,6 +57,7 @@ extension UIImage {
     ///
     /// - Returns: A new `UIImage` instance with corrected orientation, or the original image
     ///            if its orientation is already `.up`.
+    @MainActor // Mark as MainActor because it performs UI operations (UIGraphics)
     public func fixedOrientation() -> UIImage {
         if imageOrientation == .up { return self }
         UIGraphicsBeginImageContextWithOptions(size, false, scale)

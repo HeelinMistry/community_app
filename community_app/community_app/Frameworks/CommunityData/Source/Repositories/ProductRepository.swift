@@ -12,7 +12,6 @@ import UIKit
 public final class ProductRepository: ProductRepositoryProtocol {
     
     private let networkClient: CommunityNetworkClient
-    private let imagePreprocessor = ImagePreprocessor()
     
     public init(networkClient: CommunityNetworkClient) {
         self.networkClient = networkClient
@@ -33,7 +32,7 @@ public final class ProductRepository: ProductRepositoryProtocol {
     /// Classifies a single image and extracts detected tags and a potential title suggestion.
     private func classifyImage(_ image: UIImage) async throws -> (title: String, tags: [String]) {
         let results = try await ImageClassifier.classify(image: image)
-//        
+        //
         var tags: [String] = []
         var title: String = ""
         
@@ -41,7 +40,7 @@ public final class ProductRepository: ProductRepositoryProtocol {
         tags = results.map { $0.identifier }
         
         // Auto-suggest a title or category if high confidence is met
-//        if let topMatch = results.first, topMatch.confidence > 0.4 {
+        //        if let topMatch = results.first, topMatch.confidence > 0.4 {
         if let topMatch = results.first {
             title = topMatch.identifier.capitalized
         }
@@ -65,4 +64,21 @@ public final class ProductRepository: ProductRepositoryProtocol {
             throw error
         }
     }
+    
+    public func upload(productId: String, images: [UIImage]) async throws -> ProductImagesResponse {
+        let imageRequest = ProductImagesRequest(productId: productId, images: [])
+        
+        do {
+            // Calls the newly created multipart upload helper method on your network client actor
+            let response: ProductImagesResponse = try await networkClient.upload(
+                to: CommunityEndpoint.uploadImages(imageRequest),
+                images: images,
+                fileParameterName: "files" 
+            )
+            return response
+        } catch {
+            throw error
+        }
+    }
+    
 }

@@ -47,6 +47,7 @@ enum CommunityEndpoint: APIEndpoint {
     
     case products(_ productRequest: LocationRequest)
     case advertise(_ productRequest: AdvertiseProductRequest)
+    case uploadImages(_ productImagesRequest: ProductImagesRequest)
     
     /// The HTTP method for all OpenWeatherMap endpoints, which is GET.
     var method: HTTPMethod {
@@ -63,7 +64,8 @@ enum CommunityEndpoint: APIEndpoint {
                 .toggleParticipation,
                 .toggleCancel,
                 .createSupplier,
-                .advertise:
+                .advertise,
+                .uploadImages:
             return .post
         }
     }
@@ -83,6 +85,7 @@ enum CommunityEndpoint: APIEndpoint {
         case .supplierDetails(let request): return "api/v1/suppliers/\(request.supplier_id)"
         case .advertise: return "api/v1/products/create"
         case .products: return "api/v1/products"
+        case .uploadImages(let request): return "api/v1/products/\(request.productId)/upload-images"
         }
     }
     
@@ -98,7 +101,8 @@ enum CommunityEndpoint: APIEndpoint {
                 .toggleCancel,
                 .createSupplier,
                 .advertise,
-                .supplierDetails:
+                .supplierDetails,
+                .uploadImages:
             return []
         case .suppliers(let request), .products(let request):
             let coordinates = request.convertCoordinateToReal
@@ -122,6 +126,8 @@ enum CommunityEndpoint: APIEndpoint {
         case .createSupplier(let req):
             return req
         case .advertise(let req):
+            return req
+        case .uploadImages(let req):
             return req
         default:
             return nil

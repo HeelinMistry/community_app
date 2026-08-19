@@ -46,3 +46,41 @@ public nonisolated struct ProductResponse: Sendable, Equatable, Encodable, Decod
         self.is_available = try container.decode(Bool.self, forKey: .is_available)
     }
 }
+
+public nonisolated struct ProductImagesRequest: Sendable, Codable, Equatable {
+    public let productId: String
+    public let images: [String]
+    
+    enum CodingKeys: String, CodingKey {
+        case productId
+        case images
+    }
+    
+    public init(productId: String, images: [String]) {
+        self.productId = productId
+        self.images = images
+    }
+    
+    public init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        productId = try values.decode(String.self, forKey: .productId)
+        images = try values.decode([String].self, forKey: .images)
+    }
+}
+
+public nonisolated struct ProductImagesResponse: Sendable, Codable, Equatable {
+    public let images: [String]
+    
+    enum CodingKeys: String, CodingKey {
+        case images
+    }
+    
+    public init(images: [String]) {
+        self.images = images
+    }
+    
+    public init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        images = try values.decode([String].self, forKey: .images)
+    }
+}
