@@ -7,14 +7,6 @@
 
 import Foundation
 
-public struct SupplierDetailRequest: Codable, Equatable, Hashable, Sendable {
-    public let supplier_id: String
-
-    public init(_ supplier_id: String) {
-        self.supplier_id = supplier_id
-    }
-}
-
 public struct SupplierDetailResponse: Codable, Identifiable, Hashable, Sendable, Equatable {
     public let id: String
     public let business_name: String

@@ -13,7 +13,7 @@ import Foundation
 import SwiftUI // Import SwiftUI for UIImage
 
 @MainActor
-public protocol ProductDetailsViewModelProtocol: ValidatableViewModel where DataType == AdvertiseProductResponse? {
+public protocol ProductDetailsViewModelProtocol: ValidatableViewModel where DataType == ProductDetailResponse? {
 //    var supplierDetailResponse: SupplierDetailResponse? { get }
     var lastKnownLocation: CLLocation? { get }
     var isAuthorized: Bool { get }
@@ -36,7 +36,7 @@ public protocol ProductDetailsViewModelProtocol: ValidatableViewModel where Data
     var showImagePicker: Bool { get set } // Controls presentation of Photo Library picker
     var showCameraPicker: Bool { get set } // Controls presentation of Camera picker
 
-    func productDetail()
+    func productDetail() async
     func requestLocationAuthorization() async
 
     // MARK: - Image Handling Methods

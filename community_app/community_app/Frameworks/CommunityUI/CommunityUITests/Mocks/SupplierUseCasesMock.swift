@@ -34,7 +34,7 @@ final class SupplierUseCasesMock: SupplierUseCasesProtocol, @unchecked Sendable 
     }
     
     var selectedSupplierResult: Result<SupplierDetailResponse, Error>?
-    func selectedSupplierDetails(_ supplierRequest: SupplierDetailRequest) async throws -> SupplierDetailResponse {
+    func selectedSupplierDetails(_ supplierRequest: DetailRequest) async throws -> SupplierDetailResponse {
         if let result = selectedSupplierResult {
             switch result {
             case .success(let response): return response

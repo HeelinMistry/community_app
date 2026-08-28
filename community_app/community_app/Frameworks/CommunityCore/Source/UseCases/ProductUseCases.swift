@@ -40,4 +40,14 @@ public final class ProductUseCases: ProductUseCasesProtocol {
             throw error
         }
     }
+    
+    public func selectedProduct(_ productRequest: DetailRequest) async throws -> ProductDetailResponse {
+        do {
+            let productResponse = try await product.productDetails(productRequest)
+            return productResponse
+        } catch {
+            throw error
+        }
+    }
+    
 }

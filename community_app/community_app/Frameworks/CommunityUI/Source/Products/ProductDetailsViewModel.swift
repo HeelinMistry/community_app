@@ -14,7 +14,7 @@ import SwiftUI
 
 @MainActor
 public final class ProductDetailsViewModel: ProductDetailsViewModelProtocol {
-    @Published public private(set) var state: ViewState<AdvertiseProductResponse?> = .success(nil)
+    @Published public private(set) var state: ViewState<ProductDetailResponse?> = .success(nil)
     @Published public var validationErrors: [String: String] = [:]
     
     @Published public var productMarkerLocation: CLLocationCoordinate2D?
@@ -83,8 +83,15 @@ public final class ProductDetailsViewModel: ProductDetailsViewModelProtocol {
             .store(in: &cancellables)
     }
     
-    public func productDetail() {
-        
+    public func productDetail() async {
+        state = .loading
+        do {
+            guard let product_id else { return }
+            let product = try await useCases.products.selectedProduct(.init(product_id))
+            state = .success(product)
+        } catch {
+            state = .error(error.localizedDescription)
+        }
     }
     
     public func requestLocationAuthorization() async {
@@ -141,7 +148,7 @@ public final class ProductDetailsViewModel: ProductDetailsViewModelProtocol {
                 _ = try await useCases.products.link(productId: response.product_id, images: selectedImages)
 
                 if !Task.isCancelled {
-                    self.state = .success(response)
+                    self.state = .success(nil)
                 }
             } catch {
                 if !Task.isCancelled {

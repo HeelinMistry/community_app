@@ -65,6 +65,15 @@ public final class ProductRepository: ProductRepositoryProtocol {
         }
     }
     
+    public func productDetails(_ productRequest: DetailRequest) async throws -> ProductDetailResponse {
+        do {
+            let dto: ProductDetailResponse = try await networkClient.fetch(from: CommunityEndpoint.product(productRequest))
+            return dto
+        } catch {
+            throw error
+        }
+    }
+    
     public func upload(productId: String, images: [UIImage]) async throws -> ProductImagesResponse {
         let imageRequest = ProductImagesRequest(productId: productId, images: [])
         

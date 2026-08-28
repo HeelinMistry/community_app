@@ -31,7 +31,7 @@ public final class SupplierUseCases: SupplierUseCasesProtocol {
         }
     }
     
-    public func selectedSupplierDetails(_ supplierRequest: SupplierDetailRequest) async throws -> SupplierDetailResponse {
+    public func selectedSupplierDetails(_ supplierRequest: DetailRequest) async throws -> SupplierDetailResponse {
         do {
             let supplierResponse = try await supplier.supplierDetails(supplierRequest)
             return (supplierResponse)

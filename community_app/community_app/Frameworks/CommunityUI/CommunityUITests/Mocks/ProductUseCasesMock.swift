@@ -57,4 +57,15 @@ final class ProductUseCasesMock: ProductUseCasesProtocol, @unchecked Sendable {
         fatalError("Result not set in ProductUseCasesProtocol")
     }
     
+    var productDetailResult: Result<ProductDetailResponse, Error>?
+    func selectedProduct(_ productRequest: DetailRequest) async throws -> ProductDetailResponse {
+        if let result = productDetailResult {
+            switch result {
+            case .success(let response): return response
+            case .failure(let error): throw error
+            }
+        }
+        fatalError("Result not set in ProductUseCasesProtocol")
+    }
+    
 }

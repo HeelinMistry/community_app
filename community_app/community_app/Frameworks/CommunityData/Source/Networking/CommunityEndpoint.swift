@@ -43,8 +43,9 @@ enum CommunityEndpoint: APIEndpoint {
     
     case suppliers(_ supplierRequest: LocationRequest)
     case createSupplier(_ supplierRequest: CreateSupplierRequest)
-    case supplierDetails(_ supplierRequest: SupplierDetailRequest)
+    case supplier(_ supplierRequest: DetailRequest)
     
+    case product(_ productRequest: DetailRequest)
     case products(_ productRequest: LocationRequest)
     case advertise(_ productRequest: AdvertiseProductRequest)
     case uploadImages(_ productImagesRequest: ProductImagesRequest)
@@ -55,8 +56,9 @@ enum CommunityEndpoint: APIEndpoint {
         case .matches,
                 .matchDetail,
                 .suppliers,
-                .supplierDetails,
-                .products:
+                .supplier,
+                .products,
+                .product:
             return .get
         case .login,
                 .register,
@@ -82,9 +84,10 @@ enum CommunityEndpoint: APIEndpoint {
         case .toggleCancel(let request): return "api/v1/matches/\(request.match_id)/toggle-cancel"
         case .suppliers: return "api/v1/suppliers"
         case .createSupplier: return "api/v1/suppliers/create"
-        case .supplierDetails(let request): return "api/v1/suppliers/\(request.supplier_id)"
+        case .supplier(let request): return "api/v1/suppliers/\(request.id)"
         case .advertise: return "api/v1/products/create"
         case .products: return "api/v1/products"
+        case .product(let request): return "api/v1/products/\(request.id)"
         case .uploadImages(let request): return "api/v1/products/\(request.productId)/upload-images"
         }
     }
@@ -101,7 +104,8 @@ enum CommunityEndpoint: APIEndpoint {
                 .toggleCancel,
                 .createSupplier,
                 .advertise,
-                .supplierDetails,
+                .supplier,
+                .product,
                 .uploadImages:
             return []
         case .suppliers(let request), .products(let request):
