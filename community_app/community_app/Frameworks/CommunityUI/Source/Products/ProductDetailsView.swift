@@ -10,8 +10,8 @@ import Foundation
 import CommunityCore
 import MapKit
 import CoreLocation
-import PhotosUI // For PHPickerConfiguration
-import UIKit // For UIImagePickerController and UIImage
+import PhotosUI 
+import UIKit 
 
 // MARK: - Main ProductDetailsView
 
@@ -42,19 +42,19 @@ public struct ProductDetailsView<T: ProductDetailsViewModelProtocol>: View {
                 case .loading:
                     ProgressView("Loading Product Details...")
                         .controlSize(.large)
-                case .success:
-                    // MARK: - Image Viewer Section
-                    ProductImageViewer(
-                        selectedImages: $viewModel.selectedImages,
-                        removeSelectedImage: viewModel.removeSelectedImage,
-                        isCreateProduct: viewModel.isCreateProduct,
-                        showCameraPicker: $viewModel.showCameraPicker,
-                        showImagePicker: $viewModel.showImagePicker
-                    )
-                    .padding(.vertical, 8) // Apply original padding here
-                    
-                    // MARK: - Product Details Section
+                case .success(let product):
                     if viewModel.isCreateProduct {
+                        // MARK: - Image Viewer Section (for creation)
+                        ProductImageViewer(
+                            selectedImages: $viewModel.selectedImages,
+                            removeSelectedImage: viewModel.removeSelectedImage,
+                            isCreateProduct: viewModel.isCreateProduct,
+                            showCameraPicker: $viewModel.showCameraPicker,
+                            showImagePicker: $viewModel.showImagePicker
+                        )
+                        .padding(.vertical, 8) // Apply original padding here
+                        
+                        // MARK: - Product Creation Form
                         ProductCreationForm(
                             title: $viewModel.title,
                             description: $viewModel.description,
@@ -73,15 +73,18 @@ public struct ProductDetailsView<T: ProductDetailsViewModelProtocol>: View {
                             hasSelectedImages: !viewModel.selectedImages.isEmpty // Pass the image selection status
                         )
                     } else {
-                        // Display actual product details for viewing
-                        Text("Product Name: \(viewModel.title)")
-                            .font(.title2)
-                        Text("Description: \(viewModel.description)") // Assuming description holds the main text
-                            .font(.body)
-                        // Add more product details here from 'product' if applicable to both states
+                        // MARK: - Product Details Section (for viewing existing product)
+                        if let product = product {
+                            ProductDetailsSuccessContentView(
+                                product: product,
+                                viewModel: viewModel,
+                                mapCameraPosition: $mapCameraPosition
+                            )
+                        } else {
+                            Text("Product details not available.")
+                                .foregroundColor(Assets.theme.secondaryText)
+                        }
                     }
-                    // Added padding previously inside the success case's VStack
-                    // This padding now applies to the content within the success state directly.
                 case .error(let message):
                     Text("Error: \(message)")
                         .foregroundColor(.red)
