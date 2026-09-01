@@ -90,4 +90,7 @@ public final class ProductRepository: ProductRepositoryProtocol {
         }
     }
     
+    public func image(url: String) async throws -> URL {
+        return await networkClient.image(path: url)
+    }
 }

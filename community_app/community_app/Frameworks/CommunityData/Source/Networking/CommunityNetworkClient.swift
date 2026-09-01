@@ -133,4 +133,14 @@ public actor CommunityNetworkClient {
             throw NetworkError.decodingFailed
         }
     }
+    
+    /// Generates a fully qualified URL for a given image path relative to the base URL.
+    public func image(path: String) -> URL {
+        
+        // Resolves leading-slash paths correctly against the base URL host
+        if let resolvedURL = URL(string: "/static/uploads/\(path)", relativeTo: networkConfig.baseURL) {
+            return resolvedURL
+        }
+        return URL(string: path)!
+    }
 }

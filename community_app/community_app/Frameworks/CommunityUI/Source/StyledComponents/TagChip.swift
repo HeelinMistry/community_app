@@ -9,17 +9,25 @@ import SwiftUI
 
 public struct TagChip: View {
     let tag: String
-    let onRemove: () -> Void
+    let onRemove: (() -> Void)?
+    
+    public init(tag: String, onRemove: (() -> Void)? = nil) {
+        self.tag = tag
+        self.onRemove = onRemove
+    }
     
     public var body: some View {
         HStack {
             Text(tag)
                 .font(.subheadline)
                 .foregroundColor(Assets.theme.primary)
-            Button(action: onRemove) {
-                Image(systemName: "xmark.circle.fill")
-                    .font(.caption)
-                    .foregroundColor(.gray)
+            
+            if let onRemove = onRemove {
+                Button(action: onRemove) {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                }
             }
         }
         .padding(.vertical, 6)

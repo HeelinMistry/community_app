@@ -50,4 +50,12 @@ public final class ProductUseCases: ProductUseCasesProtocol {
         }
     }
     
+    public func imageDownloadable(url: String) async throws -> URL {
+        do {
+            return try await product.image(url: url)
+        } catch {
+            throw error
+        }
+        
+    }
 }

@@ -109,6 +109,13 @@ public struct ProductDetailsView<T: ProductDetailsViewModelProtocol>: View {
                 await viewModel.requestLocationAuthorization()
             }
         }
+        .onChange(of: viewModel.isCreateProduct) { _, newValue in
+            if !newValue {
+                Task {
+                    await viewModel.productDetail() 
+                }
+            }
+        }
         .sheet(isPresented: $viewModel.showImagePicker) {
             ImagePicker(selectedImages: $viewModel.selectedImages, allowsMultipleSelection: true)
                 .onDisappear {

@@ -68,4 +68,15 @@ final class ProductUseCasesMock: ProductUseCasesProtocol, @unchecked Sendable {
         fatalError("Result not set in ProductUseCasesProtocol")
     }
     
+    var imageURL: Result<URL, Error>?
+    func imageDownloadable(url: String) async throws -> URL {
+        if let result = imageURL {
+            switch result {
+            case .success(let response): return response
+            case .failure(let error): throw error
+            }
+        }
+        fatalError("Result not set in ProductUseCasesProtocol")
+    }
+    
 }

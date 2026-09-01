@@ -118,7 +118,7 @@ async def upload_product_images(
             with open(file_path, "wb") as buffer:
                 shutil.copyfileobj(file.file, buffer)
 
-            image_url = f"/static/uploads/{file_name}"
+            image_url = f"{file_name}"
 
             # Create database record for the image
             new_image = tables.ProductImage(

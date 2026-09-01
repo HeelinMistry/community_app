@@ -31,10 +31,10 @@ public struct ProductDetailsSuccessContentView<T: ProductDetailsViewModelProtoco
     public var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             // MARK: - Image Carousel
-            if !product.image_urls.isEmpty {
+            if !viewModel.productImages.isEmpty {
                 TabView {
-                    ForEach(product.image_urls, id: \.self) { imageUrlString in
-                        AsyncImage(url: URL(string: imageUrlString)) { image in
+                    ForEach(viewModel.productImages, id: \.self) { imageUrl in
+                        AsyncImage(url: imageUrl) { image in
                             image
                                 .resizable()
                                 .scaledToFill()
@@ -83,7 +83,7 @@ public struct ProductDetailsSuccessContentView<T: ProductDetailsViewModelProtoco
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack {
                             ForEach(product.tags, id: \.self) { tag in
-                                TagChip(tag: tag, onRemove: {})
+                                TagChip(tag: tag)
                             }
                         }
                     }
@@ -96,64 +96,61 @@ public struct ProductDetailsSuccessContentView<T: ProductDetailsViewModelProtoco
             
             Divider()
             
-            // MARK: - Map Location and Service Radius
-            VStack(alignment: .leading, spacing: 10) {
-                Text("Service Area")
-                    .font(.headline)
-                    .foregroundColor(Assets.theme.secondaryText)
-                
-                let productCoordinate = CLLocationCoordinate2D(latitude: product.latitude, longitude: product.longitude)
-                Map(position: $mapCameraPosition) {
-                    Marker(product.title, coordinate: productCoordinate)
-                    MapCircle(center: productCoordinate, radius: product.service_radius * 1000) // service_radius is in KM
-                        .stroke(Color.blue.opacity(0.7), lineWidth: 2)
-                }
-                .frame(height: 250)
-                .cornerRadius(12)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(Color.gray.opacity(0.2), lineWidth: 1)
-                )
-                .onAppear {
-                    // Adjust map to show product location and service radius
-                    // Using a multiplier to ensure the radius is visible within the map frame
-                    let cameraDistance = product.service_radius * 1000 * 3 
-                    mapCameraPosition = .camera(MapCamera(centerCoordinate: productCoordinate, distance: cameraDistance))
-                }
-                
-                // Distance from User
-                if let userLocation = viewModel.lastKnownLocation {
-                    Text("Distance from you: \(formattedDistance(from: userLocation, to: productCoordinate))")
-                        .font(.subheadline)
+            if product.is_creator {
+                // MARK: - Map Location and Service Radius
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("Service Area")
+                        .font(.headline)
                         .foregroundColor(Assets.theme.secondaryText)
-                } else if !viewModel.isAuthorized {
-                    Text("Location access denied. Enable in Settings for distance info.")
-                        .font(.subheadline)
-                        .foregroundColor(.red)
-                } else {
-                    Text("Getting your location...")
-                        .font(.subheadline)
-                        .foregroundColor(Assets.theme.secondaryText.opacity(0.7))
+                    
+                    let productCoordinate = CLLocationCoordinate2D(latitude: product.latitude, longitude: product.longitude)
+                    Map(position: $mapCameraPosition) {
+                        Marker(product.title, coordinate: productCoordinate)
+                        MapCircle(center: productCoordinate, radius: product.service_radius * 1000.0) // service_radius is in KM
+                            .stroke(Assets.theme.primaryAccent, lineWidth: 2)
+                            .foregroundStyle(Assets.theme.primaryAccent.opacity(0.1))
+                    }
+                    .frame(height: 200)
+                    .cornerRadius(12)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                    )
+                    
+                    // Distance from User
+                    if let userLocation = viewModel.lastKnownLocation {
+                        Text("Distance from you: \(formattedDistance(from: userLocation, to: productCoordinate))")
+                            .font(.subheadline)
+                            .foregroundColor(Assets.theme.secondaryText)
+                    } else if !viewModel.isAuthorized {
+                        Text("Location access denied. Enable in Settings for distance info.")
+                            .font(.subheadline)
+                            .foregroundColor(.red)
+                    } else {
+                        Text("Getting your location...")
+                            .font(.subheadline)
+                            .foregroundColor(Assets.theme.secondaryText.opacity(0.7))
+                    }
+                    
+                    // Get Directions button
+                    Button {
+                        let placemark = MKPlacemark(coordinate: productCoordinate)
+                        let mapItem = MKMapItem(placemark: placemark)
+                        mapItem.name = product.title
+                        mapItem.openInMaps(launchOptions: [MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeDriving])
+                    } label: {
+                        Label("Get Directions", systemImage: "car.fill")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .controlSize(.large)
+                    .tint(Assets.theme.primaryAccent)
+                    .disabled(viewModel.lastKnownLocation == nil || !viewModel.isAuthorized)
+                    .padding(.top, 8)
                 }
                 
-                // Get Directions button
-                Button {
-                    let placemark = MKPlacemark(coordinate: productCoordinate)
-                    let mapItem = MKMapItem(placemark: placemark)
-                    mapItem.name = product.title
-                    mapItem.openInMaps(launchOptions: [MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeDriving])
-                } label: {
-                    Label("Get Directions", systemImage: "car.fill")
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(.borderedProminent)
-                .controlSize(.large)
-                .tint(Assets.theme.primaryAccent)
-                .disabled(viewModel.lastKnownLocation == nil || !viewModel.isAuthorized)
-                .padding(.top, 8)
+                Divider()
             }
-            
-            Divider()
             
             // MARK: - Status Indicators
             VStack(alignment: .leading, spacing: 8) {

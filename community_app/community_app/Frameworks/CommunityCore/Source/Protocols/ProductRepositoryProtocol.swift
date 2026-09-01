@@ -14,7 +14,7 @@ public protocol ProductRepositoryProtocol: Sendable {
     func nearbyProducts(_ productRequest: LocationRequest) async throws -> Products
     func productDetails(_ productRequest: DetailRequest) async throws -> ProductDetailResponse
     func upload(productId: String, images: [UIImage]) async throws -> ProductImagesResponse
-
+    func image(url: String) async throws -> URL
 }
 
 public protocol ProductUseCasesProtocol: Sendable {
@@ -23,5 +23,5 @@ public protocol ProductUseCasesProtocol: Sendable {
     func userNearbyProducts(_ productRequest: LocationRequest) async throws -> Products
     func selectedProduct(_ productRequest: DetailRequest) async throws -> ProductDetailResponse
     func link(productId: String, images: [UIImage]) async throws -> ProductImagesResponse
-
+    func imageDownloadable(url: String) async throws -> URL
 }

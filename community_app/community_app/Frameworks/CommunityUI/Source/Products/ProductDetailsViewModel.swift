@@ -43,7 +43,11 @@ public final class ProductDetailsViewModel: ProductDetailsViewModelProtocol {
     @Published public var chosenTags: [String] = []
     
     public var productURL: URL?
-    private let product_id: String?
+    private var product_id: String? {
+        didSet {
+            isCreateProduct = product_id == nil
+        }
+    }
     
     private let router: NavigationRouter
     private let useCases: any ProductUseCasesProvider
@@ -88,6 +92,9 @@ public final class ProductDetailsViewModel: ProductDetailsViewModelProtocol {
         do {
             guard let product_id else { return }
             let product = try await useCases.products.selectedProduct(.init(product_id))
+            for image_url in product.image_urls {
+                productImages.append( try await useCases.products.imageDownloadable(url: image_url))
+            }
             state = .success(product)
         } catch {
             state = .error(error.localizedDescription)
@@ -146,7 +153,7 @@ public final class ProductDetailsViewModel: ProductDetailsViewModelProtocol {
                 )
                 let response: AdvertiseProductResponse = try await useCases.products.advertise(request)
                 _ = try await useCases.products.link(productId: response.product_id, images: selectedImages)
-
+                self.product_id = response.product_id
                 if !Task.isCancelled {
                     self.state = .success(nil)
                 }
