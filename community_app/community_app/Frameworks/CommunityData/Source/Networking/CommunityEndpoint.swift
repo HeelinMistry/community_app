@@ -41,9 +41,14 @@ enum CommunityEndpoint: APIEndpoint {
     case toggleParticipation(_ matchDetailRequest: MatchDetailRequest)
     case toggleCancel(_ matchDetailRequest: MatchDetailRequest)
     
-    case suppliers(_ supplierRequest: SupplierRequest)
+    case suppliers(_ supplierRequest: LocationRequest)
     case createSupplier(_ supplierRequest: CreateSupplierRequest)
-    case supplierDetails(_ supplierRequest: SupplierDetailRequest)
+    case supplier(_ supplierRequest: DetailRequest)
+    
+    case product(_ productRequest: DetailRequest)
+    case products(_ productRequest: LocationRequest)
+    case advertise(_ productRequest: AdvertiseProductRequest)
+    case uploadImages(_ productImagesRequest: ProductImagesRequest)
     
     /// The HTTP method for all OpenWeatherMap endpoints, which is GET.
     var method: HTTPMethod {
@@ -51,14 +56,18 @@ enum CommunityEndpoint: APIEndpoint {
         case .matches,
                 .matchDetail,
                 .suppliers,
-                .supplierDetails:
+                .supplier,
+                .products,
+                .product:
             return .get
         case .login,
                 .register,
                 .createMatch,
                 .toggleParticipation,
                 .toggleCancel,
-                .createSupplier:
+                .createSupplier,
+                .advertise,
+                .uploadImages:
             return .post
         }
     }
@@ -75,7 +84,11 @@ enum CommunityEndpoint: APIEndpoint {
         case .toggleCancel(let request): return "api/v1/matches/\(request.match_id)/toggle-cancel"
         case .suppliers: return "api/v1/suppliers"
         case .createSupplier: return "api/v1/suppliers/create"
-        case .supplierDetails(let request): return "api/v1/suppliers/\(request.supplier_id)"
+        case .supplier(let request): return "api/v1/suppliers/\(request.id)"
+        case .advertise: return "api/v1/products/create"
+        case .products: return "api/v1/products"
+        case .product(let request): return "api/v1/products/\(request.id)"
+        case .uploadImages(let request): return "api/v1/products/\(request.productId)/upload-images"
         }
     }
     
@@ -90,9 +103,12 @@ enum CommunityEndpoint: APIEndpoint {
                 .toggleParticipation,
                 .toggleCancel,
                 .createSupplier,
-                .supplierDetails:
+                .advertise,
+                .supplier,
+                .product,
+                .uploadImages:
             return []
-        case .suppliers(let request):
+        case .suppliers(let request), .products(let request):
             let coordinates = request.convertCoordinateToReal
             let queryItems: [URLQueryItem] = [
                 URLQueryItem(name: "lat", value: coordinates.0),
@@ -112,6 +128,10 @@ enum CommunityEndpoint: APIEndpoint {
         case .createMatch(let req):
             return req
         case .createSupplier(let req):
+            return req
+        case .advertise(let req):
+            return req
+        case .uploadImages(let req):
             return req
         default:
             return nil

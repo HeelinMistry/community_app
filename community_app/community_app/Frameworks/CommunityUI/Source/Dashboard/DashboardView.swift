@@ -85,8 +85,7 @@ struct DashboardView<T: DashboardViewModelProtocol>: View {
                                 case .services:
                                     viewModel.createSupplierTapped()
                                 case .products:
-                                    // viewModel.loadProducts() // Still commented out
-                                    break
+                                    viewModel.createProductTapped()
                                 }
                             } label: {
                                 Label(category.display.text, systemImage: category.display.icon)
@@ -128,8 +127,7 @@ struct DashboardView<T: DashboardViewModelProtocol>: View {
         case .services:
             viewModel.nearbySuppliers()
         case .products:
-            // viewModel.loadProducts()
-            break
+            viewModel.nearbyProducts()
         }
     }
 }
@@ -181,7 +179,7 @@ private struct DashboardSuccessContent<T: DashboardViewModelProtocol>: View {
         case .services:
             ServiceFeedView(viewModel: viewModel, selectedTab: $selectedServiceTab, mapCameraPosition: $mapCameraPosition)
         case .products:
-            Label("Coming soon", systemImage: "star.fill")
+            ProductFeedView(viewModel: viewModel)
         }
     }
 }

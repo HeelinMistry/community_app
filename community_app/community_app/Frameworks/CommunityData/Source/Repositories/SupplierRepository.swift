@@ -16,7 +16,7 @@ public final class SupplierRepository: SupplierRepositoryProtocol {
         self.networkClient = networkClient
     }
     
-    public func nearbySuppliers(_ suppliersRequest: SupplierRequest) async throws -> Suppliers {
+    public func nearbySuppliers(_ suppliersRequest: LocationRequest) async throws -> Suppliers {
         do {
             let dto: Suppliers = try await networkClient.fetch(from: CommunityEndpoint.suppliers(suppliersRequest))
             return dto
@@ -34,9 +34,9 @@ public final class SupplierRepository: SupplierRepositoryProtocol {
         }
     }
     
-    public func supplierDetails(_ supplierRequest: SupplierDetailRequest) async throws -> SupplierDetailResponse {
+    public func supplierDetails(_ supplierRequest: DetailRequest) async throws -> SupplierDetailResponse {
         do {
-            let dto: SupplierDetailResponse = try await networkClient.fetch(from: CommunityEndpoint.supplierDetails(supplierRequest))
+            let dto: SupplierDetailResponse = try await networkClient.fetch(from: CommunityEndpoint.supplier(supplierRequest))
             return dto
         } catch {
             throw error

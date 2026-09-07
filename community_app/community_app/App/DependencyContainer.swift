@@ -21,6 +21,9 @@ final class DependencyContainer {
     private var authRepository: AuthRepositoryProtocol!
     private var matchRepository: MatchRepositoryProtocol!
     private var supplierRepository: SupplierRepositoryProtocol!
+    private var productRepository: ProductRepositoryProtocol!
+    
+    private var imageCache: ImageCacheProtocol!
     
     private var dashboardViewModel: DashboardViewModel?
     
@@ -47,6 +50,9 @@ final class DependencyContainer {
         self.authRepository = AuthRepository(networkClient: networkClient)
         self.matchRepository = MatchRepository(networkClient: networkClient)
         self.supplierRepository = SupplierRepository(networkClient: networkClient)
+        self.productRepository = ProductRepository(networkClient: networkClient)
+        
+        self.imageCache = ImageCache(networkClient: networkClient)
     }
     
     /// Creates and returns a `LoginViewModel`.
@@ -88,6 +94,11 @@ final class DependencyContainer {
     public func makeDetailSupplierViewModel(_ supplier_id: String) -> SupplierDetailsViewModel {
         return SupplierDetailsViewModel(useCases: self, router: router, supplier_id: supplier_id)
     }
+    
+    /// Creates and returns a `ProductDetailsViewModel`.
+    public func makeDetailProductViewModel(_ product_id: String?) -> ProductDetailsViewModel {
+        return ProductDetailsViewModel(useCases: self, router: router, product_id: product_id)
+    }
 }
 
 extension DependencyContainer: AuthUseCasesProvider {
@@ -100,7 +111,7 @@ extension DependencyContainer: AuthUseCasesProvider {
     }
 }
 
-extension DependencyContainer: MatchDetailUseCasesProvider, DashboardUseCasesProvider, SupplierUseCasesProvider {
+extension DependencyContainer: MatchDetailUseCasesProvider, DashboardUseCasesProvider, SupplierUseCasesProvider, ProductUseCasesProvider {
     
     var notifications: any NotificationProtocol {
         _notificationService
@@ -116,6 +127,10 @@ extension DependencyContainer: MatchDetailUseCasesProvider, DashboardUseCasesPro
     
     var suppliers: any SupplierUseCasesProtocol {
         SupplierUseCases(supplier: supplierRepository)
+    }
+    
+    var products: any ProductUseCasesProtocol {
+        ProductUseCases(product: productRepository, imageCache: imageCache)
     }
 }
 
@@ -160,5 +175,11 @@ extension DependencyContainer: ViewFactory {
     public func makeDetailSupplierView(_ supplier_id: String) -> AnyView {
         let viewModel = makeDetailSupplierViewModel(supplier_id)
         return AnyView(SupplierDetailsView(viewModel: viewModel))
+    }
+    
+    @MainActor
+    public func makeDetailProductView(_ product_id: String?) -> AnyView {
+        let viewModel = makeDetailProductViewModel(product_id)
+        return AnyView(ProductDetailsView(viewModel: viewModel))
     }
 }

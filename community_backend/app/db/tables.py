@@ -5,7 +5,7 @@ This module contains the SQLAlchemy model definitions for the application's
 database tables, including users, passkeys, matches, and match players.
 """
 
-from sqlalchemy import Column, String, Integer, ForeignKey, Boolean, DateTime, Double, REAL, Index
+from sqlalchemy import Column, String, Integer, ForeignKey, Boolean, DateTime, Double, REAL, Index, JSON
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.db.database import Base
@@ -28,6 +28,7 @@ class User(Base):
     display_name = Column(String)
     matches_hosted = relationship("Match", back_populates="host")
     suppliers = relationship("Supplier", back_populates="owner")
+    products = relationship("Product", back_populates="owner")
 
 class Credential(Base):
     """
@@ -146,3 +147,51 @@ class Supplier(Base):
     __table_args__ = (
         Index('idx_supplier_location', 'latitude', 'longitude'),
     )
+
+class Product(Base):
+    """
+    Represents an informal product listing created by a user.
+
+    Attributes:
+        id (str): Unique identifier for the product.
+        user_id (int): Foreign key to the user who owns this product listing.
+        title (str): The title of the product.
+        description (str): A detailed description of the product.
+        product_type (str): The type of product listing (defaults to 'advertising').
+        tags (str or JSON): Stored tags associated with the product.
+        latitude (float): The latitude of the product's location.
+        longitude (float): The longitude of the product's location.
+        service_radius (float): The delivery or pickup radius in meters/kilometers.
+        image_url (str): Path or URL to the uploaded product image.
+        owner (relationship): Relationship to the user who owns this product entry.
+    """
+    __tablename__ = "products"
+
+    id = Column(String, primary_key=True, default=lambda: f"p_{uuid.uuid4().hex[:8]}")
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    title = Column(String, nullable=False)
+    description = Column(String)
+    product_type = Column(String, default="advertising", nullable=False)
+    tags = Column(JSON)
+    latitude = Column(REAL, nullable=False)
+    longitude = Column(REAL, nullable=False)
+    service_radius = Column(REAL, nullable=False)
+    is_available = Column(Boolean, default=True)
+
+    owner = relationship("User", back_populates="products")
+    images = relationship("ProductImage", back_populates="product", cascade="all, delete-orphan")
+
+    __table_args__ = (
+        Index('idx_product_location', 'latitude', 'longitude'),
+    )
+
+
+class ProductImage(Base):
+    __tablename__ = "product_images"
+
+    id = Column(String, primary_key=True, default=lambda: f"img_{uuid.uuid4().hex[:8]}")
+    product_id = Column(String, ForeignKey("products.id", ondelete="CASCADE"), nullable=False)
+    image_url = Column(String, nullable=False)
+
+    # Optional: Relationship back to the product
+    product = relationship("Product", back_populates="images")
