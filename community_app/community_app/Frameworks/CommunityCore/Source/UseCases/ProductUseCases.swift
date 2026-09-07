@@ -10,9 +10,11 @@ import UIKit
 public final class ProductUseCases: ProductUseCasesProtocol {
     
     private let product: any ProductRepositoryProtocol
+    private let imageCache: any ImageCacheProtocol
     
-    public init(product: any ProductRepositoryProtocol) {
+    public init(product: any ProductRepositoryProtocol, imageCache: any ImageCacheProtocol) {
         self.product = product
+        self.imageCache = imageCache
     }
     
     public func classify(_ images: [UIImage]) async throws -> (title: String, tags: [String]) {
@@ -52,7 +54,7 @@ public final class ProductUseCases: ProductUseCasesProtocol {
     
     public func imageDownloadable(url: String) async throws -> URL {
         do {
-            return try await product.image(url: url)
+            return try await imageCache.getCachedImageURL(for: url)
         } catch {
             throw error
         }

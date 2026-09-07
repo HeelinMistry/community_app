@@ -23,6 +23,8 @@ final class DependencyContainer {
     private var supplierRepository: SupplierRepositoryProtocol!
     private var productRepository: ProductRepositoryProtocol!
     
+    private var imageCache: ImageCacheProtocol!
+    
     private var dashboardViewModel: DashboardViewModel?
     
     private lazy var _notificationService = NotificationService()
@@ -49,6 +51,8 @@ final class DependencyContainer {
         self.matchRepository = MatchRepository(networkClient: networkClient)
         self.supplierRepository = SupplierRepository(networkClient: networkClient)
         self.productRepository = ProductRepository(networkClient: networkClient)
+        
+        self.imageCache = ImageCache(networkClient: networkClient)
     }
     
     /// Creates and returns a `LoginViewModel`.
@@ -126,7 +130,7 @@ extension DependencyContainer: MatchDetailUseCasesProvider, DashboardUseCasesPro
     }
     
     var products: any ProductUseCasesProtocol {
-        ProductUseCases(product: productRepository)
+        ProductUseCases(product: productRepository, imageCache: imageCache)
     }
 }
 
