@@ -14,6 +14,9 @@ final class DashboardUseCasesProviderMock: DashboardUseCasesProvider, @unchecked
     let mockSuppliersUseCases = SupplierUseCasesMock()
     var suppliers: any SupplierUseCasesProtocol { mockSuppliersUseCases }
     
+    let mockProductsUseCases = ProductUseCasesMock()
+    var products: any ProductUseCasesProtocol { mockProductsUseCases }
+    
     let mockMatchUseCases = MatchUseCasesMock()
     var matches: any MatchUseCaseProtocol { mockMatchUseCases }
     

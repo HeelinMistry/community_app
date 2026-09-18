@@ -10,27 +10,6 @@ import Foundation
 /// A typealias for an array of SupplierResponse objects.
 public typealias Suppliers = [SupplierResponse]
 
-public nonisolated struct SupplierRequest: Sendable, Equatable, Encodable, Decodable {
-    public let lat: Double
-    public let lon: Double
-    
-    public init(lat: Double, lon: Double) {
-        self.lat = lat
-        self.lon = lon
-    }
-    
-    public init(from decoder: any Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.lat = try container.decode(Double.self, forKey: .lat)
-        self.lon = try container.decode(Double.self, forKey: .lon)
-    }
-    
-    public var convertCoordinateToReal: (String, String) {
-        return (String(format: "%.6f", lat), String(format: "%.6f", lon))
-        
-    }
-}
-
 public nonisolated struct SupplierResponse: Sendable, Equatable, Encodable, Decodable {
     public let id: String
     public let business_name: String

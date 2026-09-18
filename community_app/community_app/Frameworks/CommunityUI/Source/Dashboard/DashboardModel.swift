@@ -11,13 +11,16 @@ import CommunityCore
 public nonisolated struct DashboardModel: Sendable, Equatable, Encodable, Decodable {
     private var matches: Matches = []
     public var suppliers: Suppliers = []
+    public var products: Products = []
     
     public mutating func update(
         matches: Matches? = nil,
-        suppliers: Suppliers? = nil
+        suppliers: Suppliers? = nil,
+        products: Products? = nil
     ) {
         if let matches { self.matches = matches }
         if let suppliers { self.suppliers = suppliers }
+        if let products { self.products = products }
     }
     
     // MARK: - Match Filtering

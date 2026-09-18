@@ -25,7 +25,10 @@ public protocol DashboardViewModelProtocol: StateDrivenViewModel where DataType 
     func createMatchTapped()
     
     func nearbySuppliers()
+    func nearbyProducts()
+    
     func createSupplierTapped()
+    func createProductTapped()
 }
 
 @MainActor
@@ -125,7 +128,7 @@ public final class DashboardViewModel: DashboardViewModelProtocol {
         if let coordinate = lastKnownLocation?.coordinate {
             fetchTask = Task {
                 do {
-                    let request: SupplierRequest = .init(
+                    let request: LocationRequest = .init(
                         lat: coordinate.latitude,
                         lon: coordinate.longitude
                     )
@@ -145,11 +148,45 @@ public final class DashboardViewModel: DashboardViewModelProtocol {
         }
     }
     
+    public func nearbyProducts() {
+        if state == .loading {
+            return
+        }
+        
+        fetchTask?.cancel()
+        state = .loading
+        
+        if let coordinate = lastKnownLocation?.coordinate {
+            fetchTask = Task {
+                do {
+                    let request: LocationRequest = .init(
+                        lat: coordinate.latitude,
+                        lon: coordinate.longitude
+                    )
+                    let response: Products = try await useCases.products.userNearbyProducts(request)
+                    if !Task.isCancelled {
+                        dashboardModel.update(products: response)
+                        state = .success(dashboardModel)
+                    }
+                } catch {
+                    if !Task.isCancelled {
+                        self.state = .error(error.localizedDescription)
+                    }
+                }
+            }
+        } else {
+            state = .error("\n No location found")
+        }
+    }
+    
     public func createMatchTapped() {
         router.sheet = .createMatch
     }
     
     public func createSupplierTapped() {
         router.sheet = .createSupplier
+    }
+    public func createProductTapped() {
+        router.navigate(to: .productDetail(product_id: nil))
     }
 }
