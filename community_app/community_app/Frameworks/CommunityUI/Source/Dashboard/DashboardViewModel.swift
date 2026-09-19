@@ -85,6 +85,12 @@ public final class DashboardViewModel: DashboardViewModelProtocol {
                 self?.nearbySuppliers()
             }
             .store(in: &cancellables)
+        NotificationCenter.default.publisher(for: .productCreated)
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in
+                self?.nearbyProducts()
+            }
+            .store(in: &cancellables)
     }
     
     public func matchFeed() {
@@ -187,6 +193,6 @@ public final class DashboardViewModel: DashboardViewModelProtocol {
         router.sheet = .createSupplier
     }
     public func createProductTapped() {
-        router.navigate(to: .productDetail(product_id: nil))
+        router.sheet = .advertiseProduct
     }
 }

@@ -6,7 +6,7 @@ import Foundation // For URL
 import SwiftUI
 
 @MainActor
-public protocol SupplierDetailsViewModelProtocol: ValidatableViewModel where DataType == SupplierDetailResponse {
+public protocol SupplierDetailsViewModelProtocol: StateDrivenViewModel where DataType == SupplierDetailResponse {
     var supplierDetailResponse: SupplierDetailResponse? { get }
     var lastKnownLocation: CLLocation? { get }
     var isAuthorized: Bool { get }

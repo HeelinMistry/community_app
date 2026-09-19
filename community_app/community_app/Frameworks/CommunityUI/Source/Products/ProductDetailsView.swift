@@ -43,47 +43,171 @@ public struct ProductDetailsView<T: ProductDetailsViewModelProtocol>: View {
                     ProgressView("Loading Product Details...")
                         .controlSize(.large)
                 case .success(let product):
-                    if viewModel.isCreateProduct {
-                        // MARK: - Image Viewer Section (for creation)
-                        ProductImageViewer(
-                            selectedImages: $viewModel.selectedImages,
-                            removeSelectedImage: viewModel.removeSelectedImage,
-                            isCreateProduct: viewModel.isCreateProduct,
-                            showCameraPicker: $viewModel.showCameraPicker,
-                            showImagePicker: $viewModel.showImagePicker
-                        )
-                        .padding(.vertical, 8) // Apply original padding here
-                        
-                        // MARK: - Product Creation Form
-                        ProductCreationForm(
-                            title: $viewModel.title,
-                            description: $viewModel.description,
-                            validationErrors: viewModel.validationErrors,
-                            chosenTags: $viewModel.chosenTags,
-                            removeChosenTag: viewModel.removeChosenTag,
-                            detectedTags: viewModel.detectedTags,
-                            service_radius: $viewModel.service_radius,
-                            mapCameraPosition: $viewModel.mapCameraPosition,
-                            lastKnownLocation: viewModel.lastKnownLocation,
-                            isAuthorized: viewModel.isAuthorized,
-                            showMultiTagPicker: $showMultiTagPicker,
-                            updateMapCameraPosition: updateMapCameraPosition, // Pass the method as a closure
-                            productMarkerLocation: $viewModel.productMarkerLocation, // Pass productMarkerLocation binding
-                            onMapTapped: handleMapTap, // Pass the new map tap handler
-                            hasSelectedImages: !viewModel.selectedImages.isEmpty // Pass the image selection status
-                        )
-                    } else {
-                        // MARK: - Product Details Section (for viewing existing product)
-                        if let product = product {
-                            ProductDetailsSuccessContentView(
-                                product: product,
-                                viewModel: viewModel,
-                                mapCameraPosition: $mapCameraPosition
-                            )
+                    VStack(alignment: .leading, spacing: 16) {
+                        // MARK: - Image Carousel
+                        if !viewModel.productImages.isEmpty {
+                            TabView {
+                                ForEach(viewModel.productImages, id: \.self) { imageUrl in
+                                    AsyncImage(url: imageUrl) { image in
+                                        image
+                                            .resizable()
+                                            .scaledToFill()
+                                    } placeholder: {
+                                        ProgressView()
+                                    }
+                                    .frame(maxWidth: .infinity, minHeight: 250, maxHeight: 300)
+                                    .cornerRadius(12)
+                                    .clipped()
+                                }
+                            }
+                            .tabViewStyle(.page(indexDisplayMode: .always))
+                            .indexViewStyle(.page(backgroundDisplayMode: .always))
+                            .frame(height: 300)
+                            .padding(.bottom, 8)
                         } else {
-                            Text("Product details not available.")
+                            Image(systemName: "photo.fill")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 100, height: 100)
                                 .foregroundColor(Assets.theme.secondaryText)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 50)
                         }
+                        
+                        // MARK: - Product Title
+                        Text(product.title)
+                            .font(.largeTitle)
+                            .fontWeight(.bold)
+                            .foregroundColor(Assets.theme.primaryAccent)
+                        
+                        // MARK: - Product Description
+                        Text(product.description)
+                            .font(.body)
+                            .foregroundColor(Assets.theme.secondaryText)
+                        
+                        Divider()
+                        
+                        // MARK: - Tags Section
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Tags")
+                                .font(.headline)
+                                .foregroundColor(Assets.theme.secondaryText)
+                            
+                            if !product.tags.isEmpty {
+                                ScrollView(.horizontal, showsIndicators: false) {
+                                    HStack {
+                                        ForEach(product.tags, id: \.self) { tag in
+                                            TagChip(tag: tag)
+                                        }
+                                    }
+                                }
+                            } else {
+                                Text("No tags available.")
+                                    .font(.subheadline)
+                                    .foregroundColor(Assets.theme.secondaryText.opacity(0.7))
+                            }
+                        }
+                        
+                        Divider()
+                        
+                        if product.is_creator {
+                            // MARK: - Map Location and Service Radius
+                            VStack(alignment: .leading, spacing: 10) {
+                                Text("Service Area")
+                                    .font(.headline)
+                                    .foregroundColor(Assets.theme.secondaryText)
+                                
+                                let productCoordinate = CLLocationCoordinate2D(latitude: product.latitude, longitude: product.longitude)
+                                Map(position: $mapCameraPosition) {
+                                    Marker(product.title, coordinate: productCoordinate)
+                                    MapCircle(center: productCoordinate, radius: product.service_radius * 1000.0) // service_radius is in KM
+                                        .stroke(Assets.theme.primaryAccent, lineWidth: 2)
+                                        .foregroundStyle(Assets.theme.primaryAccent.opacity(0.1))
+                                }
+                                .frame(height: 200)
+                                .cornerRadius(12)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                                )
+                                
+                                // Distance from User
+                                if let userLocation = viewModel.lastKnownLocation {
+                                    Text("Distance from you: \(formattedDistance(from: userLocation, to: productCoordinate))")
+                                        .font(.subheadline)
+                                        .foregroundColor(Assets.theme.secondaryText)
+                                } else if !viewModel.isAuthorized {
+                                    Text("Location access denied. Enable in Settings for distance info.")
+                                        .font(.subheadline)
+                                        .foregroundColor(.red)
+                                } else {
+                                    Text("Getting your location...")
+                                        .font(.subheadline)
+                                        .foregroundColor(Assets.theme.secondaryText.opacity(0.7))
+                                }
+                                
+                                // Get Directions button
+                                Button {
+                                    let placemark = MKPlacemark(coordinate: productCoordinate)
+                                    let mapItem = MKMapItem(placemark: placemark)
+                                    mapItem.name = product.title
+                                    mapItem.openInMaps(launchOptions: [MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeDriving])
+                                } label: {
+                                    Label("Get Directions", systemImage: "car.fill")
+                                        .frame(maxWidth: .infinity)
+                                }
+                                .buttonStyle(.borderedProminent)
+                                .controlSize(.large)
+                                .tint(Assets.theme.primaryAccent)
+                                .disabled(viewModel.lastKnownLocation == nil || !viewModel.isAuthorized)
+                                .padding(.top, 8)
+                            }
+                            
+                            Divider()
+                        }
+                        
+                        // MARK: - Status Indicators
+                        VStack(alignment: .leading, spacing: 8) {
+                            if product.is_creator {
+                                Label("You are the Creator", systemImage: "star.fill")
+                                    .font(.body)
+                                    .foregroundColor(Assets.theme.primaryAccent)
+                            }
+                            
+                            Label(product.is_available ? "Available" : "Not Available",
+                                  systemImage: product.is_available ? "checkmark.circle.fill" : "xmark.circle.fill")
+                            .font(.body)
+                            .foregroundColor(product.is_available ? .green : .red)
+                        }
+                        .padding(.vertical, 4)
+                        
+                        Divider()
+                        
+                        // MARK: - Action Buttons
+                        HStack {
+                            if product.is_creator {
+                                Button {
+                                    // Action to edit product (e.g., navigate to an edit screen)
+                                    print("Edit Product Tapped")
+                                } label: {
+                                    Label("Edit Product", systemImage: "pencil.circle.fill")
+                                        .frame(maxWidth: .infinity)
+                                }
+                                .buttonStyle(.borderedProminent)
+                                .controlSize(.large)
+                                .tint(Assets.theme.primaryAccent)
+                            }
+                            
+                            // Share product using its ID
+                            ShareLink(item: URL(string: "community-app://com.mistcreation.community-app/product/\(product.id)")!) {
+                                Label("Share", systemImage: "square.and.arrow.up")
+                                    .frame(maxWidth: .infinity)
+                            }
+                            .buttonStyle(.bordered)
+                            .controlSize(.large)
+                            .tint(Assets.theme.secondaryText)
+                        }
+                        .padding(.top, 8)
                     }
                 case .error(let message):
                     Text("Error: \(message)")
@@ -94,26 +218,12 @@ public struct ProductDetailsView<T: ProductDetailsViewModelProtocol>: View {
             }
             .padding() // Padding around the VStack content for all states
         }
-        .navigationTitle(viewModel.isCreateProduct ? "Create Product" : "Product Details")
+        .navigationTitle("Product Details")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
-            if !viewModel.isCreateProduct {
-                Task {
-                    await viewModel.productDetail() // Fetch product details including images
-                }
-            } else {
-                // For creation, initialize chosenTags from any initial data or keep empty
-                // viewModel.chosenTags = viewModel.initialTagsForCreation // Example if you have initial tags
-            }
             Task {
+                await viewModel.productDetail()
                 await viewModel.requestLocationAuthorization()
-            }
-        }
-        .onChange(of: viewModel.isCreateProduct) { _, newValue in
-            if !newValue {
-                Task {
-                    await viewModel.productDetail() 
-                }
             }
         }
         .sheet(isPresented: $viewModel.showImagePicker) {
@@ -142,59 +252,19 @@ public struct ProductDetailsView<T: ProductDetailsViewModelProtocol>: View {
                 theme: Assets.theme // Pass theme for consistent styling
             )
         }
-        // Add an upload button if there are selected images for a new product
-        .toolbar {
-            if viewModel.isCreateProduct { // Toolbar item should be available if creating/editing generally
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Save Product") { // Renamed button from "Upload Images" to "Save Product"
-                        Task {
-                            // Assuming a method like 'saveProduct' or 'createProduct' exists in VM
-                            // This would include uploading images and submitting product details
-                            // await viewModel.createProduct() // Example
-                            print("Save Product button tapped. Chosen tags: \(viewModel.chosenTags)")
-                            print("Selected images count: \(viewModel.selectedImages.count)")
-                            // For now, only image upload is explicitly defined,
-                            if viewModel.isFormValid(step: nil) {
-                                await viewModel.advertise()
-                            } // If images are part of creation
-                        }
-                    }
-                    .disabled(viewModel.state.isLoading) // Disable during upload/save
-                }
-            }
-        }
     }
     
-    /// Updates the map's camera position to encompass the service radius around the given location.
-    /// - Parameters:
-    ///   - radius: The service radius in meters.
-    ///   - location: The center location for the service radius.
-    private func updateMapCameraPosition(radius: CLLocationDistance, location: CLLocation?) {
-        guard let coordinate = location?.coordinate else { return }
-        let cameraDistance = radius * 7
-        viewModel.mapCameraPosition = .camera(MapCamera(centerCoordinate: coordinate, distance: cameraDistance))
-    }
-    
-    /// Handles a tap gesture on the map, updating the productMarkerLocation if within the service radius.
-    /// - Parameter coordinate: The CLLocationCoordinate2D where the map was tapped.
-    private func handleMapTap(coordinate: CLLocationCoordinate2D) {
-        guard let centerLocation = viewModel.lastKnownLocation else {
-            // Cannot determine if tap is within radius without a center location
-            // Optionally, show a message to the user or clear the marker
-            viewModel.productMarkerLocation = nil
-            return
-        }
+    // Helper function for distance, adapted from MatchDetailsView
+    private func formattedDistance(from userLocation: CLLocation, to productCoordinate: CLLocationCoordinate2D) -> String {
+        let productLocation = CLLocation(latitude: productCoordinate.latitude, longitude: productCoordinate.longitude)
+        let distanceInMeters = userLocation.distance(from: productLocation)
+        let distanceMeasurement = Measurement(value: distanceInMeters, unit: UnitLength.kilometers)
         
-        let tappedCLLocation = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
-        let distance = centerLocation.distance(from: tappedCLLocation)
+        let formatter = MeasurementFormatter()
+        formatter.unitStyle = .long
+        formatter.unitOptions = .providedUnit
+        formatter.numberFormatter.maximumFractionDigits = 1
         
-        if distance <= viewModel.service_radius {
-            viewModel.productMarkerLocation = coordinate
-        } else {
-            // Tapped outside the service radius.
-            // You might want to provide visual feedback or prevent setting the marker.
-            // For now, we'll just not update the marker if it's outside.
-            print("Tapped outside service radius: \(distance) meters, radius: \(viewModel.service_radius) meters")
-        }
+        return formatter.string(from: distanceMeasurement)
     }
 }

@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import CommunityCore
 
 public struct EventFeedView<T: DashboardViewModelProtocol>: View {
     @ObservedObject var viewModel: T

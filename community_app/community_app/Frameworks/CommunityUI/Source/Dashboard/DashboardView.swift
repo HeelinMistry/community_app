@@ -81,10 +81,13 @@ struct DashboardView<T: DashboardViewModelProtocol>: View {
                             Button {
                                 switch category {
                                 case .events:
+                                    selectedCategory = .events
                                     viewModel.createMatchTapped()
                                 case .services:
+                                    selectedCategory = .services
                                     viewModel.createSupplierTapped()
                                 case .products:
+                                    selectedCategory = .products
                                     viewModel.createProductTapped()
                                 }
                             } label: {
@@ -115,8 +118,7 @@ struct DashboardView<T: DashboardViewModelProtocol>: View {
         case .services:
             viewModel.nearbySuppliers()
         case .products:
-            // viewModel.loadProducts()
-            break
+            viewModel.nearbyProducts()
         }
     }
     
