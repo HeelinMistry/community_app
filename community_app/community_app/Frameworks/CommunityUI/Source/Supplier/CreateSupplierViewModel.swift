@@ -61,7 +61,7 @@ public final class CreateSupplierViewModel: CreateSupplierViewModelProtocol {
     @Published public var description = ""
     @Published public var location = "" // This stays bound to the TextField
     @Published public var validatedLocationName = "" // Store the official name here
-    @Published public var service_radius: Double = 5000.0 // Changed to Double, default 5km (5000 meters)
+    @Published public var service_radius: Double = 2000.0 // Changed to Double, default 5km (5000 meters)
     
     // Initial map position, matching the default in CreateMatchView
     @Published public var mapCameraPosition: MapCameraPosition = .region(MKCoordinateRegion(

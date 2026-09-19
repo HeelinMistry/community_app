@@ -92,10 +92,14 @@ private struct SupplierDetailsSuccessContentView<T: SupplierDetailsViewModelProt
                 Text("Supplier Location")
                     .font(.headline)
                     .foregroundColor(Assets.theme.secondaryText)
-
+                
                 if supplier.latitude != 0.0 || supplier.longitude != 0.0 {
+                    let supplierCoordinate = CLLocationCoordinate2D(latitude: supplier.latitude, longitude: supplier.longitude)
                     Map(position: $mapCameraPosition) {
-                        Marker(supplier.business_name, coordinate: CLLocationCoordinate2D(latitude: supplier.latitude, longitude: supplier.longitude))
+                        Marker(supplier.business_name, coordinate: supplierCoordinate)
+                        MapCircle(center: supplierCoordinate, radius: supplier.service_radius * 1000.0) // service_radius is in KM
+                            .stroke(Assets.theme.primaryAccent, lineWidth: 2)
+                            .foregroundStyle(Assets.theme.primaryAccent.opacity(0.1))
                     }
                     .frame(height: 200)
                     .cornerRadius(12)
@@ -103,13 +107,6 @@ private struct SupplierDetailsSuccessContentView<T: SupplierDetailsViewModelProt
                         RoundedRectangle(cornerRadius: 12)
                             .stroke(Color.gray.opacity(0.2), lineWidth: 1)
                     )
-                    .onAppear {
-                        // Set the map camera to focus on the supplier's location
-                        mapCameraPosition = .region(MKCoordinateRegion(
-                            center: CLLocationCoordinate2D(latitude: supplier.latitude, longitude: supplier.longitude),
-                            span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
-                        ))
-                    }
 
                     // Button to get directions using Apple Maps
                     Button {
