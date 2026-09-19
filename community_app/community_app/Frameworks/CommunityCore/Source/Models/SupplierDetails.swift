@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct SupplierDetailResponse: Codable, Identifiable, Hashable, Sendable, Equatable {
+public struct SupplierDetailResponse: Identifiable, Hashable, Sendable, Equatable {
     public let id: String
     public let business_name: String
     public let description: String
@@ -44,3 +44,5 @@ public struct SupplierDetailResponse: Codable, Identifiable, Hashable, Sendable,
         lhs.category == rhs.category
     }
 }
+
+nonisolated extension SupplierDetailResponse: Codable {}

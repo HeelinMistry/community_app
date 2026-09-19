@@ -14,7 +14,7 @@ import SwiftUI
 
 @MainActor
 public final class ProductDetailsViewModel: ProductDetailsViewModelProtocol {
-    @Published public private(set) var state: ViewState<ProductDetailResponse?> = .success(nil)
+    @Published public private(set) var state: ViewState<ProductDetailResponse> = .idle
     @Published public var validationErrors: [String: String] = [:]
     
     @Published public var productMarkerLocation: CLLocationCoordinate2D?
@@ -31,7 +31,6 @@ public final class ProductDetailsViewModel: ProductDetailsViewModelProtocol {
         }
     }
     
-    @Published public private(set) var isCreateProduct: Bool
     @Published public var productImages: [URL] = []
     @Published public var selectedImages: [UIImage] = []
     @Published public var showImagePicker: Bool = false
@@ -42,12 +41,8 @@ public final class ProductDetailsViewModel: ProductDetailsViewModelProtocol {
     @Published public var detectedTags: [String] = []
     @Published public var chosenTags: [String] = []
     
-    public var productURL: URL?
-    private var product_id: String? {
-        didSet {
-            isCreateProduct = product_id == nil
-        }
-    }
+    public var productURL: URL
+    private var product_id: String
     
     private let router: NavigationRouter
     private let useCases: any ProductUseCasesProvider
@@ -58,16 +53,12 @@ public final class ProductDetailsViewModel: ProductDetailsViewModelProtocol {
     public init(
         useCases: any ProductUseCasesProvider,
         router: NavigationRouter,
-        product_id: String?
+        product_id: String
     ) {
         self.useCases = useCases
         self.router = router
         self.product_id = product_id
-        self.isCreateProduct = product_id == nil
-        // Guard against nil product_id for URL construction, though force unwrap implies it's always valid
-        self.productURL = URL(string: "community-app://com.mistcreation.community-app/product/\(product_id ?? "")")!
-        
-        // Initialize authorization status based on current location service status
+        self.productURL = URL(string: "community-app://com.mistcreation.community-app/product/\(product_id)")!
         self.isAuthorized = useCases.location.authorizationStatus == .authorizedAlways || useCases.location.authorizationStatus == .authorizedWhenInUse
         setupLocationObservers()
     }
@@ -90,7 +81,6 @@ public final class ProductDetailsViewModel: ProductDetailsViewModelProtocol {
     public func productDetail() async {
         state = .loading
         do {
-            guard let product_id else { return }
             let product = try await useCases.products.selectedProduct(.init(product_id))
             for image_url in product.image_urls {
                 productImages.append( try await useCases.products.imageDownloadable(url: image_url))
@@ -123,45 +113,10 @@ public final class ProductDetailsViewModel: ProductDetailsViewModelProtocol {
             do {
                 let classification = try await useCases.products.classify(images)
                 detectedTags = classification.tags
-                state = .success(nil)
+                state = .idle
             } catch {
                 print("Image classification during selection failed: \(error.localizedDescription)")
                 state = .error(error.localizedDescription)
-            }
-        }
-    }
-    
-    public func advertise() async {
-        fetchTask?.cancel()
-        state = .loading
-        fetchTask = Task {
-            do {
-                // Assuming CreateSupplierRequest expects service_radius in kilometers (based on initial 5.1 value)
-                let serviceRadiusInKilometers = service_radius / 1000.0
-                
-                guard let productMarkerLocation else {
-                    return
-                }
-                
-                let request = AdvertiseProductRequest(
-                    title: title,
-                    description: description, // Changed from hardcoded "test" to use the ViewModel's property
-                    tags: chosenTags,
-                    latitude: productMarkerLocation.latitude,
-                    longitude: productMarkerLocation.longitude,
-                    service_radius: serviceRadiusInKilometers
-                )
-                let response: AdvertiseProductResponse = try await useCases.products.advertise(request)
-                _ = try await useCases.products.link(productId: response.product_id, images: selectedImages)
-                self.product_id = response.product_id
-                if !Task.isCancelled {
-                    self.state = .success(nil)
-                }
-            } catch {
-                if !Task.isCancelled {
-                    self.state = .error(error.localizedDescription)
-                    self.validationErrors["general"] = "Failed to create match: \(error.localizedDescription)"
-                }
             }
         }
     }

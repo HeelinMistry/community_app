@@ -69,6 +69,8 @@ struct RootNavigationView: View {
             factory.makeCreateMatchView()
         case .createSupplier:
             factory.makeCreateSupplierView()
+        case .advertiseProduct:
+            factory.makeCreateProductView()
         }
     }
 }

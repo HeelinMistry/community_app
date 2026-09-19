@@ -85,7 +85,7 @@ final class DependencyContainer {
         return MatchDetailsViewModel(useCases: self, router: router, match_id: match_id)
     }
     
-    /// Creates and returns a `CreateMatchViewModel`.
+    /// Creates and returns a `CreateSupplierViewModel`.
     public func makeCreateSupplierViewModel() -> CreateSupplierViewModel {
         return CreateSupplierViewModel(useCases: self, router: router)
     }
@@ -95,8 +95,13 @@ final class DependencyContainer {
         return SupplierDetailsViewModel(useCases: self, router: router, supplier_id: supplier_id)
     }
     
+    /// Creates and returns a `CreateProductViewModel`.
+    public func makeCreateProductViewModel() -> CreateProductViewModel {
+        return CreateProductViewModel(useCases: self, router: router)
+    }
+    
     /// Creates and returns a `ProductDetailsViewModel`.
-    public func makeDetailProductViewModel(_ product_id: String?) -> ProductDetailsViewModel {
+    public func makeDetailProductViewModel(_ product_id: String) -> ProductDetailsViewModel {
         return ProductDetailsViewModel(useCases: self, router: router, product_id: product_id)
     }
 }
@@ -178,7 +183,13 @@ extension DependencyContainer: ViewFactory {
     }
     
     @MainActor
-    public func makeDetailProductView(_ product_id: String?) -> AnyView {
+    public func makeCreateProductView() -> AnyView {
+        let viewModel = makeCreateProductViewModel()
+        return AnyView(CreateProductView(viewModel: viewModel))
+    }
+    
+    @MainActor
+    public func makeDetailProductView(_ product_id: String) -> AnyView {
         let viewModel = makeDetailProductViewModel(product_id)
         return AnyView(ProductDetailsView(viewModel: viewModel))
     }

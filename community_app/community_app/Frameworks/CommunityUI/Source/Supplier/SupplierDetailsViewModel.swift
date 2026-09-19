@@ -9,7 +9,6 @@ import SwiftUI
 public final class SupplierDetailsViewModel: SupplierDetailsViewModelProtocol {
 
     @Published public private(set) var state: ViewState<SupplierDetailResponse> = .idle
-    @Published public var validationErrors: [String: String] = [:]
 
     @Published public private(set) var supplierDetailResponse: SupplierDetailResponse?
 
@@ -106,9 +105,5 @@ public final class SupplierDetailsViewModel: SupplierDetailsViewModelProtocol {
 
         // Use the location service to open directions in Maps
         useCases.location.openDirections(to: destination, destinationName: supplier.business_name)
-    }
-    
-    public func isFormValid(step: Int?) -> Bool {
-        true
     }
 }

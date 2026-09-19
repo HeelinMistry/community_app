@@ -13,13 +13,14 @@ public enum Destination: Hashable {
     case dashboard
     case matchDetail(match_id: String)
     case supplierDetail(supplier_id: String) 
-    case productDetail(product_id: String?) 
+    case productDetail(product_id: String) 
 }
 
 public enum SheetDestination: Identifiable {
     case registration
     case createMatch
     case createSupplier
+    case advertiseProduct
     
     public var id: String { String(describing: self) }
 }
