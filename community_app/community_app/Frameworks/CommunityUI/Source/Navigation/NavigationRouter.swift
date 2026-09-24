@@ -25,6 +25,14 @@ public enum SheetDestination: Identifiable {
     public var id: String { String(describing: self) }
 }
 
+public enum PendingType: String {
+    case match
+    case supplier
+    case product
+    
+    public var id: String { String(describing: self) }
+}
+
 @MainActor
 public class NavigationRouter: ObservableObject {
     // For Stack Navigation
@@ -37,7 +45,8 @@ public class NavigationRouter: ObservableObject {
     @Published public var alertItem: AlertItem?
     
     @Published public var isAuthenticated: Bool = false
-    @Published public var pendingMatchID: String?
+    @Published public var pendingID: String?
+    @Published public var pendingType: PendingType?
     
     public init() {}
     
@@ -58,24 +67,45 @@ public class NavigationRouter: ObservableObject {
         self.isAuthenticated = true
         self.path = NavigationPath()
         
-        if let matchID = pendingMatchID {
-            self.pendingMatchID = nil
+        if let ID = pendingID,
+           let type = pendingType {
+            pendingID = nil
+            pendingType = nil
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                self.navigate(to: .matchDetail(match_id: matchID))
+                switch type {
+                case .match:
+                    self.navigate(to: .matchDetail(match_id: ID))
+                case .product:
+                    self.navigate(to: .productDetail(product_id: ID))
+                case .supplier:
+                    self.navigate(to: .supplierDetail(supplier_id: ID))
+                }
             }
         }
     }
     
-    public func handleDeepLink(matchID: String) {
-        print("handleDeepLink called with matchID: \(matchID)")
+    public func handleDeepLink(type: String, id: String) {
+        print("handleDeepLink called with type: \(type), ID: \(id)")
+        pendingType = PendingType(rawValue: type)
+        
         if !isAuthenticated {
-            pendingMatchID = matchID
-            alert(title: "Log in required", message: "Please log in to view this match.")
+            pendingID = id
+            alert(title: "Log in required", message: "Please log in to continue.")
             print("User is not authenticated, deep link navigation skipped.")
+            return
         }
-        guard isAuthenticated else { return }
-        print("User is authenticated, navigating to detail for matchID: \(matchID)")
-        navigate(to: .matchDetail(match_id: matchID))
+        
+        print("User is authenticated, navigating for type: \(type)")
+        switch pendingType {
+        case .match:
+            navigate(to: .matchDetail(match_id: id))
+        case .supplier:
+            navigate(to: .supplierDetail(supplier_id: id))
+        case .product:
+            navigate(to: .productDetail(product_id: id))
+        case nil:
+            print("Unsupported deep link type: \(type)")
+        }
     }
 }
 

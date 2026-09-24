@@ -24,14 +24,26 @@ struct CommunitySwiftApp: App {
                 .environment(\.viewFactory, container)
                 .onOpenURL { url in
                     print("onOpenURL triggered with URL: \(url)")
-                    // Expected URL format: community-app://com.mistcreation.community-app/match/m_c96a2735
+                    // Expected formats: 
+                    // community-app://com.mistcreation.community-app/match/m_c96a2735
+                    // community-app://com.mistcreation.community-app/product/p_689d3aab
                     if url.scheme == "community-app", url.host == "com.mistcreation.community-app" {
-                        print("Deep link condition met for scheme: \(url.scheme ?? "nil") and host: \(url.host ?? "nil")")
-                        let matchID = url.lastPathComponent
-                        print("Extracted matchID from deep link: \(matchID)")
-                        router.handleDeepLink(matchID: matchID)
+                        print("Deep link condition met for scheme and host.")
+                        
+                        let pathComponents = url.pathComponents
+                        // pathComponents typically contains ["/", type, id]
+                        guard pathComponents.count >= 3 else {
+                            print("Invalid deep link path structure: \(url.path)")
+                            return
+                        }
+                        
+                        let type = pathComponents[1] // "match" or "product"
+                        let id = pathComponents[2]   // The unique identifier
+                        
+                        print("Extracted deep link type: \(type), ID: \(id)")
+                        router.handleDeepLink(type: type, id: id)
                     } else {
-                        print("Deep link condition NOT met. Scheme: \(url.scheme ?? "nil"), Host: \(url.host ?? "nil"). Expected scheme 'community-app' and host 'com.mistcreation.community-app'")
+                        print("Deep link condition NOT met. Scheme: \(url.scheme ?? "nil"), Host: \(url.host ?? "nil")")
                     }
                 }
         }
