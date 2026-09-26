@@ -196,6 +196,16 @@ public struct ProductDetailsView<T: ProductDetailsViewModelProtocol>: View {
                                 .buttonStyle(.borderedProminent)
                                 .controlSize(.large)
                                 .tint(Assets.theme.primaryAccent)
+                            } else {
+                                Button {
+                                    router.sheet = .reviewProduct(product.id)
+                                } label: {
+                                    Label("Review", systemImage: "pencil.circle.fill")
+                                        .frame(maxWidth: .infinity)
+                                }
+                                .buttonStyle(.borderedProminent)
+                                .controlSize(.large)
+                                .tint(Assets.theme.primaryAccent)
                             }
                             
                             // Share product using its ID

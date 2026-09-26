@@ -104,6 +104,11 @@ final class DependencyContainer {
     public func makeDetailProductViewModel(_ product_id: String) -> ProductDetailsViewModel {
         return ProductDetailsViewModel(useCases: self, router: router, product_id: product_id)
     }
+    
+    /// Creates and returns a `ReviewViewModel`.
+    public func makeReviewViewModel(_ id: String) -> ReviewViewModel {
+        return ReviewViewModel(useCases: self, router: router, id: id)
+    }
 }
 
 extension DependencyContainer: AuthUseCasesProvider {
@@ -193,4 +198,11 @@ extension DependencyContainer: ViewFactory {
         let viewModel = makeDetailProductViewModel(product_id)
         return AnyView(ProductDetailsView(viewModel: viewModel))
     }
+    
+    @MainActor
+    func makeReviewView(_ id: String) -> AnyView {
+        let viewModel = makeReviewViewModel(id)
+        return AnyView(ReviewView(viewModel: viewModel))
+    }
+    
 }

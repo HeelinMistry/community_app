@@ -41,7 +41,14 @@ public final class LoginViewModel: LoginViewModelProtocol {
         fetchTask?.cancel()
         state = .loading
 //        let loginRequest = LoginRequest(username: username, password: password)
-        let loginRequest = LoginRequest(username: "richard", password: "password")
+        var loginRequest: LoginRequest
+        if username == "1" {
+            loginRequest = LoginRequest(username: "test_user", password: "password123")
+        } else if username == "2" {
+            loginRequest = LoginRequest(username: "test_user_2", password: "password12345")
+        } else {
+            loginRequest = LoginRequest(username: username, password: password)
+        }
         fetchTask = Task {
             do {
                 let response: LoginResponse = try await useCases.loginUser.execute(loginRequest)

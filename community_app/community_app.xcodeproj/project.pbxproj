@@ -65,9 +65,9 @@
 		F34428832F9F5F2A007CD99D /* CommunityData.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = CommunityData.xcodeproj; path = community_app/Frameworks/CommunityData/CommunityData.xcodeproj; sourceTree = "<group>"; };
 		F3A0CD3B2F90EA2600B052F7 /* community_app.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = community_app.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F3A0CD482F90EA2700B052F7 /* community_appTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = community_appTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		F3A4173C305F134400F2AF80 /* CommunityCore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CommunityCore.xcodeproj; sourceTree = "<group>"; };
-		F3A41763305F134400F2AF80 /* CommunityData.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CommunityData.xcodeproj; sourceTree = "<group>"; };
-		F3A417BD305F134400F2AF80 /* CommunityUI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CommunityUI.xcodeproj; sourceTree = "<group>"; };
+		F3D92DB730683D33009F35AE /* CommunityCore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CommunityCore.xcodeproj; sourceTree = "<group>"; };
+		F3D92DDE30683D33009F35AE /* CommunityData.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CommunityData.xcodeproj; sourceTree = "<group>"; };
+		F3D92E3A30683D33009F35AE /* CommunityUI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CommunityUI.xcodeproj; sourceTree = "<group>"; };
 		F3ECC8032F9D1B530015F1BB /* community_app.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = community_app.xctestplan; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -229,21 +229,21 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		F3A417C1305F134400F2AF80 /* Products */ = {
+		F3D92E3E30683D33009F35AE /* Products */ = {
 			isa = PBXGroup;
 			children = (
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		F3A417C3305F134400F2AF80 /* Products */ = {
+		F3D92E4030683D33009F35AE /* Products */ = {
 			isa = PBXGroup;
 			children = (
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		F3A417C5305F134400F2AF80 /* Products */ = {
+		F3D92E4230683D33009F35AE /* Products */ = {
 			isa = PBXGroup;
 			children = (
 			);
@@ -332,24 +332,24 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
-					ProductGroup = F3A417C5305F134400F2AF80 /* Products */;
-					ProjectRef = F3A4173C305F134400F2AF80 /* CommunityCore.xcodeproj */;
+					ProductGroup = F3D92E3E30683D33009F35AE /* Products */;
+					ProjectRef = F3D92DB730683D33009F35AE /* CommunityCore.xcodeproj */;
 				},
 				{
 					ProductGroup = F327663F2F9F78CD003BC9A8 /* Products */;
 					ProjectRef = F327663E2F9F78CD003BC9A8 /* CommunityCore.xcodeproj */;
 				},
 				{
-					ProductGroup = F3A417C3305F134400F2AF80 /* Products */;
-					ProjectRef = F3A41763305F134400F2AF80 /* CommunityData.xcodeproj */;
+					ProductGroup = F3D92E4030683D33009F35AE /* Products */;
+					ProjectRef = F3D92DDE30683D33009F35AE /* CommunityData.xcodeproj */;
 				},
 				{
 					ProductGroup = F34428842F9F5F2A007CD99D /* Products */;
 					ProjectRef = F34428832F9F5F2A007CD99D /* CommunityData.xcodeproj */;
 				},
 				{
-					ProductGroup = F3A417C1305F134400F2AF80 /* Products */;
-					ProjectRef = F3A417BD305F134400F2AF80 /* CommunityUI.xcodeproj */;
+					ProductGroup = F3D92E4230683D33009F35AE /* Products */;
+					ProjectRef = F3D92E3A30683D33009F35AE /* CommunityUI.xcodeproj */;
 				},
 				{
 					ProductGroup = F32765DB2F9F76FF003BC9A8 /* Products */;

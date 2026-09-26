@@ -15,6 +15,7 @@ public struct SupplierDetailResponse: Identifiable, Hashable, Sendable, Equatabl
     public let longitude: Double
     public let service_radius: Double
     public let category: String
+    public let is_creator: Bool
 
     public init(id: String = UUID().uuidString,
                 business_name: String = "Sample Business",
@@ -22,7 +23,8 @@ public struct SupplierDetailResponse: Identifiable, Hashable, Sendable, Equatabl
                 latitude: Double = -25.7479, // Example: Pretoria latitude
                 longitude: Double = 28.2293, // Example: Pretoria longitude
                 service_radius: Double = 5.0,
-                category: String = "General Services") {
+                category: String = "General Services",
+                is_creator: Bool = false) {
         self.id = id
         self.business_name = business_name
         self.description = description
@@ -30,6 +32,7 @@ public struct SupplierDetailResponse: Identifiable, Hashable, Sendable, Equatabl
         self.longitude = longitude
         self.service_radius = service_radius
         self.category = category
+        self.is_creator = is_creator
     }
 
     // Explicitly declare Equatable conformance as nonisolated to resolve the compiler error.
@@ -41,7 +44,8 @@ public struct SupplierDetailResponse: Identifiable, Hashable, Sendable, Equatabl
         lhs.latitude == rhs.latitude &&
         lhs.longitude == rhs.longitude &&
         lhs.service_radius == rhs.service_radius &&
-        lhs.category == rhs.category
+        lhs.category == rhs.category &&
+        lhs.is_creator == rhs.is_creator 
     }
 }
 
