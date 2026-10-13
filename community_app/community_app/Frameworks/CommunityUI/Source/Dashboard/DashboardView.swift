@@ -99,19 +99,18 @@ struct DashboardView<T: DashboardViewModelProtocol>: View {
                     }
                 }
             }
-            .onAppear(perform: handleOnAppear)
+            .task {
+                await viewModel.requestLocationAuthorization()
+            }
             .onChange(of: selectedCategory, handleCategoryChange)
+            .onChange(of: viewModel.isSheetPresent, backgroundList)
         }
     }
     
     // MARK: - Private Helper Methods for Actions
     // handleCreateButtonTapped is removed as its logic is now in the Menu items
     
-    private func handleOnAppear() {
-        Task {
-            await viewModel.requestLocationAuthorization()
-        }
-        
+    private func backgroundList() {
         switch selectedCategory {
         case .events:
             viewModel.matchFeed()

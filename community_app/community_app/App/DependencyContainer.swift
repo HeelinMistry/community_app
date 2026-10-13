@@ -22,6 +22,7 @@ final class DependencyContainer {
     private var matchRepository: MatchRepositoryProtocol!
     private var supplierRepository: SupplierRepositoryProtocol!
     private var productRepository: ProductRepositoryProtocol!
+    private var reviewRepository: ReviewRepositoryProtocol!
     
     private var imageCache: ImageCacheProtocol!
     
@@ -51,6 +52,7 @@ final class DependencyContainer {
         self.matchRepository = MatchRepository(networkClient: networkClient)
         self.supplierRepository = SupplierRepository(networkClient: networkClient)
         self.productRepository = ProductRepository(networkClient: networkClient)
+        self.reviewRepository = ReviewRepository(networkClient: networkClient)
         
         self.imageCache = ImageCache(networkClient: networkClient)
     }
@@ -121,8 +123,12 @@ extension DependencyContainer: AuthUseCasesProvider {
     }
 }
 
-extension DependencyContainer: MatchDetailUseCasesProvider, DashboardUseCasesProvider, SupplierUseCasesProvider, ProductUseCasesProvider {
-    
+extension DependencyContainer: MatchDetailUseCasesProvider, 
+                                DashboardUseCasesProvider,
+                               SupplierUseCasesProvider,
+                               ProductUseCasesProvider,
+                               ReviewUseCasesProvider {
+
     var notifications: any NotificationProtocol {
         _notificationService
     }
@@ -141,6 +147,10 @@ extension DependencyContainer: MatchDetailUseCasesProvider, DashboardUseCasesPro
     
     var products: any ProductUseCasesProtocol {
         ProductUseCases(product: productRepository, imageCache: imageCache)
+    }
+    
+    var reviews: any ReviewUseCasesProtocol {
+        ReviewUseCases(review: reviewRepository, imageCache: imageCache)
     }
 }
 

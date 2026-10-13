@@ -218,8 +218,9 @@ class Review(Base):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     rating = Column(Integer, nullable=False)  # Expected values: -1 or 1
     comment = Column(String, nullable=True)
-    image_url = Column(String, nullable=False)
-    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    latitude = Column(REAL, nullable=False)
+    longitude = Column(REAL, nullable=False)
+    created_at = Column(DateTime, server_default=func.now(), nullable=False)
 
     # Relationships
     product = relationship("Product", back_populates="reviews")

@@ -51,10 +51,8 @@ public struct ReviewView<T: ReviewViewModelProtocol>: View {
                 }
             }
         }
-        .onAppear {
-            Task {
-                await viewModel.requestLocationAuthorization()
-            }
+        .task {
+            await viewModel.requestLocationAuthorization()
         }
     }
     
@@ -76,14 +74,24 @@ public struct ReviewView<T: ReviewViewModelProtocol>: View {
 private struct StepOneInputsView<T: ReviewViewModelProtocol>: View {
     @ObservedObject var viewModel: T
     @EnvironmentObject private var router: NavigationRouter
-    @State private var searchTask: Task<Void, Never>?
-    
+    @State private var tempCameraImage: UIImage?
+
     var body: some View {
         VStack(spacing: 20) {
+            ProductImageViewer(
+                selectedImages: $viewModel.selectedImages,
+                removeSelectedImage: viewModel.removeSelectedImage,
+                isCreateProduct: true,
+                showCameraPicker: $viewModel.showCameraPicker,
+                showImagePicker: $viewModel.showImagePicker
+            )
+            .padding(.vertical, 8)
+            
             PrimaryTextInput(label: "Comment (Optional)",
-                             placeholder: "You can be honest this is anonymous",
+                             placeholder: "Help your community grow",
                              text: $viewModel.comment
             )
+            
             // Display error message from validationErrors or location feedback
             if let errorMessage = viewModel.validationErrors["location"] {
                 Text(errorMessage)
@@ -104,7 +112,26 @@ private struct StepOneInputsView<T: ReviewViewModelProtocol>: View {
                     .multilineTextAlignment(.center)
                     .padding(.horizontal)
             }
-        } 
+        }
+        .sheet(isPresented: $viewModel.showImagePicker) {
+            ImagePicker(selectedImages: $viewModel.selectedImages, allowsMultipleSelection: true)
+                .onDisappear {
+                    // ViewModel's selectedImages is directly updated by ImagePicker.
+                    // Call handleImageSelection to process (e.g., validate, resize) them.
+                    if !viewModel.selectedImages.isEmpty {
+                        viewModel.handleImageSelection(images: viewModel.selectedImages)
+                    }
+                }
+        }
+        .sheet(isPresented: $viewModel.showCameraPicker) {
+            CameraPicker(selectedImage: $tempCameraImage, sourceType: .camera)
+                .onDisappear {
+                    if let capturedImage = tempCameraImage {
+                        viewModel.handleImageSelection(images: [capturedImage])
+                        tempCameraImage = nil // Clear temporary image after processing
+                    }
+                }
+        }
     }
     
 }
