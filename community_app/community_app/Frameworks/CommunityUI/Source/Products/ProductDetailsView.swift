@@ -169,9 +169,35 @@ public struct ProductDetailsView<T: ProductDetailsViewModelProtocol>: View {
                         // MARK: - Status Indicators
                         VStack(alignment: .leading, spacing: 8) {
                             if product.is_creator {
-                                Label("You are the Creator", systemImage: "star.fill")
+                                Label("Reviews", systemImage: "star.fill")
                                     .font(.body)
                                     .foregroundColor(Assets.theme.primaryAccent)
+                                HStack {
+                                    // Approved (Green Neon)
+                                    HStack {
+                                        SecondaryButton("Accepted (\(product.review_approved.count))") {}
+                                    }
+                                    .padding()
+                                    .cornerRadius(15)
+                                    .background(.green.opacity(0.3))
+
+                                    // Pending (Yellow Neon)
+                                    HStack {
+                                        SecondaryButton("Pending (\(product.review_pending.count))") {}
+                                    }
+                                    .padding()
+                                    .cornerRadius(15)
+                                    .background(.yellow.opacity(0.3))
+
+                                    // Rejected (Red Neon)
+                                    HStack {
+                                        SecondaryButton("Rejected (\(product.review_rejected.count))") {}
+                                    }
+                                    .padding()
+                                    .cornerRadius(15)
+                                    .background(.red.opacity(0.3))
+                                }
+                                .frame(maxWidth: .infinity)
                             }
                             
                             Label(product.is_available ? "Available" : "Not Available",

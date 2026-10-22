@@ -10,6 +10,7 @@ import uuid
 from app.core.security import decode_access_token
 from app.db import tables
 from app.db.database import get_db
+from app.db.tables import ReviewState
 
 router = APIRouter(prefix="/api/v1/products", tags=["products"])
 
@@ -144,19 +145,34 @@ async def get_product_detail(
 ):
     """
     Retrieves a single product by its ID, including all related image URLs.
+    Includes categorized review IDs if the requester is the product creator.
     """
     user_id = int(current_user["sub"])
 
     # 1. Query the product by ID
     product = db.query(tables.Product).filter(tables.Product.id == product_id).first()
-
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
 
-    # 2. Extract all related image URLs from the product's images relationship
-    image_urls = [img.image_url for img in product.images]
+    is_creator = product.user_id == user_id
 
-    # 3. Construct and return the full product details response
+    # 2. Initialize categorized lists
+    review_pending, review_approved, review_rejected = [], [], []
+
+    # 3. Populate review arrays in a single efficient pass if user is the creator
+    if is_creator:
+        for r in product.reviews:
+            # Handle both string or Enum database storage seamlessly
+            state = r.state.value if hasattr(r.state, "value") else str(r.state).lower()
+
+            if state == ReviewState.PENDING:
+                review_pending.append(r.id)
+            elif state == ReviewState.ACCEPTED:
+                review_approved.append(r.id)
+            elif state == ReviewState.REJECTED:
+                review_rejected.append(r.id)
+
+    # 4. Return clean, structured payload
     return {
         "id": product.id,
         "title": product.title,
@@ -166,7 +182,10 @@ async def get_product_detail(
         "latitude": product.latitude,
         "longitude": product.longitude,
         "service_radius": product.service_radius,
-        "is_creator": product.user_id == user_id,
+        "is_creator": is_creator,
         "is_available": product.is_available,
-        "image_urls": image_urls  # Full list of images linked to this product
+        "image_urls": [img.image_url for img in product.images],
+        "review_pending": review_pending,
+        "review_approved": review_approved,
+        "review_rejected": review_rejected,
     }
