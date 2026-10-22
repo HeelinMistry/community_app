@@ -6,10 +6,12 @@ database tables, including users, passkeys, matches, and match players.
 """
 
 from sqlalchemy import Column, String, Integer, ForeignKey, Boolean, DateTime, Double, REAL, Index, JSON
+from sqlalchemy import Enum as SQLEnum
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.db.database import Base
 
+import enum
 import uuid
 
 class User(Base):
@@ -179,16 +181,15 @@ class Product(Base):
     is_available = Column(Boolean, default=True)
 
     owner = relationship("User", back_populates="products")
-    images = relationship("ProductImage", back_populates="product", cascade="all, delete-orphan")
+    images = relationship("Images", back_populates="product", cascade="all, delete-orphan")
     reviews = relationship("Review", back_populates="product", cascade="all, delete-orphan")
 
     __table_args__ = (
         Index('idx_product_location', 'latitude', 'longitude'),
     )
 
-
-class ProductImage(Base):
-    __tablename__ = "product_images"
+class Images(Base):
+    __tablename__ = "images"
 
     id = Column(String, primary_key=True, default=lambda: f"img_{uuid.uuid4().hex[:8]}")
     product_id = Column(String, ForeignKey("products.id", ondelete="CASCADE"), nullable=False)
@@ -197,6 +198,10 @@ class ProductImage(Base):
     # Optional: Relationship back to the product
     product = relationship("Product", back_populates="images")
 
+class ReviewState(str, enum.Enum):
+    PENDING = "pending"
+    ACCEPTED = "accepted"
+    REJECTED = "rejected"
 
 class Review(Base):
     """
@@ -220,6 +225,14 @@ class Review(Base):
     comment = Column(String, nullable=True)
     latitude = Column(REAL, nullable=False)
     longitude = Column(REAL, nullable=False)
+
+    state = Column(
+        SQLEnum(ReviewState),
+        nullable=False,
+        default=ReviewState.PENDING,
+        server_default=ReviewState.PENDING.value
+    )
+
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
 
     # Relationships

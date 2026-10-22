@@ -9,10 +9,10 @@ import UIKit
 
 public protocol ReviewRepositoryProtocol: Sendable {
 
-    func createReview(_ req: CreateReviewRequest) async throws -> CreateReviewResponse
+    func createReview(_ req: CreateReviewRequest, images: [UIImage]) async throws -> CreateReviewResponse
 }
 
 public protocol ReviewUseCasesProtocol: Sendable {
     
-    func createProductReview(_ req: CreateReviewRequest) async throws -> CreateReviewResponse
+    func createProductReview(_ req: CreateReviewRequest, images: [UIImage]) async throws -> CreateReviewResponse
 }

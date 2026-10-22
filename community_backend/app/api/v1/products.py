@@ -121,7 +121,7 @@ async def upload_product_images(
             image_url = f"{file_name}"
 
             # Create database record for the image
-            new_image = tables.ProductImage(
+            new_image = tables.Images(
                 product_id=product_id,
                 image_url=image_url
             )

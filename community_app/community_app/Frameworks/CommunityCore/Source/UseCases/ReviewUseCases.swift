@@ -17,9 +17,9 @@ public final class ReviewUseCases: ReviewUseCasesProtocol {
         self.imageCache = imageCache
     }
     
-    public func createProductReview(_ req: CreateReviewRequest) async throws -> CreateReviewResponse {
+    public func createProductReview(_ req: CreateReviewRequest, images: [UIImage]) async throws -> CreateReviewResponse {
         do {
-            let reviewResponse = try await review.createReview(req)
+            let reviewResponse = try await review.createReview(req, images: images)
             return reviewResponse
         } catch {
             throw error

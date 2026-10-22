@@ -61,13 +61,13 @@ async def upload_review_images(
         user: dict = Depends(decode_access_token),
         db: Session = Depends(get_db)
 ):
-    # 1. Verify product exists and belongs to the user
-    product = db.query(tables.Product).filter(tables.Product.id == review_id).first()
-    if not product:
-        raise HTTPException(status_code=404, detail="Product not found")
+    # 1. Verify review exists and belongs to the user
+    review = db.query(tables.Review).filter(tables.Review.id == review_id).first()
+    if not review:
+        raise HTTPException(status_code=404, detail="Review not found")
 
     user_id = int(user["sub"])
-    if product.user_id != user_id:
+    if review.user_id != user_id:
         raise HTTPException(status_code=403, detail="Not authorized to modify this product")
 
     uploaded_urls = []
@@ -85,7 +85,7 @@ async def upload_review_images(
             image_url = f"{file_name}"
 
             # Create database record for the image
-            new_image = tables.ProductImage(
+            new_image = tables.Images(
                 product_id=review_id,
                 image_url=image_url
             )

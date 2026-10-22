@@ -121,7 +121,7 @@ public final class ReviewViewModel: ReviewViewModelProtocol {
                     latitude: lastKnownLocation?.coordinate.latitude ?? 0,
                     longitude: lastKnownLocation?.coordinate.longitude ?? 0
                 )
-                let response: CreateReviewResponse = try await useCases.reviews.createProductReview(request)
+                let response: CreateReviewResponse = try await useCases.reviews.createProductReview(request, images: selectedImages)
 //                _ = try await useCases.products.link(productId: response.product_id, images: selectedImages)
                 if !Task.isCancelled {
                     self.state = .success(response)

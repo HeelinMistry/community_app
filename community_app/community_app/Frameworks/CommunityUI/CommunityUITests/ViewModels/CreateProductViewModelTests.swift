@@ -196,7 +196,7 @@ final class CreateProductViewModelTests: XCTestCase {
         let expectedResponse = AdvertiseProductResponse(product_id: "product_123")
         mockProvider.mockProductUseCases.createProductResult = .success(expectedResponse)
         mockProvider.mockProductUseCases.productImagesResult = .success(
-            ProductImagesResponse(images: [])
+            ImagesResponse(images: [])
         )
         sut.title = "Fresh Produce"
         sut.description = "Locally grown seasonal vegetables."

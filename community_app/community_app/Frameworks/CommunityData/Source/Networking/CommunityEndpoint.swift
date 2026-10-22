@@ -48,7 +48,8 @@ enum CommunityEndpoint: APIEndpoint {
     case product(_ productRequest: DetailRequest)
     case products(_ productRequest: LocationRequest)
     case advertise(_ productRequest: AdvertiseProductRequest)
-    case uploadImages(_ productImagesRequest: ProductImagesRequest)
+    
+    case uploadImages(_ imagesRequest: ImagesRequest)
     
     case createReview(_ reviewRequest: CreateReviewRequest)
     
@@ -91,7 +92,7 @@ enum CommunityEndpoint: APIEndpoint {
         case .advertise: return "api/v1/products/create"
         case .products: return "api/v1/products"
         case .product(let request): return "api/v1/products/\(request.id)"
-        case .uploadImages(let request): return "api/v1/products/\(request.productId)/upload-images"
+        case .uploadImages(let request): return "api/v1/\(request.category.rawValue)/\(request.requestId)/upload-images"
         case .createReview: return "api/v1/reviews/product"
         }
     }
