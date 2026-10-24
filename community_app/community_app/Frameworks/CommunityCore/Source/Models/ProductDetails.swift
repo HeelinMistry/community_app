@@ -19,6 +19,9 @@ public struct ProductDetailResponse: Codable, Identifiable, Hashable, Sendable, 
     public let is_creator: Bool
     public let is_available: Bool
     public let image_urls: [String]
+    public let review_pending: [String]
+    public let review_approved: [String]
+    public let review_rejected: [String]
 
     public init(
         id: String = UUID().uuidString,
@@ -31,7 +34,10 @@ public struct ProductDetailResponse: Codable, Identifiable, Hashable, Sendable, 
         service_radius: Double = 5.0,
         is_creator: Bool = false,
         is_available: Bool = true,
-        image_urls: [String] = ["/static/uploads/p_8a6106e1.jpg"]
+        image_urls: [String] = ["/static/uploads/p_8a6106e1.jpg"],
+        review_pending: [String] = ["rv_95f94a62"],
+        review_approved: [String] = ["rv_95f94a62"],
+        review_rejected: [String] = ["rv_95f94a62"]
     ) {
         self.id = id
         self.title = title
@@ -44,6 +50,9 @@ public struct ProductDetailResponse: Codable, Identifiable, Hashable, Sendable, 
         self.is_creator = is_creator
         self.is_available = is_available
         self.image_urls = image_urls
+        self.review_pending = review_pending
+        self.review_approved = review_approved
+        self.review_rejected = review_rejected
     }
 
     public nonisolated init(from decoder: Decoder) throws {
@@ -59,6 +68,9 @@ public struct ProductDetailResponse: Codable, Identifiable, Hashable, Sendable, 
         is_creator = try container.decode(Bool.self, forKey: .is_creator)
         is_available = try container.decode(Bool.self, forKey: .is_available)
         image_urls = try container.decode([String].self, forKey: .image_urls)
+        review_pending = try container.decode([String].self, forKey: .review_pending)
+        review_approved = try container.decode([String].self, forKey: .review_approved)
+        review_rejected = try container.decode([String].self, forKey: .review_rejected)
     }
 
     public nonisolated func encode(to encoder: Encoder) throws {
@@ -74,6 +86,9 @@ public struct ProductDetailResponse: Codable, Identifiable, Hashable, Sendable, 
         try container.encode(is_creator, forKey: .is_creator)
         try container.encode(is_available, forKey: .is_available)
         try container.encode(image_urls, forKey: .image_urls)
+        try container.encode(review_pending, forKey: .review_pending)
+        try container.encode(review_approved, forKey: .review_approved)
+        try container.encode(review_rejected, forKey: .review_rejected)
     }
 
     nonisolated public static func == (lhs: ProductDetailResponse, rhs: ProductDetailResponse) -> Bool {
@@ -87,7 +102,10 @@ public struct ProductDetailResponse: Codable, Identifiable, Hashable, Sendable, 
             lhs.service_radius == rhs.service_radius &&
             lhs.is_creator == rhs.is_creator &&
             lhs.is_available == rhs.is_available &&
-            lhs.image_urls == rhs.image_urls
+            lhs.image_urls == rhs.image_urls &&
+            lhs.review_pending == rhs.review_pending &&
+            lhs.review_approved == rhs.review_approved &&
+            lhs.review_rejected == rhs.review_rejected 
     }
 
     private enum CodingKeys: String, CodingKey {
@@ -102,5 +120,8 @@ public struct ProductDetailResponse: Codable, Identifiable, Hashable, Sendable, 
         case is_creator
         case is_available
         case image_urls
+        case review_pending
+        case review_approved
+        case review_rejected
     }
 }

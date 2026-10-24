@@ -16,11 +16,12 @@ public enum Destination: Hashable {
     case productDetail(product_id: String) 
 }
 
-public enum SheetDestination: Identifiable {
+public enum SheetDestination: Identifiable, Equatable {
     case registration
     case createMatch
     case createSupplier
     case advertiseProduct
+    case reviewProduct(_ id: String)
     
     public var id: String { String(describing: self) }
 }

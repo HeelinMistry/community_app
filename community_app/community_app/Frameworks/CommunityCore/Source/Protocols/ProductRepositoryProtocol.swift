@@ -13,7 +13,7 @@ public protocol ProductRepositoryProtocol: Sendable {
     func create(_ product: AdvertiseProductRequest) async throws -> AdvertiseProductResponse
     func nearbyProducts(_ productRequest: LocationRequest) async throws -> Products
     func productDetails(_ productRequest: DetailRequest) async throws -> ProductDetailResponse
-    func upload(productId: String, images: [UIImage]) async throws -> ProductImagesResponse
+    func upload(productId: String, images: [UIImage]) async throws -> ImagesResponse
     func image(url: String) async throws -> URL
 }
 
@@ -22,6 +22,6 @@ public protocol ProductUseCasesProtocol: Sendable {
     func advertise(_ item: AdvertiseProductRequest) async throws -> AdvertiseProductResponse
     func userNearbyProducts(_ productRequest: LocationRequest) async throws -> Products
     func selectedProduct(_ productRequest: DetailRequest) async throws -> ProductDetailResponse
-    func link(productId: String, images: [UIImage]) async throws -> ProductImagesResponse
+    func link(productId: String, images: [UIImage]) async throws -> ImagesResponse
     func imageDownloadable(url: String) async throws -> URL
 }

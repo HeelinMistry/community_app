@@ -48,7 +48,10 @@ enum CommunityEndpoint: APIEndpoint {
     case product(_ productRequest: DetailRequest)
     case products(_ productRequest: LocationRequest)
     case advertise(_ productRequest: AdvertiseProductRequest)
-    case uploadImages(_ productImagesRequest: ProductImagesRequest)
+    
+    case uploadImages(_ imagesRequest: ImagesRequest)
+    
+    case createReview(_ reviewRequest: CreateReviewRequest)
     
     /// The HTTP method for all OpenWeatherMap endpoints, which is GET.
     var method: HTTPMethod {
@@ -67,7 +70,8 @@ enum CommunityEndpoint: APIEndpoint {
                 .toggleCancel,
                 .createSupplier,
                 .advertise,
-                .uploadImages:
+                .uploadImages,
+                .createReview:
             return .post
         }
     }
@@ -88,7 +92,8 @@ enum CommunityEndpoint: APIEndpoint {
         case .advertise: return "api/v1/products/create"
         case .products: return "api/v1/products"
         case .product(let request): return "api/v1/products/\(request.id)"
-        case .uploadImages(let request): return "api/v1/products/\(request.productId)/upload-images"
+        case .uploadImages(let request): return "api/v1/\(request.category.rawValue)/\(request.requestId)/upload-images"
+        case .createReview: return "api/v1/reviews/product"
         }
     }
     
@@ -106,7 +111,8 @@ enum CommunityEndpoint: APIEndpoint {
                 .advertise,
                 .supplier,
                 .product,
-                .uploadImages:
+                .uploadImages, 
+                .createReview:
             return []
         case .suppliers(let request), .products(let request):
             let coordinates = request.convertCoordinateToReal
@@ -128,6 +134,8 @@ enum CommunityEndpoint: APIEndpoint {
         case .createMatch(let req):
             return req
         case .createSupplier(let req):
+            return req
+        case .createReview(let req):
             return req
         case .advertise(let req):
             return req

@@ -24,6 +24,7 @@ public protocol ViewFactory: Sendable {
     @MainActor func makeDetailSupplierView(_ supplier_id: String) -> AnyView
     @MainActor func makeCreateProductView() -> AnyView
     @MainActor func makeDetailProductView(_ product_id: String) -> AnyView
+    @MainActor func makeReviewView(_ id: String) -> AnyView
 }
 
 private struct ViewFactoryKey: EnvironmentKey {
@@ -51,5 +52,6 @@ private struct DefaultViewFactory: ViewFactory {
     func makeDetailSupplierView(_ supplier_id: String) -> AnyView { AnyView(Text("Factory Missing")) }
     func makeCreateProductView() -> AnyView { AnyView(Text("Factory Missing")) }
     func makeDetailProductView(_ product_id: String) -> AnyView { AnyView(Text("Factory Missing")) }
+    func makeReviewView(_ id: String) -> AnyView { AnyView(Text("Factory Missing")) }
 
 }

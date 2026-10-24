@@ -74,12 +74,12 @@ public final class ProductRepository: ProductRepositoryProtocol {
         }
     }
     
-    public func upload(productId: String, images: [UIImage]) async throws -> ProductImagesResponse {
-        let imageRequest = ProductImagesRequest(productId: productId, images: [])
+    public func upload(productId: String, images: [UIImage]) async throws -> ImagesResponse {
+        let imageRequest = ImagesRequest(requestId: productId, category: .products)
         
         do {
             // Calls the newly created multipart upload helper method on your network client actor
-            let response: ProductImagesResponse = try await networkClient.upload(
+            let response: ImagesResponse = try await networkClient.upload(
                 to: CommunityEndpoint.uploadImages(imageRequest),
                 images: images,
                 fileParameterName: "files" 
