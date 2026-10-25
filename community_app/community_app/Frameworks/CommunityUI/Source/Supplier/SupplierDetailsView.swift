@@ -83,7 +83,9 @@ private struct SupplierDetailsSuccessContentView<T: SupplierDetailsViewModelProt
                 }
             }
 
-            SupplierDetailRow(label: "Service Radius", value: "\(Int(supplier.service_radius)) km", systemImage: "point.3.connected.trianglepath.dotted")
+            if supplier.is_creator {
+                SupplierDetailRow(label: "Service Radius", value: "\(Int(supplier.service_radius)) km", systemImage: "point.3.connected.trianglepath.dotted")
+            }
 
             Divider()
 
@@ -97,9 +99,11 @@ private struct SupplierDetailsSuccessContentView<T: SupplierDetailsViewModelProt
                     let supplierCoordinate = CLLocationCoordinate2D(latitude: supplier.latitude, longitude: supplier.longitude)
                     Map(position: $mapCameraPosition) {
                         Marker(supplier.business_name, coordinate: supplierCoordinate)
-                        MapCircle(center: supplierCoordinate, radius: supplier.service_radius * 1000.0) // service_radius is in KM
-                            .stroke(Assets.theme.primaryAccent, lineWidth: 2)
-                            .foregroundStyle(Assets.theme.primaryAccent.opacity(0.1))
+                        if supplier.is_creator {
+                            MapCircle(center: supplierCoordinate, radius: supplier.service_radius * 1000.0) // service_radius is in KM
+                                .stroke(Assets.theme.primaryAccent, lineWidth: 2)
+                                .foregroundStyle(Assets.theme.primaryAccent.opacity(0.1))
+                        }
                     }
                     .frame(height: 200)
                     .cornerRadius(12)

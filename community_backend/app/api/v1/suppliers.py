@@ -89,10 +89,15 @@ async def create_supplier(
 
 
 @router.get("/{supplier_id}")
-async def get_supplier_details(supplier_id: str, db: Session = Depends(get_db)):
+async def get_supplier_details(
+        supplier_id: str,
+        db: Session = Depends(get_db),
+        current_user: dict = Depends(decode_access_token)
+):
     supplier = db.query(tables.Supplier).filter(tables.Supplier.id == supplier_id).first()
     if not supplier:
         raise HTTPException(status_code=404, detail="Supplier not found")
+    user_id = int(current_user["sub"])
 
     return {
         "id": supplier.id,
@@ -100,6 +105,7 @@ async def get_supplier_details(supplier_id: str, db: Session = Depends(get_db)):
         "description": supplier.description,
         "latitude": supplier.latitude,
         "longitude": supplier.longitude,
+        "is_creator": supplier.user_id == user_id,
         "service_radius": supplier.service_radius,
         "category": supplier.category
     }

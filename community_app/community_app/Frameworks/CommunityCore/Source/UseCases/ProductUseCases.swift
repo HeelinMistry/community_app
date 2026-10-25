@@ -34,7 +34,7 @@ public final class ProductUseCases: ProductUseCasesProtocol {
         }
     }
     
-    public func link(productId: String, images: [UIImage]) async throws -> ProductImagesResponse {
+    public func link(productId: String, images: [UIImage]) async throws -> ImagesResponse {
         do {
             let productResponse = try await product.upload(productId: productId, images: images)
             return productResponse

@@ -71,6 +71,8 @@ struct RootNavigationView: View {
             factory.makeCreateSupplierView()
         case .advertiseProduct:
             factory.makeCreateProductView()
+        case .reviewProduct(let id):
+            factory.makeReviewView(id)
         }
     }
 }

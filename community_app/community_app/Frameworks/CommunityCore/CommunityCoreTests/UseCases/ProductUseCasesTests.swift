@@ -81,7 +81,7 @@ final class ProductUseCasesTests: XCTestCase {
 
     func testLink_WhenSuccessful_ReturnsSuccessResponse() async throws {
         let (sut, mockRepository, _) = makeSUT()
-        let expectedResponse = ProductImagesResponse(images: ["product_1.jpg"])
+        let expectedResponse = ImagesResponse(images: ["product_1.jpg"])
         await mockRepository.setUploadResult(.success(expectedResponse))
 
         let response = try await sut.link(productId: "product_1", images: [])

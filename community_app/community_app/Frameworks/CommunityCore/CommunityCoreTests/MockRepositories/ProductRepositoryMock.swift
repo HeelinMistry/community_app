@@ -16,7 +16,7 @@ public actor ProductRepositoryMock: ProductRepositoryProtocol {
     var createResult: Result<AdvertiseProductResponse, Error>?
     var nearbyProductsResult: Result<Products, Error>?
     var productDetailsResult: Result<ProductDetailResponse, Error>?
-    var uploadResult: Result<ProductImagesResponse, Error>?
+    var uploadResult: Result<ImagesResponse, Error>?
 
     func setClassifyResult(_ result: Result<(title: String, tags: [String]), Error>) {
         classifyResult = result
@@ -34,7 +34,7 @@ public actor ProductRepositoryMock: ProductRepositoryProtocol {
         productDetailsResult = result
     }
 
-    func setUploadResult(_ result: Result<ProductImagesResponse, Error>) {
+    func setUploadResult(_ result: Result<ImagesResponse, Error>) {
         uploadResult = result
     }
 
@@ -54,7 +54,7 @@ public actor ProductRepositoryMock: ProductRepositoryProtocol {
         try result(for: productDetailsResult)
     }
 
-    public func upload(productId: String, images: [UIImage]) async throws -> ProductImagesResponse {
+    public func upload(productId: String, images: [UIImage]) async throws -> ImagesResponse {
         try result(for: uploadResult)
     }
 

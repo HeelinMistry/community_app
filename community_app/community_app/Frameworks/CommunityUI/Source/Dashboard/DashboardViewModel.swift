@@ -16,6 +16,7 @@ public protocol DashboardViewModelProtocol: StateDrivenViewModel where DataType 
     
     var lastKnownLocation: CLLocation? { get }
     var isAuthorized: Bool { get }
+    var isSheetPresent: Bool { get }
     
     var dashboardModel: DashboardModel { get }
     
@@ -40,6 +41,8 @@ public final class DashboardViewModel: DashboardViewModelProtocol {
     @Published public private(set) var lastKnownLocation: CLLocation?
     @Published public private(set) var isAuthorized: Bool
     
+    @Published public private(set) var isSheetPresent: Bool
+    
     private let router: NavigationRouter
     private let useCases: any DashboardUseCasesProvider
     private var fetchTask: Task<Void, Never>?
@@ -52,7 +55,14 @@ public final class DashboardViewModel: DashboardViewModelProtocol {
     ) {
         self.useCases = useCases
         self.router = router
+        self.isSheetPresent = (router.sheet == nil)
         self.isAuthorized = useCases.location.authorizationStatus == .authorizedAlways || useCases.location.authorizationStatus == .authorizedWhenInUse
+        
+        router.$sheet
+            .map { $0 != nil }
+            .assign(to: \.isSheetPresent, on: self)
+            .store(in: &cancellables)
+        
         setupObservers()
         matchFeed()
     }
