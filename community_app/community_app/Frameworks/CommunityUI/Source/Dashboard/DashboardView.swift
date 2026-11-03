@@ -36,79 +36,101 @@ enum ServiceTab: String, CaseIterable, Identifiable {
 
 struct DashboardView<T: DashboardViewModelProtocol>: View {
     @StateObject private var viewModel: T
+    @State private var selectedTab: MainTab = .dashboard
     @State private var selectedCategory: FeedCategory = .events
     @State private var selectedEventTab: MatchTab = .upcoming
     @State private var selectedServiceTab: ServiceTab = .list
     @State private var mapCameraPosition: MapCameraPosition = .automatic
+    
+    // Enum to manage top-level bottom bar tabs
+    private enum MainTab {
+        case dashboard
+        case chat
+    }
     
     public init(viewModel: T) {
         _viewModel = StateObject(wrappedValue: viewModel)
     }
     
     var body: some View {
-        NavigationStack {
-            // Main VStack to organize the CategoryPicker and the content area
-            VStack {
-                CategoryPicker(
-                    options: FeedCategory.allCases,
-                    selection: $selectedCategory
-                ) { category in
-                    category.display
+        TabView(selection: $selectedTab) {
+            // MARK: - Tab 1: Dashboard / Feed View
+            NavigationStack {
+                VStack {
+                    CategoryPicker(
+                        options: FeedCategory.allCases,
+                        selection: $selectedCategory
+                    ) { category in
+                        category.display
+                    }
+                    .background(Assets.theme.surfaceBackground)
+                    
+                    VStack(spacing: 16) {
+                        DashboardContent(
+                            viewModel: viewModel,
+                            selectedCategory: $selectedCategory,
+                            selectedEventTab: $selectedEventTab,
+                            selectedServiceTab: $selectedServiceTab,
+                            mapCameraPosition: $mapCameraPosition
+                        )
+                    }
+                    .padding()
+                    .background(Assets.theme.surfaceBackground)
+                    .cornerRadius(15)
+                    Spacer()
                 }
-                .background(Assets.theme.surfaceBackground)
-                
-                VStack(spacing: 16) {
-                    DashboardContent(
-                        viewModel: viewModel,
-                        selectedCategory: $selectedCategory,
-                        selectedEventTab: $selectedEventTab,
-                        selectedServiceTab: $selectedServiceTab,
-                        mapCameraPosition: $mapCameraPosition
-                    )
-                }
-                .padding()
-                .background(Assets.theme.surfaceBackground)
-                .cornerRadius(15)
-                Spacer()
-                
-            }
-            .background(Color.clear.ignoresSafeArea()) // Overall background for the NavigationStack content
-            .navigationTitle("Dashboard")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Menu {
-                        ForEach(FeedCategory.allCases, id: \.self) { category in
-                            Button {
-                                switch category {
-                                case .events:
-                                    selectedCategory = .events
-                                    viewModel.createMatchTapped()
-                                case .services:
-                                    selectedCategory = .services
-                                    viewModel.createSupplierTapped()
-                                case .products:
-                                    selectedCategory = .products
-                                    viewModel.createProductTapped()
+                .background(Color.clear.ignoresSafeArea())
+                .navigationTitle("Dashboard")
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Menu {
+                            ForEach(FeedCategory.allCases, id: \.self) { category in
+                                Button {
+                                    switch category {
+                                    case .events:
+                                        selectedCategory = .events
+                                        viewModel.createMatchTapped()
+                                    case .services:
+                                        selectedCategory = .services
+                                        viewModel.createSupplierTapped()
+                                    case .products:
+                                        selectedCategory = .products
+                                        viewModel.createProductTapped()
+                                    }
+                                } label: {
+                                    Label(category.display.text, systemImage: category.display.icon)
                                 }
-                            } label: {
-                                Label(category.display.text, systemImage: category.display.icon)
                             }
+                        } label: {
+                            Label("Create", systemImage: "plus.circle.fill")
                         }
-                    } label: {
-                        Label("Create", systemImage: "plus.circle.fill")
                     }
                 }
+                .task {
+                    await viewModel.requestLocationAuthorization()
+                }
+                .onChange(of: selectedCategory, handleCategoryChange)
+                .onChange(of: viewModel.isSheetPresent, backgroundList)
             }
-            .task {
-                await viewModel.requestLocationAuthorization()
+            .tabItem {
+                Label("Dashboard", systemImage: "rectangle.grid.2x2.fill")
             }
-            .onChange(of: selectedCategory, handleCategoryChange)
-            .onChange(of: viewModel.isSheetPresent, backgroundList)
+            .tag(MainTab.dashboard)
+            
+            // MARK: - Tab 2: Chat View
+            NavigationStack {
+                // Replace with your actual Chat implementation view (e.g., ChatListView())
+                Text("Chat View Coming Soon")
+                    .navigationTitle("Chats")
+            }
+            .tabItem {
+                Label("Chat", systemImage: "bubble.left.and.bubble.right.fill")
+            }
+            .tag(MainTab.chat)
         }
     }
     
     // MARK: - Private Helper Methods for Actions
-    // handleCreateButtonTapped is removed as its logic is now in the Menu items
     
     private func backgroundList() {
         switch selectedCategory {
@@ -134,9 +156,8 @@ struct DashboardView<T: DashboardViewModelProtocol>: View {
 }
 
 // MARK: - Helper Views for Dashboard Content
-/// A private helper view to encapsulate the main content driven by `viewModel.state`.
 private struct DashboardContent<T: DashboardViewModelProtocol>: View {
-    @ObservedObject var viewModel: T // Use @ObservedObject for child views observing a parent's StateObject
+    @ObservedObject var viewModel: T
     @Binding var selectedCategory: FeedCategory
     @Binding var selectedEventTab: MatchTab
     @Binding var selectedServiceTab: ServiceTab
@@ -148,7 +169,6 @@ private struct DashboardContent<T: DashboardViewModelProtocol>: View {
             ProgressView("Loading \(selectedCategory.rawValue)...")
                 .padding()
         case .success:
-            // Further extract the success state content based on selectedCategory
             DashboardSuccessContent(
                 viewModel: viewModel,
                 selectedCategory: $selectedCategory,
@@ -165,7 +185,6 @@ private struct DashboardContent<T: DashboardViewModelProtocol>: View {
     }
 }
 
-/// A private helper view to encapsulate the content when `viewModel.state` is `.success`.
 private struct DashboardSuccessContent<T: DashboardViewModelProtocol>: View {
     @ObservedObject var viewModel: T
     @Binding var selectedCategory: FeedCategory
