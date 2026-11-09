@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from .db import database, tables
-from .api.v1 import auth, matches, suppliers, products, reviews
+from .api.v1 import auth, matches, suppliers, products, reviews, chat
 
 # Create tables on startup
 tables.Base.metadata.create_all(bind=database.engine)
@@ -29,6 +29,7 @@ app.include_router(matches.router)
 app.include_router(suppliers.router)
 app.include_router(products.router)
 app.include_router(reviews.router)
+app.include_router(chat.router)
 
 @app.get("/")
 def health_check():

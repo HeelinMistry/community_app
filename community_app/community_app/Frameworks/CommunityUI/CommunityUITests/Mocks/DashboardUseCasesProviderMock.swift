@@ -20,6 +20,9 @@ final class DashboardUseCasesProviderMock: DashboardUseCasesProvider, @unchecked
     let mockMatchUseCases = MatchUseCasesMock()
     var matches: any MatchUseCaseProtocol { mockMatchUseCases }
     
+    let mockChatUseCases = ChatUseCasesMock()
+    var chats: any ChatUseCaseProtocol { mockChatUseCases }
+    
     let locationMock = LocationServiceMock()
     var location: any LocationProtocol { locationMock }
 }

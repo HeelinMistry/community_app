@@ -21,6 +21,7 @@ public protocol DashboardViewModelProtocol: StateDrivenViewModel where DataType 
     var dashboardModel: DashboardModel { get }
     
     func requestLocationAuthorization() async
+    func getChats() async
     
     func matchFeed()
     func createMatchTapped()
@@ -43,9 +44,13 @@ public final class DashboardViewModel: DashboardViewModelProtocol {
     
     @Published public private(set) var isSheetPresent: Bool
     
+    @Published var messages: [[String: Any]] = []
+    @Published var isConnected = false
+    
     private let router: NavigationRouter
     private let useCases: any DashboardUseCasesProvider
     private var fetchTask: Task<Void, Never>?
+    private var webSocketTask: URLSessionWebSocketTask?
     
     private var cancellables = Set<AnyCancellable>()
     
@@ -128,6 +133,14 @@ public final class DashboardViewModel: DashboardViewModelProtocol {
     public func requestLocationAuthorization() async {
         do {
             try await useCases.location.requestLocationAuthorization()
+        } catch {
+            state = .error(error.localizedDescription)
+        }
+    }
+    
+    public func getChats() async {
+        do {
+            let response: Chats = try await useCases.chats.userRelatedChats()
         } catch {
             state = .error(error.localizedDescription)
         }

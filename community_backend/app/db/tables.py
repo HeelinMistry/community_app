@@ -5,7 +5,7 @@ This module contains the SQLAlchemy model definitions for the application's
 database tables, including users, passkeys, matches, and match players.
 """
 
-from sqlalchemy import Column, String, Integer, ForeignKey, Boolean, DateTime, Double, REAL, Index, JSON
+from sqlalchemy import Column, String, Integer, ForeignKey, Boolean, DateTime, Double, REAL, Index, JSON, Text
 from sqlalchemy import Enum as SQLEnum
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -238,3 +238,22 @@ class Review(Base):
     # Relationships
     product = relationship("Product", back_populates="reviews")
     owner = relationship("User") # The customer who wrote the review
+
+class Message(Base):
+    """
+    Represents messages sent from a user.
+
+    Attributes:
+        id (str): Unique identifier for the review.
+        room_id (str): link between product/service users and users who sent the message.
+        sender_id (int): which user sent the message.
+        content (text): what is being sent.
+        timestamp (datetime): timestamp sent.
+    """
+    __tablename__ = "messages"
+
+    id = Column(String, primary_key=True) # e.g., msg_uuid
+    room_id = Column(String, index=True, nullable=False) # e.g., match_id or chat room hash
+    sender_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    content = Column(Text, nullable=False)
+    timestamp = Column(DateTime, default=lambda: func.now(), index=True)

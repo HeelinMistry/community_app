@@ -123,6 +123,9 @@ struct DashboardView<T: DashboardViewModelProtocol>: View {
                 Text("Chat View Coming Soon")
                     .navigationTitle("Chats")
             }
+            .task {
+                await viewModel.getChats()
+            }
             .tabItem {
                 Label("Chat", systemImage: "bubble.left.and.bubble.right.fill")
             }
