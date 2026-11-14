@@ -139,10 +139,24 @@ public final class DashboardViewModel: DashboardViewModelProtocol {
     }
     
     public func getChats() async {
-        do {
-            let response: Chats = try await useCases.chats.userRelatedChats()
-        } catch {
-            state = .error(error.localizedDescription)
+        if state == .loading {
+            return
+        }
+        
+        fetchTask?.cancel()
+        state = .loading
+        fetchTask = Task {
+            do {
+                let response: Chats = try await useCases.chats.userRelatedChats()
+                if !Task.isCancelled {
+                    dashboardModel.update(chats: response)
+                    state = .success(dashboardModel)
+                }
+            } catch {
+                if !Task.isCancelled {
+                    self.state = .error(error.localizedDescription)
+                }
+            }
         }
     }
     

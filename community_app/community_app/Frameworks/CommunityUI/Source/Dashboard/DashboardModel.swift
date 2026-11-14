@@ -12,15 +12,18 @@ public nonisolated struct DashboardModel: Sendable, Equatable, Encodable, Decoda
     private var matches: Matches = []
     public var suppliers: Suppliers = []
     public var products: Products = []
+    public var chats: Chats = []
     
     public mutating func update(
         matches: Matches? = nil,
         suppliers: Suppliers? = nil,
-        products: Products? = nil
+        products: Products? = nil,
+        chats: Chats? = nil
     ) {
         if let matches { self.matches = matches }
         if let suppliers { self.suppliers = suppliers }
         if let products { self.products = products }
+        if let chats { self.chats = chats }
     }
     
     // MARK: - Match Filtering

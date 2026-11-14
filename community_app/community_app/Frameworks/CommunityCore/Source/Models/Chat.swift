@@ -10,7 +10,7 @@ import Foundation
 /// A type alias for an array of `ChatResponse` objects.
 public typealias Chats = [ChatResponse]
 
-public nonisolated struct ChatResponse: Sendable, Equatable, Encodable, Decodable {
+public nonisolated struct ChatResponse: Sendable, Equatable, Encodable, Decodable, Hashable {
     public let roomId: String
     public let title: String?
     public let lastContent: String?

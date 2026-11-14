@@ -119,8 +119,7 @@ struct DashboardView<T: DashboardViewModelProtocol>: View {
             
             // MARK: - Tab 2: Chat View
             NavigationStack {
-                // Replace with your actual Chat implementation view (e.g., ChatListView())
-                Text("Chat View Coming Soon")
+                ChatFeedView(viewModel: viewModel)
                     .navigationTitle("Chats")
             }
             .task {
