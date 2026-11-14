@@ -57,6 +57,7 @@ struct RootNavigationView: View {
         case .matchDetail(let match_id): factory.makeDetailMatchView(match_id)
         case .supplierDetail(let supplier_id): factory.makeDetailSupplierView(supplier_id)
         case .productDetail(let product_id): factory.makeDetailProductView(product_id)
+        case .chatDetail(let room_id): factory.makeDetailChatView(room_id)
         }
     }
     

@@ -113,6 +113,11 @@ final class DependencyContainer {
     public func makeReviewViewModel(_ id: String) -> ReviewViewModel {
         return ReviewViewModel(useCases: self, router: router, id: id)
     }
+    
+    /// Creates and returns a `ChatDetailsViewModel`.
+    public func makeDetailChatViewModel(_ room_id: String) -> ChatDetailsViewModel {
+        return ChatDetailsViewModel(useCases: self, router: router, room_id: room_id)
+    }
 }
 
 extension DependencyContainer: AuthUseCasesProvider {
@@ -129,7 +134,8 @@ extension DependencyContainer: MatchDetailUseCasesProvider,
                                 DashboardUseCasesProvider,
                                SupplierUseCasesProvider,
                                ProductUseCasesProvider,
-                               ReviewUseCasesProvider {
+                               ReviewUseCasesProvider,
+                               ChatDetailUseCasesProvider {
 
     var notifications: any NotificationProtocol {
         _notificationService
@@ -221,4 +227,9 @@ extension DependencyContainer: ViewFactory {
         return AnyView(ReviewView(viewModel: viewModel))
     }
     
+    @MainActor
+    public func makeDetailChatView(_ room_id: String) -> AnyView {
+        let viewModel = makeDetailChatViewModel(room_id)
+        return AnyView(ChatDetailsView(viewModel: viewModel))
+    }
 }

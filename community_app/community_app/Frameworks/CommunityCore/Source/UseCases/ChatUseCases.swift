@@ -21,4 +21,24 @@ public final class ChatUseCases: ChatUseCaseProtocol {
             throw error
         }
     }
+    
+    public func connect(request: ChatDetailRequest) async throws {
+        do {
+            return try await chat.connectWebSocket(request: request)
+        } catch {
+            throw error
+        }
+    }
+    
+    public func send(content: String) async throws {
+        do {
+            return try await chat.sendMessage(content: content)
+        } catch {
+            throw error
+        }
+    }
+    
+//    public func listenForMessages() {
+//        chat.listenForMessages()
+//    }
 }

@@ -143,4 +143,41 @@ public actor CommunityNetworkClient {
         }
         return URL(string: path)!
     }
+    
+    /// Establishes and returns a WebSocket task for a specific chat room ID.
+    /// - Parameter roomId: The room identifier for the chat.
+    /// - Returns: A configured and resumed `URLSessionWebSocketTask`.
+    public func connectWebSocket(for endpoint: APIEndpoint) async throws -> URLSessionWebSocketTask {
+        guard let websocketURL = networkConfig.websocketURL else {
+            logger.logError(NetworkError.invalidURL, for: endpoint.path)
+            throw NetworkError.invalidURL
+        }
+        
+        guard var request = endpoint.createRequest(relativeTo: websocketURL),
+              let originalURL = request.url else {
+            logger.logError(NetworkError.invalidURL, for: endpoint.path)
+            throw NetworkError.invalidURL
+        }        
+        
+        var finalURL = originalURL
+        if let token = await AuthSessionManager.shared.getToken(),
+           let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) {
+            
+            var components = URLComponents(url: originalURL, resolvingAgainstBaseURL: true)
+            var queryItems = components?.queryItems ?? []
+            queryItems.append(URLQueryItem(name: "token", value: encodedToken))
+            components?.queryItems = queryItems
+            
+            if let urlWithQuery = components?.url {
+                finalURL = urlWithQuery
+            }
+        }
+        
+        request.url = finalURL
+        logger.logRequest(request)
+        
+        let webSocketTask = session.webSocketTask(with: request)
+        webSocketTask.resume()
+        return webSocketTask
+    }
 }

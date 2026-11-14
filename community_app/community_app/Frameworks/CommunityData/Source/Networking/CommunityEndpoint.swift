@@ -54,6 +54,7 @@ enum CommunityEndpoint: APIEndpoint {
     case createReview(_ reviewRequest: CreateReviewRequest)
     
     case chats
+    case chatDetail(_ chatDetailRequest: ChatDetailRequest)
     
     /// The HTTP method for all OpenWeatherMap endpoints, which is GET.
     var method: HTTPMethod {
@@ -64,7 +65,8 @@ enum CommunityEndpoint: APIEndpoint {
                 .supplier,
                 .products,
                 .product,
-                .chats:
+                .chats, 
+                .chatDetail:
             return .get
         case .login,
                 .register,
@@ -98,6 +100,7 @@ enum CommunityEndpoint: APIEndpoint {
         case .uploadImages(let request): return "api/v1/\(request.category.rawValue)/\(request.requestId)/upload-images"
         case .createReview: return "api/v1/reviews/product"
         case .chats: return "api/v1/chat"
+        case .chatDetail(let request): return "api/v1/chat/\(request.room_id)"
         }
     }
     
@@ -117,7 +120,8 @@ enum CommunityEndpoint: APIEndpoint {
                 .product,
                 .uploadImages, 
                 .createReview,
-                .chats:
+                .chats,
+                .chatDetail:
             return []
         case .suppliers(let request), .products(let request):
             let coordinates = request.convertCoordinateToReal

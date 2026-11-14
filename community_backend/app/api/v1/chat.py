@@ -136,23 +136,20 @@ async def get_chat_history(
     ]
 
 
-@router.websocket("/ws/{room_id}")
+@router.websocket("/{room_id}")
 async def chat_websocket(
         websocket: WebSocket,
         room_id: str,
         token: str = Query(...)
 ):
-    # Authenticate via token query param
     user_payload = get_user_from_ws_token(token)
     if not user_payload:
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
         return
 
     user_id = int(user_payload["sub"])
-
     await manager.connect(room_id, websocket)
 
-    # Open an independent database session for the socket lifecycle
     db = SessionLocal()
     try:
         while True:

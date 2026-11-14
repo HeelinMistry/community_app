@@ -14,6 +14,7 @@ public enum Destination: Hashable {
     case matchDetail(match_id: String)
     case supplierDetail(supplier_id: String) 
     case productDetail(product_id: String) 
+    case chatDetail(room_id: String) 
 }
 
 public enum SheetDestination: Identifiable, Equatable {
