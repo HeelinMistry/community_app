@@ -11,6 +11,19 @@ import CommunityCore
 
 final class ChatUseCasesMock: ChatUseCaseProtocol, @unchecked Sendable {
     
+    // MARK: - Incoming Messages Stream
+    public let incomingMessages: AsyncStream<ChatMessage>
+    public let messageContinuation: AsyncStream<ChatMessage>.Continuation
+    
+    public init() {
+        var continuation: AsyncStream<ChatMessage>.Continuation!
+        self.incomingMessages = AsyncStream { cont in
+            continuation = cont
+        }
+        self.messageContinuation = continuation
+    }
+    
+    // MARK: - Chats Result
     var chatResult: Result<Chats, Error>?
     func userRelatedChats() async throws -> Chats {
         if let result = chatResult {
@@ -25,9 +38,9 @@ final class ChatUseCasesMock: ChatUseCaseProtocol, @unchecked Sendable {
     // MARK: - Connect
     var connectResult: Result<Void, Error>? = .success(())
     var connectCallCount = 0
-    var lastConnectRequest: CommunityCore.ChatDetailRequest?
+    var lastConnectRequest: ChatDetailRequest?
     
-    func connect(request: CommunityCore.ChatDetailRequest) async throws {
+    func connect(request: ChatDetailRequest) async throws {
         connectCallCount += 1
         lastConnectRequest = request
         
