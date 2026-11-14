@@ -24,12 +24,12 @@ public final class ChatDetailsViewModel: ChatDetailsViewModelProtocol {
     @Published public private(set) var state: ViewState<Chats> = .idle
     @Published public private(set) var messages: [ChatMessage] = []
     @Published public var inputText: String = ""
- 
+    
     private let room_id: String
     private let router: NavigationRouter
     private let useCases: any ChatDetailUseCasesProvider
     private var fetchTask: Task<Void, Never>?
-    private var webSocketTask: URLSessionWebSocketTask?
+    private var listenTask: Task<Void, Never>?
     
     private var cancellables = Set<AnyCancellable>()
     
@@ -56,13 +56,25 @@ public final class ChatDetailsViewModel: ChatDetailsViewModelProtocol {
                 
                 if !Task.isCancelled {
                     self.state = .success(Chats())
-                    // Start listening to incoming WebSocket messages or polling history
-//                    listenForMessages()
+                    startListening()         
                 }
             } catch {
                 if !Task.isCancelled {
                     self.state = .error(error.localizedDescription)
                 }
+            }
+        }
+    }
+    
+    private func startListening() {
+        listenTask?.cancel()
+        listenTask = Task { [weak self] in
+            guard let self = self else { return }
+            // Iterate over the AsyncStream provided by the repository
+            for await chatMsg in self.useCases.chats.incomingMessages {
+                if Task.isCancelled { break }
+                // Appends safely because the class is @MainActor isolated
+                self.messages.append(chatMsg)
             }
         }
     }
@@ -84,6 +96,11 @@ public final class ChatDetailsViewModel: ChatDetailsViewModelProtocol {
                 print("Failed to send message: \(error)")
             }
         }
+    }
+    
+    public func disconnect() {
+        fetchTask?.cancel()
+        listenTask?.cancel()
     }
     
     static var isoDateFormatter: ISO8601DateFormatter {

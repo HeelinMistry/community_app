@@ -8,7 +8,11 @@
 public final class ChatUseCases: ChatUseCaseProtocol {
     
     private let chat: any ChatRepositoryProtocol
-
+    
+    public var incomingMessages: AsyncStream<ChatMessage> {
+        return chat.incomingMessages
+    }
+    
     public init(chat: any ChatRepositoryProtocol) {
         self.chat = chat
     }

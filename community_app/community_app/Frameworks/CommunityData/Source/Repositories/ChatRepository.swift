@@ -13,6 +13,14 @@ public final class ChatRepository: ChatRepositoryProtocol {
     private let networkClient: CommunityNetworkClient
     private var webSocketTask: URLSessionWebSocketTask?
     
+    private var messageContinuation: AsyncStream<ChatMessage>.Continuation?
+    
+    public private(set) lazy var incomingMessages: AsyncStream<ChatMessage> = {
+        AsyncStream { continuation in
+            self.messageContinuation = continuation
+        }
+    }()
+    
     public init(networkClient: CommunityNetworkClient) {
         self.networkClient = networkClient
     }
@@ -52,6 +60,7 @@ public final class ChatRepository: ChatRepositoryProtocol {
     
     private func listenForMessages() {
         webSocketTask?.receive { [weak self] result in
+            guard let self = self else { return }
             Task {
                 switch result {
                 case .success(let message):
@@ -59,18 +68,20 @@ public final class ChatRepository: ChatRepositoryProtocol {
                     case .string(let text):
                         if let data = text.data(using: .utf8),
                            let chatMsg = try? JSONDecoder().decode(ChatMessage.self, from: data) {
-                            print(chatMsg)
+                            // Yield message to the stream
+                            self.messageContinuation?.yield(chatMsg)
                         }
                     case .data(let data):
                         if let chatMsg = try? JSONDecoder().decode(ChatMessage.self, from: data) {
-                            print(chatMsg)
+                            self.messageContinuation?.yield(chatMsg)
                         }
                     @unknown default:
                         break
                     }
-                    self?.listenForMessages()
+                    // Continue listening loop
+                    self.listenForMessages()
                 case .failure(let error):
-                    print("WebSocket receive error: \(error)")
+                    print("WebSocket receive error: \((error as NSError).localizedDescription)")
                 }
             }
         }

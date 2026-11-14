@@ -128,10 +128,10 @@ public struct MessageBubbleView: View {
                     .foregroundColor(isFromCurrentUser ? .white : .primary)
                     .cornerRadius(16)
                 
-                Text(message.timestamp, style: .time)
-                    .font(.caption2)
-                    .foregroundColor(.secondary)
-                    .padding(.horizontal, 4)
+//                Text(message.timestamp, style: .time)
+//                    .font(.caption2)
+//                    .foregroundColor(.secondary)
+//                    .padding(.horizontal, 4)
             }
             .frame(maxWidth: 280, alignment: isFromCurrentUser ? .trailing : .leading)
             

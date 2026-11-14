@@ -92,7 +92,7 @@ public nonisolated struct ChatMessage: Identifiable, Codable, Equatable, Sendabl
     public let messageId: String
     public let senderId: Int
     public let content: String
-    public let timestamp: Date
+    public let timestamp: String
     
     enum CodingKeys: String, CodingKey {
         case messageId = "message_id"
