@@ -10,19 +10,20 @@ import CommunityCore
 import SwiftUI
 
 @MainActor
-public protocol ChatDetailsViewModelProtocol: StateDrivenViewModel where DataType == Chats {
+public protocol ChatDetailsViewModelProtocol: StateDrivenViewModel where DataType == ChatHistory {
     var messages: [ChatMessage] { get }
     var inputText: String { get set }
     
-    func connect()
+    func getHistory()
     func sendMessage()
+    func disconnect()
 }
 
 @MainActor
 public final class ChatDetailsViewModel: ChatDetailsViewModelProtocol {
     
-    @Published public private(set) var state: ViewState<Chats> = .idle
-    @Published public private(set) var messages: [ChatMessage] = []
+    @Published public private(set) var state: ViewState<ChatHistory> = .idle
+    @Published public private(set) var messages: ChatHistory = []
     @Published public var inputText: String = ""
     
     private let room_id: String
@@ -43,9 +44,7 @@ public final class ChatDetailsViewModel: ChatDetailsViewModelProtocol {
         self.room_id = room_id
     }
     
-    public func connect() {
-        if state == .loading { return }
-        
+    private func connect() {
         fetchTask?.cancel()
         state = .loading
         
@@ -55,7 +54,7 @@ public final class ChatDetailsViewModel: ChatDetailsViewModelProtocol {
                 try await useCases.chats.connect(request: .init(room_id))
                 
                 if !Task.isCancelled {
-                    self.state = .success(Chats())
+                    self.state = .success(messages)
                     startListening()         
                 }
             } catch {
@@ -75,6 +74,28 @@ public final class ChatDetailsViewModel: ChatDetailsViewModelProtocol {
                 if Task.isCancelled { break }
                 // Appends safely because the class is @MainActor isolated
                 self.messages.append(chatMsg)
+            }
+        }
+    }
+    
+    public func getHistory() {
+        if state == .loading {
+            return
+        }
+        
+        fetchTask?.cancel()
+        state = .loading
+        fetchTask = Task {
+            do {
+                let response: ChatHistory = try await useCases.chats.getHistory(request: .init(room_id))
+                messages = response
+                if !Task.isCancelled {
+                    connect()
+                }
+            } catch {
+                if !Task.isCancelled {
+                    self.state = .error(error.localizedDescription)
+                }
             }
         }
     }

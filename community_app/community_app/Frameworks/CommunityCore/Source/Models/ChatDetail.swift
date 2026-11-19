@@ -87,6 +87,8 @@ public nonisolated struct ChatDetailResponse: Sendable, Equatable, Encodable, De
     }
 }
 
+public typealias ChatHistory = [ChatMessage]
+
 public nonisolated struct ChatMessage: Identifiable, Codable, Equatable, Sendable {
     public var id: String { messageId }
     public let messageId: String

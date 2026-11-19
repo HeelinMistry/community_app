@@ -31,6 +31,9 @@ public protocol DashboardViewModelProtocol: StateDrivenViewModel where DataType 
     
     func createSupplierTapped()
     func createProductTapped()
+    
+    func productTapped(productID: String)
+    func chatTapped(roomID: String)
 }
 
 @MainActor
@@ -232,4 +235,13 @@ public final class DashboardViewModel: DashboardViewModelProtocol {
     public func createProductTapped() {
         router.sheet = .advertiseProduct
     }
+    
+    public func productTapped(productID: String) {
+        router.navigate(to: .productDetail(product_id: productID))
+    }
+
+    public func chatTapped(roomID: String) {
+        router.navigate(to: .chatDetail(room_id: roomID))
+    }
+
 }

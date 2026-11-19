@@ -34,6 +34,16 @@ public final class ChatRepository: ChatRepositoryProtocol {
         }
     }
     
+    public func getHistory(request: ChatDetailRequest) async throws -> ChatHistory {
+        do {
+            let dto: ChatHistory = try await networkClient.fetch(from: CommunityEndpoint.chatHistory(request))
+            return dto
+        } catch {
+            throw error
+        }
+    }
+    
+    
     public func connectWebSocket(request: ChatDetailRequest) async throws {
         // Clean up any existing task
         webSocketTask?.cancel(with: .normalClosure, reason: nil)

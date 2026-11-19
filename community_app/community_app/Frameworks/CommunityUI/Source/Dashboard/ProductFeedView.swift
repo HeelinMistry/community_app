@@ -18,6 +18,9 @@ public struct ProductFeedView<T: DashboardViewModelProtocol>: View {
             VStack(spacing: 16) {
                 ForEach(viewModel.dashboardModel.products, id: \.id) { product in
                     ProductFeedItemView(product: product)
+                        .onTapGesture {
+                            viewModel.productTapped(productID: product.id)
+                        }
                 }
                 // Add a Spacer to push the list items to the top if they don't fill the available space.
                 Spacer()

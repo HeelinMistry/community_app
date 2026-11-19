@@ -23,7 +23,7 @@ public struct ChatDetailsView<T: ChatDetailsViewModelProtocol & ObservableObject
             switch viewModel.state {
             case .idle:
                 Color.clear
-                    .onAppear { viewModel.connect() }
+                    .onAppear { viewModel.getHistory() }
             case .loading:
                 ProgressView("Connecting to chat...")
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -39,7 +39,7 @@ public struct ChatDetailsView<T: ChatDetailsViewModelProtocol & ObservableObject
                         .foregroundColor(.secondary)
                         .multilineTextAlignment(.center)
                     Button("Retry") {
-                        viewModel.connect()
+                        viewModel.getHistory()
                     }
                     .buttonStyle(.borderedProminent)
                 }
@@ -50,7 +50,7 @@ public struct ChatDetailsView<T: ChatDetailsViewModelProtocol & ObservableObject
         .navigationTitle("Chat Details")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
-            viewModel.connect()
+            viewModel.getHistory()
         }
     }
     

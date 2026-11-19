@@ -26,6 +26,15 @@ public final class ChatUseCases: ChatUseCaseProtocol {
         }
     }
     
+    public func getHistory(request: ChatDetailRequest) async throws -> ChatHistory {
+        do {
+            let chatResponse = try await chat.getHistory(request: request)
+            return (chatResponse)
+        } catch {
+            throw error
+        }
+    }
+    
     public func connect(request: ChatDetailRequest) async throws {
         do {
             return try await chat.connectWebSocket(request: request)

@@ -56,6 +56,9 @@ public struct ChatFeedView<T: DashboardViewModelProtocol>: View {
                                     .font(.body)
                             }
                             .padding(.vertical, 4)
+                            .onTapGesture {
+                                viewModel.chatTapped(roomID: chat.roomId)
+                            }
                         }
                     }
                 }

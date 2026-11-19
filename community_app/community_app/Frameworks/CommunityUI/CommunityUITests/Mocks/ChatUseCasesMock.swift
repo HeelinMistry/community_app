@@ -10,7 +10,7 @@ import CommunityCore
 @testable import CommunityUI
 
 final class ChatUseCasesMock: ChatUseCaseProtocol, @unchecked Sendable {
-    
+
     // MARK: - Incoming Messages Stream
     public let incomingMessages: AsyncStream<ChatMessage>
     public let messageContinuation: AsyncStream<ChatMessage>.Continuation
@@ -34,6 +34,20 @@ final class ChatUseCasesMock: ChatUseCaseProtocol, @unchecked Sendable {
         }
         fatalError("Result not set in ChatUseCaseProtocol")
     }
+    
+    // MARK: - ChatHistory Result
+    var chatHistoryResult: Result<ChatHistory, Error>?
+    func getHistory(request: ChatDetailRequest) async throws -> ChatHistory {
+        if let result = chatHistoryResult {
+            switch result {
+            case .success(let response): return response
+            case .failure(let error): throw error
+            }
+        }
+        fatalError("Result not set in ChatUseCaseProtocol")
+    }
+    
+    
     
     // MARK: - Connect
     var connectResult: Result<Void, Error>? = .success(())
