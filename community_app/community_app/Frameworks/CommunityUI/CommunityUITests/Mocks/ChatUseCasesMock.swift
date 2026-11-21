@@ -12,8 +12,8 @@ import CommunityCore
 final class ChatUseCasesMock: ChatUseCaseProtocol, @unchecked Sendable {
 
     // MARK: - Incoming Messages Stream
-    public let incomingMessages: AsyncStream<ChatMessage>
-    public let messageContinuation: AsyncStream<ChatMessage>.Continuation
+    public var incomingMessages: AsyncStream<ChatMessage>
+    public var messageContinuation: AsyncStream<ChatMessage>.Continuation
     
     public init() {
         var continuation: AsyncStream<ChatMessage>.Continuation!

@@ -105,6 +105,18 @@ public nonisolated struct ChatMessage: Identifiable, Codable, Equatable, Sendabl
     /// ISO or formatted timestamp string for when the message was created.
     public let timestamp: String
     
+    init(messageId: String = "msg-2", 
+         is_mine: Bool = false,
+         sender_name: String = "Test_sender", 
+         content: String = "Awesome product",
+         timestamp: String = "") {
+        self.messageId = messageId
+        self.is_mine = is_mine
+        self.sender_name = sender_name
+        self.content = content
+        self.timestamp = timestamp
+    }
+    
     enum CodingKeys: String, CodingKey {
         case messageId = "message_id"
         case sender_name = "sender_name"
