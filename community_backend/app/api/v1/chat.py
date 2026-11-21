@@ -1,121 +1,92 @@
 import uuid
 from datetime import datetime, timezone
-from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect, Query, status
+
+from fastapi import APIRouter, Depends, HTTPException, Query, WebSocket, WebSocketDisconnect, status
 from sqlalchemy.orm import Session
-from app.db import tables
-from app.db.database import get_db, SessionLocal
 from app.core.security import decode_access_token
+from app.db import tables
+from app.db.database import SessionLocal, get_db
+from app.services.chat_rooms import (
+    get_participant,
+    get_room_summary,
+    require_room_participant,
+    resolve_or_create_room_for_target,
+)
 from app.websockets.manager import manager
 
 router = APIRouter(prefix="/api/v1/chat", tags=["chat"])
 
+
+def _format_message(message: tables.Message, viewer_user_id: int) -> dict:
+    ts = message.timestamp
+    if ts is not None and ts.tzinfo is None:
+        ts = ts.replace(tzinfo=timezone.utc)
+    elif ts is not None:
+        ts = ts.astimezone(timezone.utc)
+
+    return {
+        "message_id": message.id,
+        "room_id": message.room_id,
+        "is_mine": message.sender_id == viewer_user_id,
+        "sender_name": message.sender.display_name if message.sender and message.sender.display_name else "Member",
+        "content": message.content,
+        "timestamp": ts.isoformat() if ts else None,
+    }
+
+
 @router.get("")
 async def get_chats(
-        current_user: dict = Depends(decode_access_token),
-        db: Session = Depends(get_db)
+    current_user: dict = Depends(decode_access_token),
+    db: Session = Depends(get_db),
 ):
     user_id = int(current_user["sub"])
 
-    # 1. Find all product IDs and supplier IDs where:
-    #    - The user owns the product/supplier, OR
-    #    - There is a message in the room where sender_id == user_id
-    owned_products = (
-        db.query(tables.Product.id)
-        .filter(tables.Product.user_id == user_id)
-        .all()
-    )
-    owned_suppliers = (
-        db.query(tables.Supplier.id)
-        .filter(tables.Supplier.user_id == user_id)
+    rooms = (
+        db.query(tables.ChatRoom)
+        .join(tables.ChatParticipant, tables.ChatParticipant.room_id == tables.ChatRoom.id)
+        .filter(tables.ChatParticipant.user_id == user_id)
         .all()
     )
 
-    messaged_rooms = (
-        db.query(tables.Message.room_id)
-        .filter(tables.Message.sender_id == user_id)
-        .distinct()
-        .all()
-    )
-
-    # Combine all relevant room IDs (product or service IDs) uniquely
-    active_room_ids = set(
-        [p.id for p in owned_products]
-        + [s.id for s in owned_suppliers]
-        + [m.room_id for m in messaged_rooms]
-    )
-
-    if not active_room_ids:
-        return {"user_chats": []}
+    if not rooms:
+        return []
 
     user_chats = []
+    for room in rooms:
+        summary = get_room_summary(db=db, room=room, current_user_id=user_id)
+        if summary is not None:
+            user_chats.append(summary)
 
-    for room_id in active_room_ids:
-        # Fetch the latest message for this room
-        latest_message = (
-            db.query(tables.Message)
-            .filter(tables.Message.room_id == room_id)
-            .order_by(tables.Message.timestamp.desc())
-            .first()
-        )
-
-        if latest_message is None:
-            break
-
-        # Optional: fetch details about the product or supplier for context
-        item_title = None
-        product = (
-            db.query(tables.Product)
-            .filter(tables.Product.id == room_id)
-            .first()
-        )
-        if product:
-            item_title = product.title
-        else:
-            supplier = (
-                db.query(tables.Supplier)
-                .filter(tables.Supplier.id == room_id)
-                .first()
-            )
-            if supplier:
-                item_title = supplier.business_name
-
-        user_chats.append(
-            {
-                "room_id": room_id,
-                "title": item_title,
-                "last_content": latest_message.content if latest_message else None,
-                "timestamp": (
-                    latest_message.timestamp.replace(tzinfo=timezone.utc).isoformat()
-                    if latest_message and latest_message.timestamp
-                    else None
-                ),
-            }
-        )
-
-    # Sort chats by latest message timestamp descending (most recent first)
-    user_chats.sort(
-        key=lambda x: x["timestamp"] if x["timestamp"] else "", reverse=True
-    )
-
+    user_chats.sort(key=lambda item: item["timestamp"] or "", reverse=True)
     return user_chats
 
-# Helper to decode token from WS query param since headers can be restrictive in iOS URLSession
-def get_user_from_ws_token(token: str = Query(...)) -> dict:
+
+def _decode_ws_user_id(token: str) -> int | None:
     try:
         payload = decode_access_token(token)
-        return payload
+        return int(payload["sub"])
     except Exception:
         return None
 
 
 @router.get("/{room_id}/history")
 async def get_chat_history(
-        room_id: str,
-        limit: int = 50,
-        current_user: dict = Depends(decode_access_token),
-        db: Session = Depends(get_db)
+    room_id: str,
+    limit: int = Query(50, ge=1, le=200),
+    current_user: dict = Depends(decode_access_token),
+    db: Session = Depends(get_db),
 ):
-    """Fetch paginated chat history for a room."""
+    user_id = int(current_user["sub"])
+
+    if not get_participant(db=db, room_id=room_id, user_id=user_id):
+        resolved_room = resolve_or_create_room_for_target(
+            db=db, target_id=room_id, current_user_id=user_id
+        )
+        if resolved_room is not None:
+            room_id = resolved_room.id
+
+    require_room_participant(db=db, room_id=room_id, user_id=user_id)
+
     messages = (
         db.query(tables.Message)
         .filter(tables.Message.room_id == room_id)
@@ -124,41 +95,53 @@ async def get_chat_history(
         .all()
     )
 
-    # Return chronologically
-    return [
-        {
-            "message_id": m.id,
-            "sender_id": m.sender_id,
-            "content": m.content,
-            "timestamp": m.timestamp.replace(tzinfo=timezone.utc)
-        }
-        for m in messages[::-1]
-    ]
+    if not messages:
+        return []
+
+    return [_format_message(m, viewer_user_id=user_id) for m in reversed(messages)]
 
 
 @router.websocket("/{room_id}")
 async def chat_websocket(
-        websocket: WebSocket,
-        room_id: str,
-        token: str = Query(...)
+    websocket: WebSocket,
+    room_id: str,
+    token: str = Query(...),
 ):
-    user_payload = get_user_from_ws_token(token)
-    if not user_payload:
+    user_id = _decode_ws_user_id(token)
+    if user_id is None:
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
         return
 
-    user_id = int(user_payload["sub"])
-    await manager.connect(room_id, websocket)
-
     db = SessionLocal()
     try:
+        participant = get_participant(db=db, room_id=room_id, user_id=user_id)
+        if not participant:
+            resolved_room = resolve_or_create_room_for_target(
+                db=db, target_id=room_id, current_user_id=user_id
+            )
+            if resolved_room is not None:
+                room_id = resolved_room.id
+                participant = get_participant(db=db, room_id=room_id, user_id=user_id)
+
+        if not participant:
+            await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
+            return
+
+        sender = db.query(tables.User).filter(tables.User.id == user_id).first()
+        sender_name = sender.display_name if sender and sender.display_name else "Member"
+
+        await manager.connect(room_id, websocket, user_id=user_id)
+
         while True:
             data = await websocket.receive_json()
-            content = data.get("content")
+            content = (data.get("content") or "").strip()
             if not content:
                 continue
 
-            # Persist message to SQLite
+            if not get_participant(db=db, room_id=room_id, user_id=user_id):
+                await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
+                break
+
             msg_id = f"msg_{uuid.uuid4().hex[:8]}"
             timestamp = datetime.now(timezone.utc)
 
@@ -167,19 +150,26 @@ async def chat_websocket(
                 room_id=room_id,
                 sender_id=user_id,
                 content=content,
-                timestamp=timestamp
+                timestamp=timestamp,
             )
             db.add(new_message)
             db.commit()
 
-            # Broadcast structured payload to all connected clients in the room
-            outgoing_payload = {
+            base_payload = {
                 "message_id": msg_id,
-                "sender_id": user_id,
+                "room_id": room_id,
+                "sender_name": sender_name,
                 "content": content,
-                "timestamp": timestamp.isoformat()
+                "timestamp": timestamp.isoformat(),
             }
-            await manager.broadcast_to_room(room_id, outgoing_payload)
+
+            await manager.broadcast_to_room_personalized(
+                room_id=room_id,
+                payload_factory=lambda recipient_user_id: {
+                    **base_payload,
+                    "is_mine": recipient_user_id == user_id,
+                },
+            )
 
     except WebSocketDisconnect:
         manager.disconnect(room_id, websocket)

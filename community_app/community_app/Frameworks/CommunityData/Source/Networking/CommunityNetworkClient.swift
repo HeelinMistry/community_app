@@ -148,7 +148,10 @@ public actor CommunityNetworkClient {
     /// - Parameter roomId: The room identifier for the chat.
     /// - Returns: A configured and resumed `URLSessionWebSocketTask`.
     public func connectWebSocket(for endpoint: APIEndpoint) async throws -> URLSessionWebSocketTask {
-        guard let websocketURL = networkConfig.websocketURL else {
+        let websocketURL = await MainActor.run {
+            networkConfig.websocketURL
+        }
+        guard let websocketURL else {
             logger.logError(NetworkError.invalidURL, for: endpoint.path)
             throw NetworkError.invalidURL
         }
@@ -157,7 +160,7 @@ public actor CommunityNetworkClient {
               let originalURL = request.url else {
             logger.logError(NetworkError.invalidURL, for: endpoint.path)
             throw NetworkError.invalidURL
-        }        
+        }
         
         var finalURL = originalURL
         if let token = await AuthSessionManager.shared.getToken(),

@@ -55,63 +55,36 @@ struct DashboardView<T: DashboardViewModelProtocol>: View {
     var body: some View {
         TabView(selection: $selectedTab) {
             // MARK: - Tab 1: Dashboard / Feed View
-            NavigationStack {
-                VStack {
-                    CategoryPicker(
-                        options: FeedCategory.allCases,
-                        selection: $selectedCategory
-                    ) { category in
-                        category.display
-                    }
-                    .background(Assets.theme.surfaceBackground)
-                    
-                    VStack(spacing: 16) {
-                        DashboardContent(
-                            viewModel: viewModel,
-                            selectedCategory: $selectedCategory,
-                            selectedEventTab: $selectedEventTab,
-                            selectedServiceTab: $selectedServiceTab,
-                            mapCameraPosition: $mapCameraPosition
-                        )
-                    }
-                    .padding()
-                    .background(Assets.theme.surfaceBackground)
-                    .cornerRadius(15)
-                    Spacer()
+            VStack {
+                CategoryPicker(
+                    options: FeedCategory.allCases,
+                    selection: $selectedCategory
+                ) { category in
+                    category.display
                 }
-                .background(Color.clear.ignoresSafeArea())
-                .navigationTitle("Dashboard")
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Menu {
-                            ForEach(FeedCategory.allCases, id: \.self) { category in
-                                Button {
-                                    switch category {
-                                    case .events:
-                                        selectedCategory = .events
-                                        viewModel.createMatchTapped()
-                                    case .services:
-                                        selectedCategory = .services
-                                        viewModel.createSupplierTapped()
-                                    case .products:
-                                        selectedCategory = .products
-                                        viewModel.createProductTapped()
-                                    }
-                                } label: {
-                                    Label(category.display.text, systemImage: category.display.icon)
-                                }
-                            }
-                        } label: {
-                            Label("Create", systemImage: "plus.circle.fill")
-                        }
-                    }
+                .background(Assets.theme.surfaceBackground)
+                
+                VStack(spacing: 16) {
+                    DashboardContent(
+                        viewModel: viewModel,
+                        selectedCategory: $selectedCategory,
+                        selectedEventTab: $selectedEventTab,
+                        selectedServiceTab: $selectedServiceTab,
+                        mapCameraPosition: $mapCameraPosition
+                    )
                 }
-                .task {
-                    await viewModel.requestLocationAuthorization()
-                }
-                .onChange(of: selectedCategory, handleCategoryChange)
-                .onChange(of: viewModel.isSheetPresent, backgroundList)
+                .padding()
+                .background(Assets.theme.surfaceBackground)
+                .cornerRadius(15)
+                Spacer()
             }
+            .background(Color.clear.ignoresSafeArea())
+            .task {
+                await viewModel.requestLocationAuthorization()
+            }
+            .onChange(of: selectedCategory, handleCategoryChange)
+            .onChange(of: viewModel.isSheetPresent, backgroundList)
+            
             .tabItem {
                 Label("Dashboard", systemImage: "rectangle.grid.2x2.fill")
             }
@@ -129,6 +102,31 @@ struct DashboardView<T: DashboardViewModelProtocol>: View {
                 Label("Chat", systemImage: "bubble.left.and.bubble.right.fill")
             }
             .tag(MainTab.chat)
+        }
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Menu {
+                    ForEach(FeedCategory.allCases, id: \.self) { category in
+                        Button {
+                            switch category {
+                            case .events:
+                                selectedCategory = .events
+                                viewModel.createMatchTapped()
+                            case .services:
+                                selectedCategory = .services
+                                viewModel.createSupplierTapped()
+                            case .products:
+                                selectedCategory = .products
+                                viewModel.createProductTapped()
+                            }
+                        } label: {
+                            Label(category.display.text, systemImage: category.display.icon)
+                        }
+                    }
+                } label: {
+                    Label("Create", systemImage: "plus.circle.fill")
+                }
+            }
         }
     }
     

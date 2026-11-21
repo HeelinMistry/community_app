@@ -8,50 +8,35 @@
 import Foundation
 import CommunityCore
 
-public final class ChatRepository: ChatRepositoryProtocol {
+public actor ChatRepository: ChatRepositoryProtocol {
     
     private let networkClient: CommunityNetworkClient
     private var webSocketTask: URLSessionWebSocketTask?
-    
     private var messageContinuation: AsyncStream<ChatMessage>.Continuation?
     
-    public private(set) lazy var incomingMessages: AsyncStream<ChatMessage> = {
-        AsyncStream { continuation in
-            self.messageContinuation = continuation
-        }
-    }()
+    public nonisolated let incomingMessages: AsyncStream<ChatMessage>
     
     public init(networkClient: CommunityNetworkClient) {
         self.networkClient = networkClient
+        
+        var capturedContinuation: AsyncStream<ChatMessage>.Continuation?
+        self.incomingMessages = AsyncStream { continuation in
+            capturedContinuation = continuation
+        }
+        self.messageContinuation = capturedContinuation
     }
     
     public func getChats() async throws -> Chats {
-        do {
-            let dto: Chats = try await networkClient.fetch(from: CommunityEndpoint.chats)
-            return dto
-        } catch {
-            throw error
-        }
+        try await networkClient.fetch(from: CommunityEndpoint.chats)
     }
     
     public func getHistory(request: ChatDetailRequest) async throws -> ChatHistory {
-        do {
-            let dto: ChatHistory = try await networkClient.fetch(from: CommunityEndpoint.chatHistory(request))
-            return dto
-        } catch {
-            throw error
-        }
+        try await networkClient.fetch(from: CommunityEndpoint.chatHistory(request))
     }
     
-    
     public func connectWebSocket(request: ChatDetailRequest) async throws {
-        // Clean up any existing task
         webSocketTask?.cancel(with: .normalClosure, reason: nil)
-        
-        // Obtain the fully authenticated websocket task from your network client actor
         webSocketTask = try await networkClient.connectWebSocket(for: CommunityEndpoint.chatDetail(request))
-        
-        // Start listening loop
         listenForMessages()
     }
     
@@ -61,7 +46,7 @@ public final class ChatRepository: ChatRepositoryProtocol {
     }
     
     public func sendMessage(content: String) async throws {
-        let payload: [String: Any] = ["content": content]
+        let payload: [String: String] = ["content": content]
         let data = try JSONSerialization.data(withJSONObject: payload)
         let jsonString = String(data: data, encoding: .utf8) ?? ""
         
@@ -69,31 +54,36 @@ public final class ChatRepository: ChatRepositoryProtocol {
     }
     
     private func listenForMessages() {
-        webSocketTask?.receive { [weak self] result in
-            guard let self = self else { return }
-            Task {
-                switch result {
-                case .success(let message):
-                    switch message {
-                    case .string(let text):
-                        if let data = text.data(using: .utf8),
-                           let chatMsg = try? JSONDecoder().decode(ChatMessage.self, from: data) {
-                            // Yield message to the stream
-                            self.messageContinuation?.yield(chatMsg)
-                        }
-                    case .data(let data):
-                        if let chatMsg = try? JSONDecoder().decode(ChatMessage.self, from: data) {
-                            self.messageContinuation?.yield(chatMsg)
-                        }
-                    @unknown default:
-                        break
-                    }
-                    // Continue listening loop
-                    self.listenForMessages()
-                case .failure(let error):
-                    print("WebSocket receive error: \((error as NSError).localizedDescription)")
-                }
+        guard let task = webSocketTask else { return }
+        
+        task.receive { [weak self] result in
+            Task { [weak self] in
+                guard let self else { return }
+                await self.handleReceiveResult(result)
             }
+        }
+    }
+    
+    private func handleReceiveResult(_ result: Result<URLSessionWebSocketTask.Message, Error>) {
+        switch result {
+        case .success(let message):
+            switch message {
+            case .string(let text):
+                if let data = text.data(using: .utf8),
+                   let chatMsg = try? JSONDecoder().decode(ChatMessage.self, from: data) {
+                    messageContinuation?.yield(chatMsg)
+                }
+            case .data(let data):
+                if let chatMsg = try? JSONDecoder().decode(ChatMessage.self, from: data) {
+                    messageContinuation?.yield(chatMsg)
+                }
+            @unknown default:
+                break
+            }
+            listenForMessages()
+            
+        case .failure(let error):
+            print("WebSocket receive error: \(error.localizedDescription)")
         }
     }
 }

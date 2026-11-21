@@ -14,16 +14,18 @@ from app.db.database import Base
 import enum
 import uuid
 
+
 class User(Base):
     """
     Represents the public-facing profile of a user.
     Only contains non-sensitive information.
 
     Attributes:
-        id (str): Unique identifier for the user.
+        id (int): Unique identifier for the user.
         display_name (str): The user's display name.
         matches_hosted (relationship): Relationship to the matches hosted by the user.
         suppliers (relationship): Relationship to the suppliers owned by the user.
+        products (relationship): Relationship to the products owned by the user.
     """
     __tablename__ = "users"
     id = Column(Integer, primary_key=True, index=True)
@@ -32,29 +34,30 @@ class User(Base):
     suppliers = relationship("Supplier", back_populates="owner")
     products = relationship("Product", back_populates="owner")
 
+
 class Credential(Base):
     """
     Represents sensitive user credentials and contact information.
     This table is used for authentication and private communication.
 
     Attributes:
-        id (str): Unique identifier for the credentials.
-        user_id (str): The user's unique username.
-
+        id (int): Unique identifier for the credentials.
+        user_id (int): Foreign key to the user profile.
         username (str): The user's unique username.
-        hashed_password (str): The hashing to match for login.
+        email (str): The user's unique email address.
+        cell_number (str): The user's cell number.
+        hashed_password (str): The hashed password for login.
     """
     __tablename__ = "credentials"
 
     id = Column(Integer, primary_key=True, index=True)
-    # Link back to the public User profile
     user_id = Column(Integer, ForeignKey("users.id"), unique=True)
 
-    # Sensitive matching/contact fields
     username = Column(String, unique=True, index=True)
     email = Column(String, unique=True, index=True)
     cell_number = Column(String)
     hashed_password = Column(String)
+
 
 class Match(Base):
     """
@@ -68,18 +71,18 @@ class Match(Base):
         start_datetime (datetime): The datetime of the match.
         date_modified (datetime): The last time the match was modified.
         location (str): The location of the match.
-        latitude (double): The latitude of the match.
-        longitude (double): The longitude of the match.
+        latitude (float): The latitude of the match.
+        longitude (float): The longitude of the match.
         roster_size (int): The maximum number of players for the match.
         cost (str): The cost to participate in the match.
-        host_id (str): Foreign key to the user who is hosting the match.
+        host_id (int): Foreign key to the user who is hosting the match.
         is_cancelled (bool): Whether the match has been cancelled.
         host (relationship): Relationship to the user hosting the match.
         players (relationship): Relationship to the players participating in the match.
     """
     __tablename__ = "matches"
 
-    id = Column(String, primary_key=True, index=True, default=f"m_{uuid.uuid4().hex[:8]}")
+    id = Column(String, primary_key=True, index=True, default=lambda: f"m_{uuid.uuid4().hex[:8]}")
     title = Column(String)
     sport = Column(String)
     duration = Column(String)
@@ -96,6 +99,7 @@ class Match(Base):
     host = relationship("User", back_populates="matches_hosted")
     players = relationship("MatchPlayer", back_populates="match", cascade="all, delete-orphan")
 
+
 class MatchPlayer(Base):
     """
     Represents a player participating in a match.
@@ -103,7 +107,7 @@ class MatchPlayer(Base):
     Attributes:
         id (int): Unique identifier for the match player entry.
         match_id (str): Foreign key to the match.
-        user_id (str): Foreign key to the user.
+        user_id (int): Foreign key to the user.
         status (str): The status of the player (e.g., 'confirmed', 'pending').
         date_modified (datetime): The last time the entry was modified.
         match (relationship): Relationship to the match.
@@ -118,12 +122,13 @@ class MatchPlayer(Base):
 
     match = relationship("Match", back_populates="players")
 
+
 class Supplier(Base):
     """
     Represents a supplier of services or products.
 
     Attributes:
-        id (int): Unique identifier for the supplier.
+        id (str): Unique identifier for the supplier.
         user_id (int): Foreign key to the user who owns this supplier entry.
         business_name (str): The name of the business.
         description (str): A description of the services or products offered.
@@ -147,8 +152,9 @@ class Supplier(Base):
     owner = relationship("User", back_populates="suppliers")
 
     __table_args__ = (
-        Index('idx_supplier_location', 'latitude', 'longitude'),
+        Index("idx_supplier_location", "latitude", "longitude"),
     )
+
 
 class Product(Base):
     """
@@ -160,12 +166,14 @@ class Product(Base):
         title (str): The title of the product.
         description (str): A detailed description of the product.
         product_type (str): The type of product listing (defaults to 'advertising').
-        tags (str or JSON): Stored tags associated with the product.
+        tags (list or JSON): Stored tags associated with the product.
         latitude (float): The latitude of the product's location.
         longitude (float): The longitude of the product's location.
         service_radius (float): The delivery or pickup radius in meters/kilometers.
-        image_url (str): Path or URL to the uploaded product image.
+        is_available (bool): Whether the product is currently available.
         owner (relationship): Relationship to the user who owns this product entry.
+        images (relationship): Relationship to associated product images.
+        reviews (relationship): Relationship to reviews for this product.
     """
     __tablename__ = "products"
 
@@ -185,8 +193,9 @@ class Product(Base):
     reviews = relationship("Review", back_populates="product", cascade="all, delete-orphan")
 
     __table_args__ = (
-        Index('idx_product_location', 'latitude', 'longitude'),
+        Index("idx_product_location", "latitude", "longitude"),
     )
+
 
 class Images(Base):
     __tablename__ = "images"
@@ -195,13 +204,14 @@ class Images(Base):
     product_id = Column(String, ForeignKey("products.id", ondelete="CASCADE"), nullable=False)
     image_url = Column(String, nullable=False)
 
-    # Optional: Relationship back to the product
     product = relationship("Product", back_populates="images")
+
 
 class ReviewState(str, enum.Enum):
     PENDING = "pending"
     ACCEPTED = "accepted"
     REJECTED = "rejected"
+
 
 class Review(Base):
     """
@@ -213,7 +223,9 @@ class Review(Base):
         user_id (int): Foreign key to the customer who submitted the proof-of-service.
         rating (int): Binary sentiment rating (-1 for negative/issue, +1 for positive vouch).
         comment (str): Optional text feedback or note.
-        image_url (str): Path to the uploaded proof-of-service image.
+        latitude (float): Latitude where the review/proof was submitted.
+        longitude (float): Longitude where the review/proof was submitted.
+        state (ReviewState): Moderation/verification state of the review.
         created_at (DateTime): Timestamp when the review was submitted.
     """
     __tablename__ = "reviews"
@@ -221,7 +233,7 @@ class Review(Base):
     id = Column(String, primary_key=True, default=lambda: f"rv_{uuid.uuid4().hex[:8]}")
     product_id = Column(String, ForeignKey("products.id", ondelete="CASCADE"), nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    rating = Column(Integer, nullable=False)  # Expected values: -1 or 1
+    rating = Column(Integer, nullable=False)
     comment = Column(String, nullable=True)
     latitude = Column(REAL, nullable=False)
     longitude = Column(REAL, nullable=False)
@@ -230,30 +242,81 @@ class Review(Base):
         SQLEnum(ReviewState),
         nullable=False,
         default=ReviewState.PENDING,
-        server_default=ReviewState.PENDING.value
+        server_default=ReviewState.PENDING.value,
     )
 
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
 
-    # Relationships
     product = relationship("Product", back_populates="reviews")
-    owner = relationship("User") # The customer who wrote the review
+    owner = relationship("User")
+
+
+class RoomType(str, enum.Enum):
+    PRODUCT = "product"
+    SUPPLIER = "supplier"
+    MATCH = "match"
+
+
+class ChatRoom(Base):
+    """
+    Represents a dedicated chat room decoupled from product, supplier, or match IDs.
+    """
+    __tablename__ = "chat_rooms"
+
+    id = Column(String, primary_key=True, default=lambda: f"rm_{uuid.uuid4().hex[:10]}")
+    room_type = Column(SQLEnum(RoomType), nullable=False, index=True)
+    context_id = Column(String, nullable=False, index=True)
+    created_at = Column(DateTime, server_default=func.now(), nullable=False)
+
+    participants = relationship(
+        "ChatParticipant", back_populates="room", cascade="all, delete-orphan"
+    )
+    messages = relationship(
+        "Message", back_populates="room", cascade="all, delete-orphan"
+    )
+
+    __table_args__ = (
+        Index("idx_chat_room_type_context", "room_type", "context_id"),
+    )
+
+
+class ChatParticipant(Base):
+    """
+    Tracks which users belong to a chat room and their role in that context.
+    """
+    __tablename__ = "chat_participants"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    room_id = Column(
+        String, ForeignKey("chat_rooms.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    user_id = Column(
+        Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    role = Column(String, default="member", nullable=False)
+    joined_at = Column(DateTime, server_default=func.now(), nullable=False)
+
+    room = relationship("ChatRoom", back_populates="participants")
+    user = relationship("User")
+
+    __table_args__ = (
+        Index("uq_chat_participant_room_user", "room_id", "user_id", unique=True),
+    )
+
 
 class Message(Base):
     """
-    Represents messages sent from a user.
-
-    Attributes:
-        id (str): Unique identifier for the review.
-        room_id (str): link between product/service users and users who sent the message.
-        sender_id (int): which user sent the message.
-        content (text): what is being sent.
-        timestamp (datetime): timestamp sent.
+    Represents messages sent inside a chat room.
     """
     __tablename__ = "messages"
 
-    id = Column(String, primary_key=True) # e.g., msg_uuid
-    room_id = Column(String, index=True, nullable=False) # e.g., match_id or chat room hash
+    id = Column(String, primary_key=True)
+    room_id = Column(
+        String, ForeignKey("chat_rooms.id", ondelete="CASCADE"), index=True, nullable=False
+    )
     sender_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     content = Column(Text, nullable=False)
-    timestamp = Column(DateTime, default=lambda: func.now(), index=True)
+    timestamp = Column(DateTime, default=func.now(), index=True)
+
+    room = relationship("ChatRoom", back_populates="messages")
+    sender = relationship("User")

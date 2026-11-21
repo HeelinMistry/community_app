@@ -47,8 +47,6 @@ final class ChatUseCasesMock: ChatUseCaseProtocol, @unchecked Sendable {
         fatalError("Result not set in ChatUseCaseProtocol")
     }
     
-    
-    
     // MARK: - Connect
     var connectResult: Result<Void, Error>? = .success(())
     var connectCallCount = 0

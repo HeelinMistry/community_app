@@ -69,6 +69,14 @@ public final class RegistrationViewModel: RegistrationViewModelProtocol {
                 cellNumber: "0738290907",
                 password: "password12345"
             ) 
+        } else if username == "3" {
+            registerRequest = RegisterRequest(
+                username: "test_user_3",
+                displayName: "Test User 3",
+                email: "test@test3.com",
+                cellNumber: "0726768678",
+                password: "password56847"
+            ) 
         } else { 
             registerRequest = RegisterRequest(
                 username: username,

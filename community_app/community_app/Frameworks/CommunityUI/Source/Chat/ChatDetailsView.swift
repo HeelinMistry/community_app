@@ -62,15 +62,14 @@ public struct ChatDetailsView<T: ChatDetailsViewModelProtocol & ObservableObject
                         ForEach(viewModel.messages) { message in
                             MessageBubbleView(
                                 message: message,
-                                isFromCurrentUser: true
-//                                isFromCurrentUser: message.senderId == viewModel.currentUserId
+                                isFromCurrentUser: message.is_mine
                             )
                             .id(message.id)
                         }
                     }
                     .padding()
                 }
-                .onChange(of: viewModel.messages.count) { _ in
+                .onChange(of: viewModel.messages.count) { 
                     if let lastId = viewModel.messages.last?.id {
                         withAnimation {
                             proxy.scrollTo(lastId, anchor: .bottom)
@@ -86,10 +85,9 @@ public struct ChatDetailsView<T: ChatDetailsViewModelProtocol & ObservableObject
                 TextField("Type a message...", text: $viewModel.inputText, axis: .vertical)
                     .textFieldStyle(.roundedBorder)
                     .lineLimit(1...4)
-                
-                Button(action: {
-                    viewModel.sendMessage()
-                }) {
+                Button { 
+                    viewModel.sendMessage() 
+                } label: { 
                     Image(systemName: "paperplane.fill")
                         .foregroundColor(.white)
                         .padding(10)

@@ -87,18 +87,28 @@ public nonisolated struct ChatDetailResponse: Sendable, Equatable, Encodable, De
     }
 }
 
+/// A chronological list of chat messages in a conversation.
 public typealias ChatHistory = [ChatMessage]
 
+/// Represents a single chat message sent or received in a conversation.
 public nonisolated struct ChatMessage: Identifiable, Codable, Equatable, Sendable {
+    /// Unique identifier for the message, mapped from ``messageId``.
     public var id: String { messageId }
+    /// Server-assigned identifier for the message.
     public let messageId: String
-    public let senderId: Int
+    /// Indicates whether the current user sent the message.
+    public let is_mine: Bool
+    /// Display name of the message sender.
+    public let sender_name: String
+    /// Text body of the message.
     public let content: String
+    /// ISO or formatted timestamp string for when the message was created.
     public let timestamp: String
     
     enum CodingKeys: String, CodingKey {
         case messageId = "message_id"
-        case senderId = "sender_id"
+        case sender_name = "sender_name"
+        case is_mine
         case content
         case timestamp
     }
