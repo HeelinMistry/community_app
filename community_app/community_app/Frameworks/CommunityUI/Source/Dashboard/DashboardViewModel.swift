@@ -21,6 +21,7 @@ public protocol DashboardViewModelProtocol: StateDrivenViewModel where DataType 
     var dashboardModel: DashboardModel { get }
     
     func requestLocationAuthorization() async
+    func getChats() async
     
     func matchFeed()
     func createMatchTapped()
@@ -30,6 +31,9 @@ public protocol DashboardViewModelProtocol: StateDrivenViewModel where DataType 
     
     func createSupplierTapped()
     func createProductTapped()
+    
+    func productTapped(productID: String)
+    func chatTapped(roomID: String)
 }
 
 @MainActor
@@ -43,9 +47,13 @@ public final class DashboardViewModel: DashboardViewModelProtocol {
     
     @Published public private(set) var isSheetPresent: Bool
     
+    @Published var messages: [[String: Any]] = []
+    @Published var isConnected = false
+    
     private let router: NavigationRouter
     private let useCases: any DashboardUseCasesProvider
     private var fetchTask: Task<Void, Never>?
+    private var webSocketTask: URLSessionWebSocketTask?
     
     private var cancellables = Set<AnyCancellable>()
     
@@ -133,6 +141,28 @@ public final class DashboardViewModel: DashboardViewModelProtocol {
         }
     }
     
+    public func getChats() async {
+        if state == .loading {
+            return
+        }
+        
+        fetchTask?.cancel()
+        state = .loading
+        fetchTask = Task {
+            do {
+                let response: Chats = try await useCases.chats.userRelatedChats()
+                if !Task.isCancelled {
+                    dashboardModel.update(chats: response)
+                    state = .success(dashboardModel)
+                }
+            } catch {
+                if !Task.isCancelled {
+                    self.state = .error(error.localizedDescription)
+                }
+            }
+        }
+    }
+    
     public func nearbySuppliers() {
         if state == .loading {
             return
@@ -205,4 +235,13 @@ public final class DashboardViewModel: DashboardViewModelProtocol {
     public func createProductTapped() {
         router.sheet = .advertiseProduct
     }
+    
+    public func productTapped(productID: String) {
+        router.navigate(to: .productDetail(product_id: productID))
+    }
+
+    public func chatTapped(roomID: String) {
+        router.navigate(to: .chatDetail(room_id: roomID))
+    }
+
 }

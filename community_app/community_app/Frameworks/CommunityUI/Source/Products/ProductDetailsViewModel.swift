@@ -131,6 +131,10 @@ public final class ProductDetailsViewModel: ProductDetailsViewModelProtocol {
         }
     }
     
+    public func chat() {
+        router.navigate(to: .chatDetail(room_id: product_id))
+    }
+    
     private func incompleteForm() {
         var errors: [String: String] = [:]
         if title.isEmpty { errors["title"] = "Title is required" }

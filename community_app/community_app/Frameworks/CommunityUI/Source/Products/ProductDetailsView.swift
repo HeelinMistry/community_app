@@ -224,6 +224,16 @@ public struct ProductDetailsView<T: ProductDetailsViewModelProtocol>: View {
                                 .tint(Assets.theme.primaryAccent)
                             } else {
                                 Button {
+                                    viewModel.chat()
+                                } label: {
+                                    Label("Chat", systemImage: "message.circle.fill")
+                                        .frame(maxWidth: .infinity)
+                                }
+                                .buttonStyle(.borderedProminent)
+                                .controlSize(.large)
+                                .tint(Assets.theme.primaryAccent)
+                                
+                                Button {
                                     router.sheet = .reviewProduct(product.id)
                                 } label: {
                                     Label("Review", systemImage: "pencil.circle.fill")

@@ -21,7 +21,7 @@ public final class ReviewRepository: ReviewRepositoryProtocol {
         do {
             let dto: CreateReviewResponse = try await networkClient.fetch(from: CommunityEndpoint.createReview(req))
             let imageRequest = ImagesRequest(requestId: dto.review_id, category: .reviews)
-            let imageResponse: ImagesResponse = try await networkClient.upload(
+            let _: ImagesResponse = try await networkClient.upload(
                 to: CommunityEndpoint.uploadImages(imageRequest),
                 images: images,
                 fileParameterName: "files" 

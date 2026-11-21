@@ -46,6 +46,8 @@ public final class LoginViewModel: LoginViewModelProtocol {
             loginRequest = LoginRequest(username: "test_user", password: "password123")
         } else if username == "2" {
             loginRequest = LoginRequest(username: "test_user_2", password: "password12345")
+        } else if username == "3" {
+            loginRequest = LoginRequest(username: "test_user_3", password: "password56847")
         } else {
             loginRequest = LoginRequest(username: username, password: password)
         }

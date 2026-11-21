@@ -13,6 +13,8 @@ public protocol DashboardUseCasesProvider: Sendable {
     
     @MainActor var products: ProductUseCasesProtocol { get }
     
+    @MainActor var chats: ChatUseCaseProtocol { get }
+    
     /// Provides access to location-specific use case operations.
     @MainActor var location: LocationProtocol { get }
 }

@@ -8,7 +8,7 @@
 import Foundation
 
 /// A configuration structure for network requests, defining base URL and logging behavior.
-public struct NetworkConfiguration {
+public struct NetworkConfiguration: Sendable {
     /// The base URL for all network requests.
     public let baseURL: URL
     /// A boolean indicating whether sensitive data should be logged.
@@ -21,5 +21,18 @@ public struct NetworkConfiguration {
     public init(baseURL: URL, shouldLogSensitiveData: Bool) {
         self.baseURL = baseURL
         self.shouldLogSensitiveData = shouldLogSensitiveData
+    }
+    
+    /// Automatically derives the WebSocket base URL from the `baseURL` scheme (http -> ws, https -> wss).
+    public var websocketURL: URL? {
+        var components = URLComponents(url: baseURL, resolvingAgainstBaseURL: true)
+        
+        if components?.scheme == "https" {
+            components?.scheme = "wss"
+        } else if components?.scheme == "http" {
+            components?.scheme = "ws"
+        }
+        
+        return components?.url
     }
 }

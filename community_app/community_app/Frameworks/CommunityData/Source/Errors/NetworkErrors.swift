@@ -20,7 +20,7 @@ public enum NetworkError: Error, LocalizedError, Equatable {
         case .invalidURL: return "The URL provided was invalid."
         case .serverError(let code): return "Server returned an error: \(code)."
         case .customError(let description): return description
-        case .decodingFailed: return "Failed to parse the weather data."
+        case .decodingFailed: return "Failed to parse the model data."
         case .noData: return "No data was returned from the server."
         case .unknown(let error): return error.localizedDescription
         }
